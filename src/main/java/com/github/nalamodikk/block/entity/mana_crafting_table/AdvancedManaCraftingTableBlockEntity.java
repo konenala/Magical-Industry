@@ -1,6 +1,13 @@
 package com.github.nalamodikk.block.entity.mana_crafting_table;
 
+import com.github.nalamodikk.screen.mana_crafting_table.AdvancedManaCraftingTableMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -10,7 +17,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class AdvancedManaCraftingTableBlockEntity extends BaseManaCraftingTableBlockEntity {
+public class AdvancedManaCraftingTableBlockEntity extends BaseManaCraftingTableBlockEntity implements MenuProvider {
     // 使用 BaseManaCraftingTableBlockEntity 中的 mana 變量
     private final ItemStackHandler inputHandler = new ItemStackHandler(9) {
         @Override
@@ -67,4 +74,14 @@ public class AdvancedManaCraftingTableBlockEntity extends BaseManaCraftingTableB
         outputHandlerOptional.invalidate();
     }
 
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.magical_industry.advanced_mana_crafting_table");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new AdvancedManaCraftingTableMenu(containerId, playerInventory, this);
+    }
 }

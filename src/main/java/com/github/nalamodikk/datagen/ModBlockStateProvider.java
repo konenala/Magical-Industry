@@ -28,7 +28,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 new ModelFile.UncheckedModelFile(modLoc("block/mana_crafting_table")));
 
         simpleBlockWithItem(ModBlocks.ADVANCED_MANA_CRAFTING_TABLE_BLOCK.get(),
-                new ModelFile.UncheckedModelFile(modLoc("block/advanced_mana_crafting_table")));
+                new ModelFile.UncheckedModelFile(modLoc("block/mana_crafting_table")));
 
         /*
         blockWithItem(ModBlocks.SAPPHIRE_ORE);

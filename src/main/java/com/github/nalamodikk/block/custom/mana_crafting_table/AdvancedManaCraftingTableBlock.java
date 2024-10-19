@@ -2,10 +2,12 @@ package com.github.nalamodikk.block.custom.mana_crafting_table;
 
 import com.github.nalamodikk.MagicalIndustryMod;
 import com.github.nalamodikk.block.entity.mana_crafting_table.AdvancedManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -20,17 +22,18 @@ public class AdvancedManaCraftingTableBlock extends BaseEntityBlock {
         super(properties);
     }
 
-
-    public InteractionResult use(BlockState state, Level world, BlockPos pos, ServerPlayer player, InteractionHand hand, BlockHitResult hit) {
-        if (!world.isClientSide) {
+    @Override
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (!world.isClientSide && player instanceof ServerPlayer) {
+            // 打開合成界面
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof AdvancedManaCraftingTableBlockEntity) {
-                NetworkHooks.openScreen(player, (AdvancedManaCraftingTableBlockEntity) blockEntity, pos);
+                NetworkHooks.openScreen((ServerPlayer) player, (AdvancedManaCraftingTableBlockEntity) blockEntity, pos);
             } else {
-                throw new IllegalStateException("Missing BlockEntity!");
+                throw new IllegalStateException("Our container provider is missing!");
             }
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;  // 返回成功表示成功處理交互
     }
 
     @Nullable

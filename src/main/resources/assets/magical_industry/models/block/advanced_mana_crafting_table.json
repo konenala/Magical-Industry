@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"4": "magical_industry:block/advanced_mana_crafting_table,png",
-		"particle": "magical_industry:block/advanced_mana_crafting_table,png"
+		"4": "magical_industry:block/advanced_mana_crafting_table",
+		"particle": "magical_industry:block/advanced_mana_crafting_table"
 	},
 	"elements": [
 		{
