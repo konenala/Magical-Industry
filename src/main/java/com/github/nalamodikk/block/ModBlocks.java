@@ -1,6 +1,7 @@
 package com.github.nalamodikk.block;
 
-import com.github.nalamodikk.block.custom.mana_crafting_table.ManaCraftingTableBlock;
+import com.github.nalamodikk.block.custom.mana_crafting_table.AdvancedManaCraftingTableBlock;
+import com.github.nalamodikk.block.custom.mana_crafting_table.BaseManaCraftingTableBlock;
 import com.github.nalamodikk.item.ModItems;
 import com.github.nalamodikk.MagicalIndustryMod;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -26,7 +27,11 @@ public class ModBlocks {
             () -> new Block(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK)));
 
     public static final RegistryObject<Block> MANA_CRAFTING_TABLE_BLOCK = registerBlock("mana_crafting_table",
-            () -> new ManaCraftingTableBlock(BlockBehaviour.Properties.copy(Blocks.BIRCH_WOOD)));
+            () -> new BaseManaCraftingTableBlock(BlockBehaviour.Properties.copy(Blocks.BIRCH_WOOD)));
+
+    public static final RegistryObject<Block> ADVANCED_MANA_CRAFTING_TABLE_BLOCK = registerBlock("advanced_mana_crafting_table",
+            () -> new AdvancedManaCraftingTableBlock(BlockBehaviour.Properties.copy(Blocks.BIRCH_WOOD)));
+
 
 
     // 新增魔法礦物的註冊

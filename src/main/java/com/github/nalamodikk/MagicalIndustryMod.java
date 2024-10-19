@@ -1,13 +1,13 @@
 package com.github.nalamodikk;
 
 import com.github.nalamodikk.block.ModBlocks;
-import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.block.entity.ModBlockEntities;
 import com.github.nalamodikk.Capability.ModCapabilities;  // 新增的导入
+import com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity;
 import com.github.nalamodikk.item.ModCreativeModTabs;
 import com.github.nalamodikk.item.ModItems;
 import com.github.nalamodikk.recipe.ModRecipes;
-import com.github.nalamodikk.screen.ManaCraftingScreen;
+import com.github.nalamodikk.screen.mana_crafting_table.BaseManaCraftingScreen;
 import com.github.nalamodikk.screen.ModMenusTypes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -77,12 +77,12 @@ public class MagicalIndustryMod {
         LOGGER.info("HELLO from server starting");
     }
 
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
+    // 附加 Capability 给 BaseManaCraftingTableBlockEntity
+    // 附加 Capability 给 BaseManaCraftingTableBlockEntity
     @SubscribeEvent
     public void attachCapabilities(AttachCapabilitiesEvent<?> event) {
-        if (event.getObject() instanceof ManaCraftingTableBlockEntity blockEntity) {
-            event.addCapability(new ResourceLocation(MOD_ID, "mana"), new ManaCraftingTableBlockEntity.Provider(blockEntity));
+        if (event.getObject() instanceof BaseManaCraftingTableBlockEntity blockEntity) {
+            event.addCapability(new ResourceLocation(MOD_ID, "mana"), new BaseManaCraftingTableBlockEntity.Provider(blockEntity));
         }
     }
 
@@ -93,7 +93,9 @@ public class MagicalIndustryMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // 客户端设置
-            MenuScreens.register(ModMenusTypes.MANA_CRAFTING_MENU.get(), ManaCraftingScreen::new);
+            MenuScreens.register(ModMenusTypes.BASE_MANA_CRAFTING_MENU.get(), BaseManaCraftingScreen::new);
+            MenuScreens.register(ModMenusTypes.ADVANCED_MANA_CRAFTING_TABLE_MENU.get(), BaseManaCraftingScreen::new);
+
         }
     }
 }

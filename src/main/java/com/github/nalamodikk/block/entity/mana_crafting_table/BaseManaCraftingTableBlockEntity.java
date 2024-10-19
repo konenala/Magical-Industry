@@ -5,7 +5,8 @@ import com.github.nalamodikk.Capability.ManaStorage;
 import com.github.nalamodikk.Capability.ModCapabilities;
 import com.github.nalamodikk.block.entity.ModBlockEntities;
 import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
-import com.github.nalamodikk.screen.ManaCraftingMenu;
+import com.github.nalamodikk.screen.ModMenusTypes;
+import com.github.nalamodikk.screen.mana_crafting_table.BaseManaCraftingMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -32,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuProvider {
+public class BaseManaCraftingTableBlockEntity extends BlockEntity implements MenuProvider {
     private final ItemStackHandler itemHandler = new ItemStackHandler(10) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -53,7 +54,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     public static final int MAX_MANA = 1000;
     private static final int MANA_COST_PER_CRAFT = 50;
 
-    public ManaCraftingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
+    public BaseManaCraftingTableBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.MANA_CRAFTING_TABLE_BLOCK_BE.get(), pPos, pBlockState);
     }
 
@@ -122,8 +123,6 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         // 添加魔力
         this.getCapability(ModCapabilities.MANA).ifPresent(mana -> {
             mana.addMana(amount);
-            // System.out.println("Mana added: " + amount + ", Current Mana: " + mana.getMana());
-
             setChanged(); // 通知伺服器端數據已更改
 
             // 更新客戶端
@@ -142,17 +141,10 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     // 消耗魔力
     public void consumeMana(int amount) {
         manaStorage.consumeMana(amount);
-
-        // System.out.println("Mana consumed: " + amount + ", Current Mana: " + manaStorage.getMana());
         setChanged(); // 通知服务器数据已经更改
         if (!level.isClientSide()) {
             BlockState state = level.getBlockState(worldPosition);
             level.sendBlockUpdated(worldPosition, state, state, 3); // 触发客户端更新
-        }
-        if (!level.isClientSide()) {
-            setChanged();
-            BlockState state = level.getBlockState(worldPosition);
-            level.sendBlockUpdated(worldPosition, state, state, 3); // 確保數據變更通知客戶端
         }
     }
 
@@ -224,7 +216,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new ManaCraftingMenu(pContainerId, pPlayerInventory, itemHandler, ContainerLevelAccess.create(this.level, this.worldPosition), this.level);
+        return new BaseManaCraftingMenu(ModMenusTypes.ADVANCED_MANA_CRAFTING_TABLE_MENU.get(), pContainerId, pPlayerInventory, itemHandler, ContainerLevelAccess.create(this.level, this.worldPosition), this.level, this);
     }
 
     @Override
@@ -242,10 +234,10 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     }
 
     public static class Provider implements ICapabilityProvider {
-        private final ManaCraftingTableBlockEntity blockEntity;
+        private final BaseManaCraftingTableBlockEntity blockEntity;
         private final LazyOptional<IMana> manaOptional;
 
-        public Provider(ManaCraftingTableBlockEntity blockEntity) {
+        public Provider(BaseManaCraftingTableBlockEntity blockEntity) {
             this.blockEntity = blockEntity;
             this.manaOptional = LazyOptional.of(() -> blockEntity.manaStorage);
         }

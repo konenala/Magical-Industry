@@ -1,61 +1,48 @@
-package com.github.nalamodikk.screen;
+package com.github.nalamodikk.screen.mana_crafting_table;
 
-import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity;
 import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
+import com.github.nalamodikk.screen.ModMenusTypes;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class ManaCraftingMenu extends AbstractContainerMenu {
-    private final ManaCraftingTableBlockEntity blockEntity;
+public class BaseManaCraftingMenu extends AbstractContainerMenu {
+    private final BaseManaCraftingTableBlockEntity blockEntity;
     private final ContainerLevelAccess access;
     private final IItemHandler itemHandler;
     private final DataSlot manaStored = DataSlot.standalone();
     private static final Logger LOGGER = LogManager.getLogger();
-
 
     public static final int OUTPUT_SLOT = 9;
     public static final int INPUT_SLOT_START = 0;
     public static final int INPUT_SLOT_END = 8;
     private static final int MANA_COST_PER_CRAFT = 50;
 
-    public ManaCraftingTableBlockEntity getBlockEntity() {
+    public BaseManaCraftingTableBlockEntity getBlockEntity() {
         return blockEntity;
     }
 
-    public ManaCraftingMenu(int containerId, Inventory playerInventory, IItemHandler itemHandler, ContainerLevelAccess access, Level level) {
-        super(ModMenusTypes.MANA_CRAFTING_MENU.get(), containerId);
+    public BaseManaCraftingMenu(@NotNull MenuType<AdvancedManaCraftingTableMenu> advancedManaCraftingTableMenuMenuType, int containerId, Inventory playerInventory, IItemHandler itemHandler, ContainerLevelAccess access, Level level, BaseManaCraftingTableBlockEntity blockEntity) {
+        super(ModMenusTypes.BASE_MANA_CRAFTING_MENU.get(), containerId);
         this.access = access;
         this.itemHandler = itemHandler;
+        this.blockEntity = blockEntity;
 
-        // 初始化 blockEntity 變量
-        this.blockEntity = access.evaluate((world, pos) -> {
-            if (world != null) {
-                BlockEntity entity = world.getBlockEntity(pos);
-                if (entity instanceof ManaCraftingTableBlockEntity) {
-                    return (ManaCraftingTableBlockEntity) entity;
-                }
-            }
-            return null;
-        }).orElse(null);
-
-// 如果 blockEntity 為空，記錄警告日誌
+        // 如果 blockEntity 為空，記錄警告日誌
         if (this.blockEntity == null) {
-           // System.out.println("Warning: ManaCraftingTableBlockEntity could not be found at the specified position");
+            LOGGER.warn("Warning: BaseManaCraftingTableBlockEntity could not be found at the specified position");
         }
 
         // 設置 3x3 合成槽
@@ -94,10 +81,6 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
 
                 super.onTake(player, stack);
             }
-
-
-
-
         });
 
         // 設置玩家的物品欄槽
@@ -202,9 +185,6 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
         return originalStack;
     }
 
-
-
-
     @Override
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
@@ -219,8 +199,6 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
             }
         }
     }
-
-
 
     @Override
     public boolean stillValid(Player player) {

@@ -42,6 +42,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModBlocks.DEEPSLATE_MAGIC_ORE.get());
 
                         pOutput.accept(ModBlocks.MANA_CRAFTING_TABLE_BLOCK.get());
+                        pOutput.accept(ModBlocks.ADVANCED_MANA_CRAFTING_TABLE_BLOCK.get());
 
 
                     })

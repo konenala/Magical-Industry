@@ -3,7 +3,7 @@ package com.github.nalamodikk.compat;
 import com.github.nalamodikk.MagicalIndustryMod;
 import com.github.nalamodikk.block.ModBlocks;
 import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
-import com.github.nalamodikk.screen.ManaCraftingScreen;
+import com.github.nalamodikk.screen.mana_crafting_table.BaseManaCraftingScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
@@ -57,7 +57,7 @@ public class JEIMagical_IndustryPlugin implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         // 注册 GUI 的点击区域，使玩家能够在 JEI 中点击魔力合成台的配方以查看
-        registration.addRecipeClickArea(ManaCraftingScreen.class, 100, 40, 20, 30,
+        registration.addRecipeClickArea(BaseManaCraftingScreen.class, 100, 40, 20, 30,
                 ManaCraftingTableCategory.MANA_CRAFTING_TYPE);
     }
 }

@@ -1,6 +1,6 @@
 package com.github.nalamodikk.item.debug;
 
-import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -23,7 +23,7 @@ public class ManaDebugToolItem extends Item {
         if (!level.isClientSide()) {
             BlockPos pos = context.getClickedPos();
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof ManaCraftingTableBlockEntity manaBlockEntity) {
+            if (blockEntity instanceof BaseManaCraftingTableBlockEntity manaBlockEntity) {
                 // 增加魔力值以调试
                 manaBlockEntity.addMana(10);
                 System.out.println("Debug: Added 10 Mana. Current Mana: " + manaBlockEntity.getManaStored());

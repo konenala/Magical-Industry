@@ -1,7 +1,7 @@
-package com.github.nalamodikk.screen;
+package com.github.nalamodikk.screen.mana_crafting_table;
 
 import com.github.nalamodikk.MagicalIndustryMod;
-import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -14,12 +14,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu> {
+public class BaseManaCraftingScreen extends AbstractContainerScreen<BaseManaCraftingMenu> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
     private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public ManaCraftingScreen(ManaCraftingMenu container, Inventory inv, Component title) {
+    public BaseManaCraftingScreen(BaseManaCraftingMenu container, Inventory inv, Component title) {
         super(container, inv, title);
         this.imageWidth = 176;  // GUI 界面的宽度
         this.imageHeight = 166;  // GUI 界面的高度
@@ -52,7 +52,7 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
 
         // 使用 menu 中的 getManaStored() 方法獲取當前的魔力存儲量
         int manaStored = this.menu.getManaStored();
-        int maxMana = ManaCraftingTableBlockEntity.MAX_MANA;
+        int maxMana = com.github.nalamodikk.block.entity.mana_crafting_table.BaseManaCraftingTableBlockEntity.MAX_MANA;
         float manaPercentage = (float) manaStored / maxMana;
         int manaHeight = Math.round(manaPercentage * manaBarHeight);
 
@@ -97,7 +97,7 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
 
             // 使用 menu 中的 getManaStored() 方法获取当前的魔力值
             int manaStored = this.menu.getManaStored();
-            int maxMana = ManaCraftingTableBlockEntity.MAX_MANA;
+            int maxMana = BaseManaCraftingTableBlockEntity.MAX_MANA;
 
             // 创建要显示的工具提示内容
             List<Component> tooltip = new ArrayList<>();
