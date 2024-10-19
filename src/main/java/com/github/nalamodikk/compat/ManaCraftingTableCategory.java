@@ -38,7 +38,7 @@ public class ManaCraftingTableCategory implements IRecipeCategory<ManaCraftingTa
         this.background = helper.createDrawable(TEXTURE, 25, 15, 120, 60);
         this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.MANA_CRAFTING_TABLE_BLOCK.get()));
         // 使用完整的魔力条纹理
-        this.manaCostDrawable = helper.createDrawable(MANA_BAR_TEXTURE, 0, 0, 16, 60);  // 使用整张魔力条纹理，指定区域大小
+        this.manaCostDrawable = helper.createDrawable(MANA_BAR_TEXTURE, 0, 0, 16, 16);  // 使用整张魔力条纹理，指定区域大小
     }
 
     @Override

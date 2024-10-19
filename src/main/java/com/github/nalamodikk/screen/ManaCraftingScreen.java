@@ -5,17 +5,20 @@ import com.github.nalamodikk.block.entity.ManaCraftingTableBlockEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu> {
-    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
-    private static final ResourceLocation MANA_BAR_EMPTY = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_empty.png");
     private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
+    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public ManaCraftingScreen(ManaCraftingMenu container, Inventory inv, Component title) {
         super(container, inv, title);
@@ -26,28 +29,12 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         // 渲染背景纹理
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
         guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
-        // 获取魔力条的位置
-        int manaBarX = this.leftPos + 10;
-        int manaBarY = this.topPos + 15;
 
-        // 渲染空的魔力条
-        RenderSystem.setShaderTexture(0, MANA_BAR_EMPTY);
-        guiGraphics.blit(MANA_BAR_EMPTY, manaBarX, manaBarY, 0, 0, 10, 50);
-
-        // 使用 menu 中的 getManaStored() 方法获取当前的魔力存储量
-        int manaStored = this.menu.getManaStored();
-        int maxMana = ManaCraftingTableBlockEntity.MAX_MANA;
-        int manaHeight = (int) ((float) manaStored / maxMana * 50);
-
-        // 渲染满的魔力条
-        if (manaHeight > 0) {
-            RenderSystem.setShaderTexture(0, MANA_BAR_FULL);
-            guiGraphics.blit(MANA_BAR_FULL, manaBarX, manaBarY + (50 - manaHeight), 0, 0, 10, manaHeight);
-        }
+        // 动态渲染魔力条
+        renderManaBar(guiGraphics, partialTicks);
     }
 
     @Override
@@ -56,6 +43,34 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
         guiGraphics.drawString(this.font, this.title.getString(), this.titleLabelX, this.titleLabelY, 4210752, false);
         guiGraphics.drawString(this.font, this.playerInventoryTitle.getString(), 8, this.imageHeight - 94, 4210752, false);
     }
+
+    private void renderManaBar(GuiGraphics guiGraphics, float partialTicks) {
+        // 獲取魔力條的位置
+        int manaBarX = this.leftPos + 11;
+        int manaBarY = this.topPos + 19;
+        int manaBarWidth = 7;
+        int manaBarHeight = 47;
+
+        // 使用 menu 中的 getManaStored() 方法獲取當前的魔力存儲量
+        int manaStored = this.menu.getManaStored();
+        int maxMana = ManaCraftingTableBlockEntity.MAX_MANA;
+        float manaPercentage = (float) manaStored / maxMana;
+        int manaHeight = Math.round(manaPercentage * manaBarHeight);
+
+        // 渲染滿的魔力條部分，使用獨立的滿魔力條圖片
+        if (manaHeight > 0) {
+            // 禁用混合模式來避免透明度問題
+            RenderSystem.disableBlend();
+
+            // 設置紋理顏色為不透明
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+            // 渲染滿魔力條
+            guiGraphics.blit(MANA_BAR_FULL, manaBarX, manaBarY + (manaBarHeight - manaHeight), 0, 0, manaBarWidth, manaHeight);
+        }
+    }
+
+
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
@@ -72,10 +87,10 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
     // 添加一个方法来处理魔力条的鼠标悬停提示
     private void renderManaTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // 魔力条的位置和大小
-        int manaBarX = this.leftPos + 10; // 设置魔力条的 X 位置
-        int manaBarY = this.topPos + 15;  // 设置魔力条的 Y 位置
-        int manaBarWidth = 15;            // 魔力条的宽度
-        int manaBarHeight = 50;           // 魔力条的高度
+        int manaBarX = this.leftPos + 11;
+        int manaBarY = this.topPos + 19;
+        int manaBarWidth = 7;
+        int manaBarHeight = 47;
 
         // 检查鼠标是否在魔力条的范围内
         if (mouseX >= manaBarX && mouseX <= manaBarX + manaBarWidth &&

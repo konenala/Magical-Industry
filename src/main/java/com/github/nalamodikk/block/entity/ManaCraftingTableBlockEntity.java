@@ -173,6 +173,11 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         }
     }
 
+    public void onSlotChanged() {
+        // 檢查並更新合成結果
+        updateCraftingResult();
+    }
+
     private boolean canInsertItemIntoOutputSlot(Item item) {
         return this.itemHandler.getStackInSlot(OUTPUT_SLOT).isEmpty() || this.itemHandler.getStackInSlot(OUTPUT_SLOT).is(item);
     }

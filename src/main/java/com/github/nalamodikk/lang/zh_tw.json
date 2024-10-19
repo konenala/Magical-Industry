@@ -1,0 +1,14 @@
+{
+  "item.magical_industry.mana_dust": "魔法粉",
+  "item.magical_industry.mana_ingot": "魔法錠",
+
+
+
+  "block.magical_industry.mana_crafting_table": "魔力合成台",
+
+  "block.magical_industry.mana_block": "魔法錠磚",
+
+
+  "creativetab.magical_industry_items": "魔法工業-物品",
+  "creativetab.magical_industry_blocks": "魔法工業-方塊"
+}

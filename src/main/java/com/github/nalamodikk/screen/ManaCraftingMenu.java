@@ -5,6 +5,7 @@ import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -13,9 +14,12 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -25,6 +29,8 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final IItemHandler itemHandler;
     private final DataSlot manaStored = DataSlot.standalone();
+    private static final Logger LOGGER = LogManager.getLogger();
+
 
     public static final int OUTPUT_SLOT = 9;
     public static final int INPUT_SLOT_START = 0;
@@ -41,12 +47,20 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
         this.itemHandler = itemHandler;
 
         // 初始化 blockEntity 變量
-        this.blockEntity = (ManaCraftingTableBlockEntity) access.evaluate((world, pos) -> {
+        this.blockEntity = access.evaluate((world, pos) -> {
             if (world != null) {
-                return world.getBlockEntity(pos);
+                BlockEntity entity = world.getBlockEntity(pos);
+                if (entity instanceof ManaCraftingTableBlockEntity) {
+                    return (ManaCraftingTableBlockEntity) entity;
+                }
             }
             return null;
         }).orElse(null);
+
+// 如果 blockEntity 為空，記錄警告日誌
+        if (this.blockEntity == null) {
+           // System.out.println("Warning: ManaCraftingTableBlockEntity could not be found at the specified position");
+        }
 
         // 設置 3x3 合成槽
         for (int i = 0; i < 3; ++i) {
@@ -77,15 +91,14 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
                             blockEntity.getItemHandler().extractItem(i, 1, false);
                         }
 
+                        // 自動更新合成結果
+                        blockEntity.updateCraftingResult(); // 檢查是否能夠再次合成
                     }
-
-
-                    // 自動更新合成結果
-                    blockEntity.updateCraftingResult(); // 檢查是否能夠再次合成
                 }
 
                 super.onTake(player, stack);
             }
+
 
 
 
@@ -105,32 +118,96 @@ public class ManaCraftingMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack originalStack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
+        if (slot == null || !slot.hasItem()) {
+            return ItemStack.EMPTY;
+        }
 
-        if (slot != null && slot.hasItem()) {
-            ItemStack stackInSlot = slot.getItem();
-            originalStack = stackInSlot.copy();
+        ItemStack stackInSlot = slot.getItem();
+        ItemStack originalStack = stackInSlot.copy();
 
-            if (index <= OUTPUT_SLOT) { // 如果是合成槽或输出槽
-                if (!this.moveItemStackTo(stackInSlot, 10, this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
+        // 如果是合成結果槽
+        if (index == OUTPUT_SLOT) {
+            if (blockEntity == null || !blockEntity.hasRecipe()) {
+                return ItemStack.EMPTY;
+            }
+
+            // 嘗試將合成結果移到玩家的物品欄中
+            if (!this.moveItemStackTo(stackInSlot, 10, this.slots.size(), true)) {
+                return ItemStack.EMPTY;
+            }
+
+            // 執行批量合成的邏輯
+            int maxCraftCount = Integer.MAX_VALUE;
+
+            // 計算可以進行的最大合成次數
+            Optional<ManaCraftingTableRecipe> currentRecipe = blockEntity.getCurrentRecipe();
+            if (currentRecipe.isPresent()) {
+                ManaCraftingTableRecipe recipe = currentRecipe.get();
+
+                // 計算材料可以進行合成的最大次數
+                for (int i = INPUT_SLOT_START; i <= INPUT_SLOT_END; i++) {
+                    ItemStack stack = blockEntity.getItemHandler().getStackInSlot(i);
+                    if (!stack.isEmpty()) {
+                        int maxForThisSlot = stack.getCount() / 1; // 每次合成需要 1 個材料
+                        maxCraftCount = Math.min(maxCraftCount, maxForThisSlot);
+                    } else {
+                        maxCraftCount = 0;
+                        break; // 如果某個槽位沒有材料，無法進行合成
+                    }
                 }
-            } else { // 如果是玩家物品栏
-                if (!this.moveItemStackTo(stackInSlot, 0, 9, false)) {
-                    return ItemStack.EMPTY;
+
+                // 計算魔力可以進行合成的最大次數
+                int maxManaCrafts = blockEntity.getManaStored() / recipe.getManaCost();
+                maxCraftCount = Math.min(maxCraftCount, maxManaCrafts);
+
+                // 進行批量合成
+                for (int i = 0; i < maxCraftCount; i++) {
+                    if (blockEntity.hasRecipe() && blockEntity.hasSufficientMana(recipe.getManaCost())) {
+                        blockEntity.craftItem();
+                        ItemStack resultStack = slot.getItem();
+                        if (!this.moveItemStackTo(resultStack, 10, this.slots.size(), true)) {
+                            break; // 如果無法移動合成結果，退出循環
+                        }
+                    } else {
+                        break;
+                    }
                 }
             }
 
-            if (stackInSlot.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
+            slot.onQuickCraft(stackInSlot, originalStack);
+        }
+        // 如果是玩家物品欄的槽位
+        else if (index >= 10) {
+            // 嘗試將物品移動到合成材料槽
+            if (!this.moveItemStackTo(stackInSlot, INPUT_SLOT_START, INPUT_SLOT_END + 1, false)) {
+                return ItemStack.EMPTY;
+            }
+        }
+        // 如果是合成網格的槽位
+        else if (index >= INPUT_SLOT_START && index <= INPUT_SLOT_END) {
+            // 將材料移動到玩家物品欄中
+            if (!this.moveItemStackTo(stackInSlot, 10, this.slots.size(), false)) {
+                return ItemStack.EMPTY;
             }
         }
 
+        if (stackInSlot.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        if (stackInSlot.getCount() == originalStack.getCount()) {
+            return ItemStack.EMPTY;
+        }
+
+        slot.onTake(player, stackInSlot);
         return originalStack;
     }
+
+
+
 
     @Override
     public void slotsChanged(Container container) {

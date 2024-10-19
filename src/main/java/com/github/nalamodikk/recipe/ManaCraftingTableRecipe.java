@@ -44,11 +44,11 @@ public class ManaCraftingTableRecipe implements Recipe<SimpleContainer> {
         }
 
         List<Ingredient> remainingIngredients = new ArrayList<>(inputItems);
-        System.out.println("Starting match test with input items: " + inputItems);
+    //    System.out.println("Starting match test with input items: " + inputItems);
 
         for (int i = 0; i < 9; i++) {
             ItemStack stackInSlot = inv.getItem(i);
-            System.out.println("Checking slot " + i + ": " + stackInSlot);
+      //System.out.println("Checking slot " + i + ": " + stackInSlot);
 
             if (stackInSlot.isEmpty()) {
                 continue;
@@ -60,7 +60,7 @@ public class ManaCraftingTableRecipe implements Recipe<SimpleContainer> {
             while (iterator.hasNext()) {
                 Ingredient ingredient = iterator.next();
                 if (ingredient.test(stackInSlot)) {
-                    System.out.println("Matched ingredient in slot " + i + ": " + stackInSlot);
+                //    System.out.println("Matched ingredient in slot " + i + ": " + stackInSlot);
                     iterator.remove();
                     matched = true;
                     break;
@@ -68,13 +68,13 @@ public class ManaCraftingTableRecipe implements Recipe<SimpleContainer> {
             }
 
             if (!matched) {
-                System.out.println("No match found for slot " + i);
+               // System.out.println("No match found for slot " + i);
                 return false;
             }
         }
 
         boolean allMatched = remainingIngredients.isEmpty();
-        System.out.println("Match result: " + allMatched);
+        //System.out.println("Match result: " + allMatched);
         return allMatched;
     }
 
