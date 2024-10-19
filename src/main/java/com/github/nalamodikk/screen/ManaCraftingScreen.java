@@ -1,11 +1,10 @@
 package com.github.nalamodikk.screen;
 
 import com.github.nalamodikk.MagicalIndustryMod;
-import com.github.nalamodikk.block.entity.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;

@@ -1,11 +1,8 @@
 package com.github.nalamodikk.screen;
 
-import com.github.nalamodikk.block.entity.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -20,7 +17,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 

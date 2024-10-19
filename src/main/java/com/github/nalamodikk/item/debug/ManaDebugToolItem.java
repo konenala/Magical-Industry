@@ -1,6 +1,6 @@
 package com.github.nalamodikk.item.debug;
 
-import com.github.nalamodikk.block.entity.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;

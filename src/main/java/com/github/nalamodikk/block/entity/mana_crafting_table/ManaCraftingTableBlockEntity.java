@@ -1,8 +1,9 @@
-package com.github.nalamodikk.block.entity;
+package com.github.nalamodikk.block.entity.mana_crafting_table;
 
 import com.github.nalamodikk.Capability.IMana;
 import com.github.nalamodikk.Capability.ManaStorage;
 import com.github.nalamodikk.Capability.ModCapabilities;
+import com.github.nalamodikk.block.entity.ModBlockEntities;
 import com.github.nalamodikk.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.screen.ManaCraftingMenu;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;

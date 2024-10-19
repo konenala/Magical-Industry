@@ -2,6 +2,7 @@ package com.github.nalamodikk.block.entity;
 
 import com.github.nalamodikk.MagicalIndustryMod;
 import com.github.nalamodikk.block.ModBlocks;
+import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

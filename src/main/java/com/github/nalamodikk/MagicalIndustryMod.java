@@ -1,7 +1,7 @@
 package com.github.nalamodikk;
 
 import com.github.nalamodikk.block.ModBlocks;
-import com.github.nalamodikk.block.entity.ManaCraftingTableBlockEntity;
+import com.github.nalamodikk.block.entity.mana_crafting_table.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.block.entity.ModBlockEntities;
 import com.github.nalamodikk.Capability.ModCapabilities;  // 新增的导入
 import com.github.nalamodikk.item.ModCreativeModTabs;
@@ -14,7 +14,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.CapabilityManager; // 用于注册 Capability
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent; // 用于附加 Capability
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -25,7 +24,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(MagicalIndustryMod.MOD_ID)
