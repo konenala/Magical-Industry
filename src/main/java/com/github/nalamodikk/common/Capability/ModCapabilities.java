@@ -1,7 +1,6 @@
 package com.github.nalamodikk.common.Capability;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;

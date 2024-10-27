@@ -1,18 +1,24 @@
 package com.github.nalamodikk.common;
 
+import com.github.nalamodikk.client.renderer.ManaGeneratorRenderer;
 import com.github.nalamodikk.common.block.ModBlocks;
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
 import com.github.nalamodikk.common.item.ModItems;
+import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.recipe.ModRecipes;
-import com.github.nalamodikk.common.screen.ManaCraftingScreen;
+import com.github.nalamodikk.common.register.ModMenuScreens;
+import com.github.nalamodikk.common.register.ModRenderers;
+import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingScreen;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent; // 用于附加 Capability
@@ -32,7 +38,7 @@ public class MagicalIndustryMod {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "magical_industry";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
 
     public MagicalIndustryMod() {
@@ -63,6 +69,7 @@ public class MagicalIndustryMod {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         // 通用设置
+        NetworkHandler.init(event);
 
     }
 
@@ -94,7 +101,20 @@ public class MagicalIndustryMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // 客户端设置
-            MenuScreens.register(ModMenusTypes.MANA_CRAFTING_MENU.get(), ManaCraftingScreen::new);
+            ModMenuScreens.registerScreens();
+            ModRenderers.registerBlockEntityRenderers();
+         //   BlockEntityRenderers.register(ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorRenderer::new);
         }
+
+        @SubscribeEvent
+        public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+           // event.registerBlockEntityRenderer(ModBlockEntities.MANA_GENERATOR_BE.get(), rendererContext -> new ManaGeneratorRenderer());
+
+        }
+
     }
+
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.block;
 
+import com.github.nalamodikk.common.block.custom.ManaGeneratorBlock;
 import com.github.nalamodikk.common.block.custom.mana_crafting_table.ManaCraftingTableBlock;
 import com.github.nalamodikk.common.item.ModItems;
 import com.github.nalamodikk.common.MagicalIndustryMod;
@@ -27,6 +28,10 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> MANA_CRAFTING_TABLE_BLOCK = registerBlock("mana_crafting_table",
             () -> new ManaCraftingTableBlock(BlockBehaviour.Properties.copy(Blocks.BIRCH_WOOD)));
+
+    public static final RegistryObject<Block> MANA_GENERATOR = BLOCKS.register("mana_generator",
+            () -> new ManaGeneratorBlock(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion()));
+
 
 
     // 新增魔法礦物的註冊

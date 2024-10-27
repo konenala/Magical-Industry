@@ -1,4 +1,4 @@
-package com.github.nalamodikk.common.screen;
+package com.github.nalamodikk.common.screen.manacrafting;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
@@ -65,7 +65,7 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
             // 渲染滿魔力條
-            guiGraphics.blit(MANA_BAR_FULL, manaBarX, manaBarY + (manaBarHeight - manaHeight), 0, 0, manaBarWidth, manaHeight);
+            guiGraphics.blit(MANA_BAR_FULL, manaBarX, manaBarY + (manaBarHeight - manaHeight), 49, 11, manaBarWidth, manaHeight);
         }
     }
 

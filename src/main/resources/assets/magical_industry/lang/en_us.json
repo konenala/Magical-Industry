@@ -3,13 +3,34 @@
   "item.magical_industry.mana_ingot": "Mana Ingot",
   "item.magical_industry.mana_debug_tool": "Mana Debug Tool",
 
-  "message.magical_industry.mana_added": "Mana increased by 10!",
+  "message.magical_industry.mana_added": "Added %s Mana. Current Mana: %s",
+  "message.magical_industry.mana_mode_changed": "Switched to mode: %s",
+  "message.magical_industry.mana_mode_add_10": "Add 10 Mana",
+  "message.magical_industry.mana_mode_add_100": "Add 100 Mana",
+  "message.magical_industry.mana_mode_add_1000": "Add 1000 Mana",
+
+  "screen.magical_industry.toggle_mode": "Toggle Mode",
+  "screen.magical_industry.current_mode": "Current Mode: %s",
+
+  "mode.magical_industry.mana": "Mana",
+  "mode.magical_industry.energy": "Energy",
+
+  "button.magical_industry.toggle_mode.tooltip_auto": "Automatic Mode",
+  "button.magical_industry.toggle_mode.tooltip_manual": "Manual Mode",
+
 
   "tooltip.magical_industry.mana_stored": "Mana: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "Mana Cost: %1$d",
+  "tooltip.magical_industry.mana_generator.mana": "Mana Stored: %s",
+  "tooltip.magical_industry.mana_generator.status.generating": "Generating",
+  "tooltip.magical_industry.mana_generator.status.stopped": "Stopped",
 
-
+  "block.magical_industry.mana_generator": "Mana Generator",
   "block.magical_industry.mana_crafting_table": "Mana Crafting Table",
+  "block.magical_industry.advanced_mana_crafting_table": "Advanced Mana Crafting Table",
+
+  "button.mode.auto": "auto mode",
+  "button.mode.manual": "manual mode",
 
 
   "block.magical_industry.mana_block": "Mana Block",

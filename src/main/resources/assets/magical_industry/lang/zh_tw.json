@@ -3,19 +3,42 @@
   "item.magical_industry.mana_ingot": "魔法錠",
   "item.magical_industry.mana_debug_tool": "魔力除錯工具",
 
-  "message.magical_industry.mana_added": "法力增加10!",
+
+  "message.magical_industry.mana_added": "增加了 %s 魔力。當前魔力：%s",
+  "message.magical_industry.mana_mode_changed": "切換到模式：%s",
+  "message.magical_industry.mana_mode_add_10": "增加 10 魔力",
+  "message.magical_industry.mana_mode_add_100": "增加 100 魔力",
+  "message.magical_industry.mana_mode_add_1000": "增加 1000 魔力",
+
+  "screen.magical_industry.toggle_mode": "切換模式",
+  "screen.magical_industry.current_mode": "當前模式: %s",
+
+  "mode.magical_industry.mana": "魔力",
+  "mode.magical_industry.energy": "能量",
+
+  "button.magical_industry.toggle_mode.tooltip_auto": "自動模式",
+  "button.magical_industry.toggle_mode.tooltip_manual": "手動模式",
 
   "tooltip.magical_industry.mana_stored": "魔力: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "魔力消耗: %1$d",
+  "tooltip.magical_industry.mana_generator.mana": "儲存的魔力: %s",
+  "tooltip.magical_industry.mana_generator.status.generating": "發電中",
+  "tooltip.magical_industry.mana_generator.status.stopped": "停止",
 
-
+  "block.magical_industry.mana_generator": "魔力發電機",
   "block.magical_industry.mana_crafting_table": "魔力合成台",
+  "block.magical_industry.advanced_mana_crafting_table": "高級魔力合成台",
+
+  "button.mode.auto": "自動模式",
+  "button.mode.manual": "手動模式",
+
 
   "block.magical_industry.mana_block": "魔法錠磚",
 
 
   "creativetab.magical_industry_items": "魔法工業-物品",
   "creativetab.magical_industry_blocks": "魔法工業-方塊"
+
 
 
 }

@@ -1,7 +1,8 @@
-package com.github.nalamodikk.common.screen;
+package com.github.nalamodikk.common.screen.manacrafting;
 
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
+import com.github.nalamodikk.common.screen.ModMenusTypes;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
