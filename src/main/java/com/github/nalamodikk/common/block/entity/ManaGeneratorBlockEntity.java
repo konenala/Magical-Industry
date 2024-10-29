@@ -1,37 +1,33 @@
 package com.github.nalamodikk.common.block.entity;
 
-import com.github.nalamodikk.common.Capability.IMana;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.datagen.ManaGenerationRateLoader;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +38,6 @@ import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInst
 import software.bernie.geckolib.core.animation.*;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.RenderUtils;
-
-import static net.minecraftforge.common.ForgeHooks.getBurnTime;
 
 public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, MenuProvider {
 
@@ -89,18 +83,6 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     private int getBurnTime(ItemStack stack) {
         // 返回特定物品的燃燒時間，這裡使用 Forge 的燃料系統
         return net.minecraftforge.common.ForgeHooks.getBurnTime(stack, RecipeType.SMELTING);
-    }
-
-    private int getManaGenerationRateForFuel(ItemStack stack) {
-        // 根據物品類型返回不同的魔力生成速率
-        if (stack.is(ItemTags.create(new net.minecraft.resources.ResourceLocation("magical_industry", "mana")))) {
-            if (stack.getItem() == Item.byId(1)) { // 例子：假設物品 ID 1 是某種 mana 物品
-                return 50;
-            } else {
-                return 20; // 默認生成速率
-            }
-        }
-        return 0;
     }
 
     public int getCurrentMode() {
@@ -187,25 +169,42 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     private int tickCounter = 0; // 計數器，用於控制燃燒速率
 
+    //  下面這是mana生成速率
+    private int getManaGenerationRateForFuel(ItemStack stack) {
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return ManaGenerationRateLoader.MANA_GENERATION_RATES.getOrDefault(itemId, 0);
+    }
+
+    //  下面這是能量(發電)生成速率
+    private int getEnergyGenerationRateForFuel(ItemStack stack) {
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        return ManaGenerationRateLoader.ENERGY_GENERATION_RATES.getOrDefault(itemId, 0);
+    }
+
+
     public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
         if (!level.isClientSide) {
             if (blockEntity.hasFuel()) {
+                // 如果燃燒時間為 0，意味著需要消耗一個新的燃料
                 if (blockEntity.burnTime <= 0) {
                     ItemStack fuel = blockEntity.fuelHandler.extractItem(0, 1, false);
                     blockEntity.currentBurnTime = blockEntity.getBurnTime(fuel);
                     blockEntity.burnTime = blockEntity.currentBurnTime;
+
+                    // 在燃燒時間重置後才生成能量或魔力
+                    if (blockEntity.currentBurnTime > 0) {
+                        if (blockEntity.currentMode == Mode.MANA) {
+                            blockEntity.manaStorage.addMana(blockEntity.getManaGenerationRateForFuel(fuel));
+                        } else if (blockEntity.currentMode == Mode.ENERGY) {
+                            blockEntity.energyStorage.receiveEnergy(blockEntity.getEnergyGenerationRateForFuel(fuel), false);
+                        }
+                    }
                     blockEntity.setChanged();
                 }
 
+                // 如果還有剩餘燃燒時間，減少燃燒時間
                 if (blockEntity.burnTime > 0) {
                     blockEntity.burnTime--;
-                    if (blockEntity.currentMode == Mode.MANA) {
-                        blockEntity.manaStorage.addMana(blockEntity.getManaGenerationRateForFuel(blockEntity.fuelHandler.getStackInSlot(0)));
-                    } else if (blockEntity.currentMode == Mode.ENERGY) {
-                        blockEntity.energyStorage.receiveEnergy(MANA_GENERATION_RATE, false);
-                        blockEntity.setChanged();  // 保證數據變更後觸發同步
-                        level.sendBlockUpdated(pos, state, state, 3); // 通知客戶端
-                    }
                     blockEntity.isWorking = true;
                 } else {
                     blockEntity.isWorking = false;
@@ -218,6 +217,8 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             }
         }
     }
+
+
 
 
 

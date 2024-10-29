@@ -1,21 +1,18 @@
 package com.github.nalamodikk.common;
 
-import com.github.nalamodikk.client.renderer.ManaGeneratorRenderer;
 import com.github.nalamodikk.common.block.ModBlocks;
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
+import com.github.nalamodikk.common.datagen.ManaGenerationRateLoader;
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
 import com.github.nalamodikk.common.item.ModItems;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.recipe.ModRecipes;
 import com.github.nalamodikk.common.register.ModMenuScreens;
 import com.github.nalamodikk.common.register.ModRenderers;
-import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingScreen;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -62,6 +59,10 @@ public class MagicalIndustryMod {
 
         // 注册创造模式标签的内容
         modEventBus.addListener(this::addCreative);
+
+
+        // 在模組初始化時加載魔力生成速率
+        ManaGenerationRateLoader.loadManaAndEnergyGenerationRates();
 
         // 注册 MinecraftForge 的事件总线
         MinecraftForge.EVENT_BUS.register(this);
