@@ -82,7 +82,7 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
         if (maxEnergy > 0 && energy > 0) {
             int renderHeight = (int) (((float) energy / maxEnergy) * energyBarHeight);
             RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL);
-            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 158, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
+            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 157, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
         }
     }
 
@@ -104,7 +104,7 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
         if (currentBurnTime > 0 && burnTime > 0) {
             int fuelHeight = (int) ((float) burnTime / currentBurnTime * 13);
             RenderSystem.setShaderTexture(0, FUEL_TEXTURE);
-            pGuiGraphics.blit(FUEL_TEXTURE, 56, 36 + 12 - fuelHeight, 0, 12 - fuelHeight, 14, fuelHeight);
+            pGuiGraphics.blit(FUEL_TEXTURE, 56, 36 + 12 - fuelHeight, 36, 36 - fuelHeight, 14, fuelHeight);
         }
     }
 

@@ -91,7 +91,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     private int manaRate = 0;
     private int energyRate = 10; // 默認能量產生速率
     private int baseManaRate = 5; // 默認魔力生成速率
-    private int baseEnergyRate = 10;
+    private int baseEnergyRate ;
     protected static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
     protected static final RawAnimation WORKING_ANIM = RawAnimation.begin().thenLoop("working");
 
@@ -155,7 +155,6 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                         burnTime = net.minecraftforge.common.ForgeHooks.getBurnTime(fuel, null);
                         if (burnTime > 0) {
                             blockEntity.manaRate = 0; // 在能量模式下，Mana 生成率為 0
-                            blockEntity.energyRate = burnTime; // 將燃燒時間作為能量生產速率
                         }
                     }
 
@@ -180,11 +179,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                 } else {
                     blockEntity.isWorking = false; // 沒有燃料或魔力槽已滿
                 }
-            } else {
-                // 如果燃燒時間大於 0，則進行倒計時
+            }
+
+            // 如果燃燒時間大於 0，則進行倒計時
+            if (blockEntity.burnTime > 0) {
                 blockEntity.burnTime--;
-                // 在燃燒時間內不生成魔力或能量，因為我們只在燃燒開始時生成一次
-                blockEntity.isWorking = true; // 設置工作狀態為 true
             }
 
             // 如果燃燒時間結束且無法繼續加載燃料，設置工作狀態為 false
@@ -196,6 +195,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             blockEntity.markUpdated();
         }
     }
+
+
+
+
+
 
 
 
@@ -300,10 +304,36 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
 
     public void toggleMode() {
+        // 切換模式
         this.currentMode = this.currentMode == Mode.MANA ? Mode.ENERGY : Mode.MANA;
-        this.isWorking = false;
+
+        // 保留剩餘的燃燒進度
+        if (this.currentMode == Mode.MANA) {
+            // 切換到 MANA 模式，根據當前燃料重新設定魔力生成速率
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuelHandler.getStackInSlot(0).getItem());
+            FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
+            if (fuelRate != null) {
+                this.manaRate = fuelRate.getManaRate();
+                this.energyRate = 0; // 停止生成能量
+            }
+        } else if (this.currentMode == Mode.ENERGY) {
+            // 切換到 ENERGY 模式，根據當前燃料重新設定能量生成速率
+            this.energyRate = baseEnergyRate; // 假設能量模式下使用一個固定的生成速率
+            this.manaRate = 0; // 停止生成魔力
+        }
+
+        // 保持工作狀態並更新
+        if (this.burnTime > 0) {
+            this.isWorking = true;
+        } else {
+            this.isWorking = false;
+        }
+
+        // 更新狀態
         markUpdated();
     }
+
+
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
