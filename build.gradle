@@ -209,6 +209,29 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+tasks.register('copyGeneratedResources', Copy) {
+    group = 'build'
+    description = 'Copy generated resources to src/generated'
+
+    // 複製來源目錄
+    from('build/resources/main/data/magical_industry/recipes/fuel_rates') {
+        include '**/*' // 包含所有文件
+    }
+    from('build/resources/main/data/magical_industry/rate') {
+        include '**/*' // 包含所有文件
+    }
+
+    // 目標目錄
+    into('src/generated/resources/data/magical_industry') // 複製到 src/generated 下相應的路徑
+
+    // 確保構建過程先完成資源生成
+    dependsOn 'processResources'
+}
+
+// 確保在 processResources 之後執行
+tasks.named('processResources').configure {
+    finalizedBy 'copyGeneratedResources'
+}
 
 // Example for how to get properties into the manifest for reading at runtime.
 tasks.named('jar', Jar).configure {

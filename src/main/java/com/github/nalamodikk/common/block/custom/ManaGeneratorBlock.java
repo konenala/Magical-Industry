@@ -54,14 +54,23 @@ public class ManaGeneratorBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
+        if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
+
+            // 如果是 ManaCraftingTableBlockEntity，掉落物品
+            if (blockEntity instanceof ManaGeneratorBlockEntity) {
+                ((ManaGeneratorBlockEntity) blockEntity).drops();  // 掉落方塊內的物品
+            }
+
+            // 如果是 ManaGeneratorBlockEntity，移除方塊實體
             if (blockEntity instanceof ManaGeneratorBlockEntity) {
                 level.removeBlockEntity(pos);
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);
     }
+
+
 
     //    state, level, pos, newState, isMovin
     @Override
@@ -89,6 +98,7 @@ public class ManaGeneratorBlock extends BaseEntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide ? null : createTickerHelper(type, ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorBlockEntity::tick);
     }
+
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;

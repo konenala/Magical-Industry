@@ -4,7 +4,6 @@ import com.github.nalamodikk.common.block.ModBlocks;
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
-import com.github.nalamodikk.common.datagen.ManaGenerationRateLoader;
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
 import com.github.nalamodikk.common.item.ModItems;
 import com.github.nalamodikk.common.network.NetworkHandler;
@@ -12,11 +11,13 @@ import com.github.nalamodikk.common.recipe.ModRecipes;
 import com.github.nalamodikk.common.register.ModMenuScreens;
 import com.github.nalamodikk.common.register.ModRenderers;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
+import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent; // 用于附加 Capability
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -62,7 +63,6 @@ public class MagicalIndustryMod {
 
 
         // 在模組初始化時加載魔力生成速率
-        ManaGenerationRateLoader.loadManaAndEnergyGenerationRates();
 
         // 注册 MinecraftForge 的事件总线
         MinecraftForge.EVENT_BUS.register(this);
@@ -95,7 +95,12 @@ public class MagicalIndustryMod {
         }
     }
 
-
+    @SubscribeEvent
+    public void onAddReloadListener(AddReloadListenerEvent event) {
+        // 註冊 FuelRateLoader 作為資源重載監聽器
+        event.addListener(new FuelRateLoader());
+        LOGGER.info("Successfully registered FuelRateLoader as a resource reload listener.");
+    }
     // 客户端事件订阅器
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {

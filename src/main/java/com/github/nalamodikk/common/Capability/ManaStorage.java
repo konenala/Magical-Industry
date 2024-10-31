@@ -9,6 +9,11 @@ public class ManaStorage implements IMana {
         this.mana = 0;
     }
 
+    public boolean isFull() {
+        return this.getMana() >= this.getMaxMana();
+    }
+
+
     @Override
     public void addMana(int amount) {
         this.mana = Math.min(this.mana + amount, capacity);
@@ -35,6 +40,11 @@ public class ManaStorage implements IMana {
     @Override
     public void onChanged() {
         // 可以加入一些狀態同步的邏輯，如果需要的話
+    }
+
+    @Override
+    public int getMaxMana() {
+        return capacity;
     }
 }
 

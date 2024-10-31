@@ -2,6 +2,7 @@
   "item.magical_industry.mana_dust": "魔法粉",
   "item.magical_industry.mana_ingot": "魔法錠",
   "item.magical_industry.mana_debug_tool": "魔力除錯工具",
+  "item.magical_industry.corrupted_mana_dust": "汙穢的魔法粉",
 
 
   "message.magical_industry.mana_added": "增加了 %s 魔力。當前魔力：%s",
@@ -25,6 +26,9 @@
   "tooltip.magical_industry.mana_generator.status.generating": "發電中",
   "tooltip.magical_industry.mana_generator.status.stopped": "停止",
 
+  "block.magical_industry.mana_block": "魔法錠磚",
+  "block.magical_industry.magic_ore": "魔法礦",
+  "block.magical_industry.deepslate_magic_ore": "深板岩魔法礦",
   "block.magical_industry.mana_generator": "魔力發電機",
   "block.magical_industry.mana_crafting_table": "魔力合成台",
   "block.magical_industry.advanced_mana_crafting_table": "高級魔力合成台",
@@ -33,7 +37,7 @@
   "button.mode.manual": "手動模式",
 
 
-  "block.magical_industry.mana_block": "魔法錠磚",
+
 
 
   "creativetab.magical_industry_items": "魔法工業-物品",

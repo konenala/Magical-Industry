@@ -4,6 +4,7 @@ import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.entity.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -26,12 +27,15 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
     private final ContainerLevelAccess access;
     private final ContainerData data;
 
-    public ManaGeneratorMenu(int id, Inventory playerInventory, BlockPos pos, Level level, ItemStackHandler itemStackHandler) {
+    public ManaGeneratorMenu(int id, Inventory playerInventory, FriendlyByteBuf data) {
         super(ModMenusTypes.MANA_GENERATOR_MENU.get(), id);
+        BlockPos pos = data.readBlockPos();
+        Level level = playerInventory.player.level();
         this.blockEntity = (ManaGeneratorBlockEntity) level.getBlockEntity(pos);
         this.access = ContainerLevelAccess.create(level, pos);
         this.data = blockEntity.getContainerData();
         this.addDataSlots(this.data);
+
         if (blockEntity != null) {
             IItemHandler blockInventory = blockEntity.getInventory();
             this.addSlot(new SlotItemHandler(blockInventory, 0, 80, 45) {
@@ -47,10 +51,15 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
             });
         }
 
+
+
         // 添加玩家物品欄和快捷欄槽位
         layoutPlayerInventorySlots(playerInventory, 8, 84);
-        addDataSlots(data);
+        addDataSlots(this.data);
     }
+
+
+
 
     private void layoutPlayerInventorySlots(Inventory playerInventory, int leftCol, int topRow) {
         // 玩家物品欄槽位 (3行)

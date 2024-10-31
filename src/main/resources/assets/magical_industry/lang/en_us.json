@@ -2,6 +2,7 @@
   "item.magical_industry.mana_dust": "Mana Dust",
   "item.magical_industry.mana_ingot": "Mana Ingot",
   "item.magical_industry.mana_debug_tool": "Mana Debug Tool",
+  "item.magical_industry.corrupted_mana_dust": "Corrupted Mana Dust",
 
   "message.magical_industry.mana_added": "Added %s Mana. Current Mana: %s",
   "message.magical_industry.mana_mode_changed": "Switched to mode: %s",
@@ -25,6 +26,9 @@
   "tooltip.magical_industry.mana_generator.status.generating": "Generating",
   "tooltip.magical_industry.mana_generator.status.stopped": "Stopped",
 
+  "block.magical_industry.mana_block": "Mana Block",
+  "block.magical_industry.magic_ore": "Magic Ore",
+  "block.magical_industry.deepslate_magic_ore": "Deepslate Magic Ore",
   "block.magical_industry.mana_generator": "Mana Generator",
   "block.magical_industry.mana_crafting_table": "Mana Crafting Table",
   "block.magical_industry.advanced_mana_crafting_table": "Advanced Mana Crafting Table",
@@ -33,7 +37,6 @@
   "button.mode.manual": "manual mode",
 
 
-  "block.magical_industry.mana_block": "Mana Block",
 
 
   "creativetab.magical_industry_items": "Magical Industry Items",

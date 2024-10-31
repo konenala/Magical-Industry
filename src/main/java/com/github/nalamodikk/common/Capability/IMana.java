@@ -7,4 +7,6 @@ public interface IMana {
 
     // 新增此方法用來標記 Capability 的變化
     void onChanged();
+
+    int getMaxMana();
 }

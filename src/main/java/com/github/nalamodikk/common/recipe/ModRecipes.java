@@ -1,6 +1,8 @@
 package com.github.nalamodikk.common.recipe;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.recipe.fuel.FuelRecipe;
+import com.github.nalamodikk.common.recipe.fuel.FuelRecipeBuilder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,6 +24,12 @@ public class ModRecipes {
 
     public static final RegistryObject<RecipeType<ManaCraftingTableRecipe>> MANA_CRAFTING_TYPE =
             TYPES.register("mana_crafting", () -> ManaCraftingTableRecipe.Type.INSTANCE);
+
+    public static final RegistryObject<RecipeSerializer<FuelRecipe>> FUEL_RECIPE_SERIALIZER =
+            SERIALIZERS.register("mana_fuel", () -> FuelRecipe.FuelRecipeSerializer.INSTANCE);
+
+    public static final RegistryObject<RecipeType<FuelRecipe>> FUEL_RECIPE_TYPE =
+            TYPES.register("mana_fuel", () -> FuelRecipe.FuelRecipeType.INSTANCE);
 
     // 註冊方法
     public static void register(IEventBus eventBus) {

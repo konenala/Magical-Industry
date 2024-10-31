@@ -37,7 +37,7 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
 
         // 創建並添加自定義紋理按鈕
         toggleModeButton = new UniversalTexturedButton(
-                x + 140, y + 5, 20, 20,
+                x + 130, y + 25, 20, 20,
                 Component.empty(),
                 BUTTON_TEXTURE, 20, 20,
                 btn -> {
@@ -82,7 +82,7 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
         if (maxEnergy > 0 && energy > 0) {
             int renderHeight = (int) (((float) energy / maxEnergy) * energyBarHeight);
             RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL);
-            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 158, this.topPos + 19 + (energyBarHeight - renderHeight), 0, 0, energyBarWidth, renderHeight);
+            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 158, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
         }
     }
 
