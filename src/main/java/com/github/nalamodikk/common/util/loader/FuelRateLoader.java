@@ -13,6 +13,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,12 +32,13 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
     private static final Map<String, FuelRate> FUEL_RATES = new HashMap<>();
     private static final String DEFAULT_NAMESPACE = "magical_industry";
+    private static final int DEFAULT_BURN_TIME = 200;  // 默認燃燒時間
+    private static final int DEFAULT_ENERGY_RATE = 1;
 
     public FuelRateLoader() {
-        super(GSON, "recipes/fuel_rate");  // 修改此處，使其加載 fuel_rate 目錄下的 JSON 文件
+        super(GSON, "recipes/fuel_rate");  // 加載 fuel_rate 目錄下的 JSON 文件
     }
 
-    // Event for adding reload listener
     @SubscribeEvent
     public static void onAddReloadListener(AddReloadListenerEvent event) {
         event.addListener(new FuelRateLoader());
@@ -42,7 +46,7 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager resourceManager, ProfilerFiller profiler) {
-        FUEL_RATES.clear(); // Clear old data
+        FUEL_RATES.clear(); // 清除舊的數據
 
         for (Map.Entry<ResourceLocation, JsonElement> entry : objects.entrySet()) {
             ResourceLocation id = entry.getKey();
@@ -53,7 +57,7 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
                 String tagId = GsonHelper.getAsString(ingredientObject, "tag", "");
                 int manaRate = GsonHelper.getAsInt(jsonObject, "mana", 0); // 默認魔力生產為 0
                 int burnTime = GsonHelper.getAsInt(jsonObject, "burn_time", 200); // 默認燃燒時間 200
-                int energyRate = GsonHelper.getAsInt(jsonObject, "energy", 0); // 默認能量生產為 0
+                int energyRate = GsonHelper.getAsInt(jsonObject, "energy", 1); // 默認能量生產為 1
 
                 FuelRate fuelRate = new FuelRate(manaRate, burnTime, energyRate);
 
@@ -75,6 +79,8 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
     // Method to get fuel rate for an item
     public static FuelRate getFuelRateForItem(ResourceLocation itemId) {
         FuelRate rate = FUEL_RATES.get(itemId.toString());
+
+        // 使用自定義標籤查找，若無結果則進行後備處理
         if (rate == null) {
             for (Map.Entry<String, FuelRate> entry : FUEL_RATES.entrySet()) {
                 String key = entry.getKey();
@@ -89,7 +95,15 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
                 }
             }
         }
-        return rate != null ? rate : new FuelRate(0, 0, 0);
+
+        // 後備方案，使用 ForgeHooks 獲取燃燒時間，默認生成速率為 1
+        int defaultBurnTime = ForgeHooks.getBurnTime(new ItemStack(BuiltInRegistries.ITEM.get(itemId)), RecipeType.SMELTING);
+        if (defaultBurnTime > 0) {
+            return new FuelRate(0, defaultBurnTime, DEFAULT_ENERGY_RATE);
+        } else {
+//            LOGGER.warn("No custom or Forge burn time found for {}, using default values.", itemId);
+            return new FuelRate(0, DEFAULT_BURN_TIME, DEFAULT_ENERGY_RATE);
+        }
     }
 
     // Class representing fuel rate

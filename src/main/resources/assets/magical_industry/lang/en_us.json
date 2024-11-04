@@ -25,6 +25,8 @@
   "tooltip.magical_industry.mana_generator.mana": "Mana Stored: %s",
   "tooltip.magical_industry.mana_generator.status.generating": "Generating",
   "tooltip.magical_industry.mana_generator.status.stopped": "Stopped",
+  "tooltip.mana": "Mana: %s / %s",
+  "tooltip.energy": "Energy: %s / %s",
 
   "block.magical_industry.mana_block": "Mana Block",
   "block.magical_industry.magic_ore": "Magic Ore",

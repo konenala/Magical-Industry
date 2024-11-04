@@ -1,15 +1,19 @@
 package com.github.nalamodikk.common.block.entity.ManaGenerator;
 
 import com.github.nalamodikk.common.Capability.ManaStorage;
+import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
-import com.github.nalamodikk.common.mana.NalaEnergyStorage;
+import com.github.nalamodikk.common.compat.energy.UnifiedEnergyStorage;
+import com.github.nalamodikk.common.mana.ManaAction;
+import com.github.nalamodikk.common.register.ConfigManager;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -23,12 +27,18 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
@@ -41,15 +51,35 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
-public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements GeoBlockEntity, GeoAnimatable, MenuProvider {
-    public static final int MAX_MANA = 10000;
+public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider {
+
+    public static final int MANA_STORED_INDEX = 0;
+    public static final int ENERGY_STORED_INDEX = 1;
+    public static final int MODE_INDEX = 2;
+    public static final int BURN_TIME_INDEX = 3;
+    public static final int CURRENT_BURN_TIME_INDEX = 4;
+    public static final int DATA_COUNT = 5; // 總數據數量
+    private int energyRate;
+
+    private static int getConfigMaxEnergy() {
+        return ConfigManager.COMMON.maxEnergy.get();
+    }
+
+    private static int getConfigEnergyRate() {
+        return ConfigManager.COMMON.energyRate.get();
+    }
+
+    private static int getConfigManaRate() {
+        return ConfigManager.COMMON.manaRate.get();
+    }
+
     public static int getMaxMana() {
         return MAX_MANA;
     }
+    public static final int MAX_MANA = 10000; // 或者保留 private，然後新增 getter
+    public static final int MAX_ENERGY = 10000;
 
-    private static final int MAX_ENERGY = 10000;
-
-    private final NalaEnergyStorage energyStorage = new NalaEnergyStorage(MAX_ENERGY);
+    public final UnifiedEnergyStorage energyStorage = new UnifiedEnergyStorage(getConfigMaxEnergy());
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
     private final ItemStackHandler fuelHandler = new ItemStackHandler(1) {
         @Override
@@ -62,10 +92,7 @@ public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements G
             if (currentMode == Mode.ENERGY) {
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
                 FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
-
-                // 檢查是否有自定義的燃燒時間，或是否為標準的燃燒燃料
-                return (fuelRate != null && fuelRate.getBurnTime() > 0) ||
-                        (ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0);
+                return (fuelRate != null && fuelRate.getBurnTime() > 0) || (ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0);
             } else if (currentMode == Mode.MANA) {
                 return stack.is(ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana"))); // 魔力模式只允許標籤為 mana 的物品
             }
@@ -75,25 +102,29 @@ public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements G
 
     private final AnimatableInstanceCache cache = new SingletonAnimatableInstanceCache(this);
     private boolean isWorking = false;
-    private Mode currentMode = Mode.MANA;
+    private Mode currentMode = Mode.MANA; // 默認模式
     private int burnTime;
     private int currentBurnTime;
-    private int burnTimeMana = 0;
-    private int burnTimeEnergy = 0;
-    private int manaRate = 0;
-    private int energyRate = 10;
-    private int manaProductionRate; // 初始化魔力生產速率
-    private int energyProductionRate; // 初始化能量生產速率
+    private double energyAccumulated = 0.0;
+    private double manaAccumulated = 0.0;
+    int storedEnergy = energyStorage.getEnergyStored();
 
 
     protected static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
     protected static final RawAnimation WORKING_ANIM = RawAnimation.begin().thenLoop("working");
+    private final LazyOptional<ItemStackHandler> lazyFuelHandler = LazyOptional.of(() -> fuelHandler);
+    private final LazyOptional<UnifiedEnergyStorage> lazyEnergyStorage = LazyOptional.of(() -> energyStorage);
 
     public ManaGeneratorBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.MANA_GENERATOR_BE.get(), pos, state, MAX_ENERGY, MAX_MANA);
+        super(ModBlockEntities.MANA_GENERATOR_BE.get(), pos, state);
     }
 
-    @Override
+    public void markUpdated() {
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+        }
+    }
+
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(fuelHandler.getSlots());
         for (int i = 0; i < fuelHandler.getSlots(); i++) {
@@ -102,135 +133,193 @@ public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements G
         Containers.dropContents(this.level, this.worldPosition, inventory);
     }
 
-    public ItemStackHandler getInventory() {
-        return this.fuelHandler; // 返回你的 `ItemStackHandler`
+    public void toggleMode() {
+        currentMode = (currentMode == Mode.MANA) ? Mode.ENERGY : Mode.MANA;
+        markUpdated();
     }
 
-    public int getCurrentMode() {
-        return this.currentMode == Mode.MANA ? 0 : 1; // 使用你的 Mode enum
+    public int getStoredEnergy() {
+        return energyStorage.getEnergyStored();
     }
 
-    @Override
-    public boolean hasFuel() {
-        return !fuelHandler.getStackInSlot(0).isEmpty();
-    }
-
-    public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
-        if (!level.isClientSide) {
-            blockEntity.commonTick();
-        }
-    }
-
-    protected void commonTick() {
-        if (!isWorking && hasFuel()) {
-            loadFuel(); // 確保加載燃料
-        }
-
-        if (currentMode == Mode.MANA && burnTimeMana > 0) {
-            burnTimeMana--;
-            if (burnTimeMana == 0) {
-                // 燃燒完成，生成魔力
-                manaStorage.addMana(manaProductionRate);
-                isWorking = false; // 完成生成
-            }
-        } else if (currentMode == Mode.ENERGY && burnTimeEnergy > 0) {
-            burnTimeEnergy--;
-            if (burnTimeEnergy == 0) {
-                // 燃燒完成，生成能量
-                energyStorage.receiveEnergy(energyProductionRate, false);
-                isWorking = false; // 完成生成
-            }
-        }
-
-        markUpdated(); // 更新狀態
-    }
-
-    @Override
-    protected void loadFuel() {
-        if (hasFuel()) {
-            ItemStack fuel = fuelHandler.getStackInSlot(0);
-            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuel.getItem());
-            FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
-
-            if (currentMode == Mode.MANA) {
-                if (fuelRate != null && fuelRate.getBurnTime() > 0) {
-                    // 如果 JSON 中有定義的燃燒時間和魔力生成量
-                    burnTimeMana = fuelRate.getBurnTime();
-                    manaProductionRate = fuelRate.getManaRate();
-                    fuelHandler.extractItem(0, 1, false);
-                    isWorking = true;
-                }
-            } else if (currentMode == Mode.ENERGY) {
-                if (fuelRate != null && fuelRate.getBurnTime() > 0) {
-                    // 如果 JSON 中有定義的燃燒時間和能量生成速率
-                    burnTimeEnergy = fuelRate.getBurnTime();
-                    energyProductionRate = fuelRate.getEnergyRate();
-                } else {
-                    // 如果沒有自定義的燃燒時間，則使用 Forge 的燃燒時間
-                    int forgeBurnTime = ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
-                    if (forgeBurnTime > 0) {
-                        burnTimeEnergy = forgeBurnTime;
-                        energyProductionRate = calculateEnergyProductionRate(fuel);
-                    }
-                }
-
-                if (burnTimeEnergy > 0) {
-                    fuelHandler.extractItem(0, 1, false);
-                    isWorking = true;
-                }
-            }
-        }
+    public ContainerData getContainerData() {
+        return containerData;
     }
 
     private final ContainerData containerData = new ContainerData() {
         @Override
         public int get(int index) {
-            switch (index) {
-                case 0:
-                    return manaStorage.getMana();
-                case 1:
-                    return energyStorage.getEnergyStored();
-                case 2:
-                    return currentMode == Mode.MANA ? 0 : 1;
-                case 3:
-                    return burnTime;
-                case 4:
-                    return currentBurnTime;
-                default:
-                    return 0;
-            }
+            return switch (index) {
+                case MANA_STORED_INDEX -> manaStorage.getMana();
+                case ENERGY_STORED_INDEX ->  energyStorage.getEnergyStored();
+                case MODE_INDEX -> currentMode == Mode.MANA ? 0 : 1;
+                case BURN_TIME_INDEX -> burnTime;
+                case CURRENT_BURN_TIME_INDEX -> currentBurnTime;
+                default -> 0;
+            };
         }
 
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case 0:
-                    manaStorage.setMana(value);
-                    break;
-                case 1:
-                    energyStorage.receiveEnergy(value, false);
-                    break;
-                case 2:
-                    currentMode = value == 0 ? Mode.MANA : Mode.ENERGY;
-                    break;
-                case 3:
-                    burnTime = value;
-                    break;
-                case 4:
-                    currentBurnTime = value;
-                    break;
+                case MANA_STORED_INDEX -> manaStorage.setMana(value);
+                case ENERGY_STORED_INDEX -> energyStorage.receiveEnergy(value - energyStorage.getEnergyStored(), false);
+
+                case MODE_INDEX -> currentMode = (value == 0) ? Mode.MANA : Mode.ENERGY;
+                case BURN_TIME_INDEX -> burnTime = value;
+                case CURRENT_BURN_TIME_INDEX -> currentBurnTime = value;
             }
         }
 
         @Override
         public int getCount() {
-            return 5; // 根據你需要同步的數據數量
+            return DATA_COUNT;
         }
     };
 
+    public ItemStackHandler getInventory() {
+        return fuelHandler;
+    }
+
+    public int getCurrentMode() {
+        return (currentMode == Mode.MANA) ? 0 : 1;
+    }
+
+
+    public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
+        if (!level.isClientSide) {
+            blockEntity.generateEnergyOrMana();
+
+            blockEntity.outputEnergyAndMana();
+            blockEntity.markUpdated();
+        }
+    }
+    private void generateEnergyOrMana() {
+        ItemStack fuel = fuelHandler.getStackInSlot(0);
+        // 如果燃料槽為空且燃燒時間耗盡，停止工作
+        if (fuel.isEmpty() && burnTime <= 0) {
+            isWorking = false;
+            return;
+        }
+
+        // 如果燃燒時間耗盡，且有燃料，開始新一輪燃燒
+        if (burnTime <= 0 && !fuel.isEmpty()) {
+            ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuel.getItem());
+            FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
+            int burnTimeForFuel = (fuelRate != null) ? fuelRate.getBurnTime() : ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
+            if (burnTimeForFuel > 0) {
+                burnTime = burnTimeForFuel; // 設置燃燒時間
+                fuelHandler.extractItem(0, 1, false); // 消耗燃料
+                isWorking = true; // 設置為工作狀態
+            }
+        }
+
+        // 燃燒時間大於 0 時生成能量或魔力
+        if (burnTime > 0) {
+            burnTime--; // 每 tick 燃燒時間減少
+
+            if (currentMode == Mode.ENERGY) {
+                double energyToGenerate = (double) getConfigEnergyRate() / 20.0; // 每秒生成的能量除以 20
+                energyAccumulated += energyToGenerate; // 累積生成量
+
+                int energyToStore = (int) energyAccumulated; // 取整數部分
+                if (energyToStore > 0) {
+                    energyAccumulated -= energyToStore; // 減去已存儲的部分
+                    energyStorage.receiveEnergy(energyToStore, false); // 實際插入能量儲存
+                    MagicalIndustryMod.LOGGER.info("Energy Generated per tick: " + energyToGenerate);
+                    MagicalIndustryMod.LOGGER.info("Energy to Store: " + energyToStore);
+                    if (level != null && !level.isClientSide) {
+                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                    }
+
+                }
+            } else if (currentMode == Mode.MANA) {
+                double manaToGenerate = (double) getConfigManaRate() / 20.0; // 每秒生成的魔力除以 20
+                manaAccumulated += manaToGenerate; // 累積生成量
+
+                int manaToStore = (int) manaAccumulated; // 取整數部分
+                if (manaToStore > 0) {
+                    manaAccumulated -= manaToStore; // 減去已存儲的部分
+                    manaStorage.addMana(manaToStore); // 實際插入魔力儲存
+                }
+            }
+        }
+        MagicalIndustryMod.LOGGER.info("Current Energy: " + energyStorage.getEnergyStored());
+
+        MagicalIndustryMod.LOGGER.info("Energy Accumulated: " + energyAccumulated);
+
+        MagicalIndustryMod.LOGGER.info("Total Energy Stored: " + energyStorage.getEnergyStored());
+
+    }
+
+
+    private void outputEnergyAndMana() {
+        for (Direction direction : Direction.values()) {
+            BlockEntity neighborBlockEntity = level.getBlockEntity(worldPosition.relative(direction));
+            if (neighborBlockEntity != null) {
+                neighborBlockEntity.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(neighborEnergyStorage -> {
+                    if (neighborEnergyStorage.canReceive()) {
+                        int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
+                        int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
+                        energyStorage.extractEnergy(acceptedEnergy, false);
+                    }
+                });
+
+                neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
+                    if (neighborManaStorage.canReceive()) {
+                        int manaToTransfer = Math.min(manaStorage.getMana(), 50);
+                        int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
+                        manaStorage.extractMana(acceptedMana, ManaAction.get(false));
+                    }
+                });
+            }
+        }
+    }
+
+    @NotNull
     @Override
-    public ContainerData getContainerData() {
-        return containerData;
+    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
+        if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            return lazyFuelHandler.cast();
+        } else if (cap == ForgeCapabilities.ENERGY) {
+            return lazyEnergyStorage.cast();
+        }
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        if (tag.contains("FuelInventory", Tag.TAG_COMPOUND)) {
+            CompoundTag inventoryTag = tag.getCompound("FuelInventory");
+            for (int i = 0; i < fuelHandler.getSlots(); i++) {
+                if (inventoryTag.contains("Slot" + i)) {
+                    ItemStack stack = ItemStack.of(inventoryTag.getCompound("Slot" + i));
+                    fuelHandler.setStackInSlot(i, stack);
+                }
+            }
+        }
+        manaStorage.setMana(tag.getInt("ManaStored"));
+        energyStorage.receiveEnergy(tag.getInt("EnergyStored"), false);
+        isWorking = tag.getBoolean("IsWorking");
+        currentMode = tag.getInt("CurrentMode") == 0 ? Mode.MANA : Mode.ENERGY;
+        burnTime = tag.getInt("BurnTime");
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        CompoundTag inventoryTag = new CompoundTag();
+        for (int i = 0; i < fuelHandler.getSlots(); i++) {
+            ItemStack stack = fuelHandler.getStackInSlot(i);
+            inventoryTag.put("Slot" + i, stack.save(new CompoundTag()));
+        }
+        tag.put("FuelInventory", inventoryTag);
+        tag.putInt("ManaStored", manaStorage.getMana());
+        tag.putInt("EnergyStored", energyStorage.getEnergyStored());
+        tag.putBoolean("IsWorking", isWorking);
+        tag.putInt("CurrentMode", currentMode == Mode.MANA ? 0 : 1);
+        tag.putInt("BurnTime", burnTime);
     }
 
     @Override
@@ -268,6 +357,10 @@ public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements G
         ENERGY
     }
 
+    public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
+        blockEntity.tick(level, pos, state, blockEntity);
+    }
+
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
         handleUpdateTag(pkt.getTag());
@@ -281,65 +374,13 @@ public class ManaGeneratorBlockEntity extends AbstractManaGenerator implements G
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
-        if (tag == null) {
-            tag = new CompoundTag(); // 如果為 null，創建一個新的 CompoundTag
-        }
         saveAdditional(tag);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag) {
-        if (tag == null) {
-            return; // 如果 tag 為 null，直接返回
-        }
         super.handleUpdateTag(tag);
         load(tag);
-    }
-
-    @Override
-    public void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
-        tag.putInt("ManaStored", this.manaStorage.getMana());
-        tag.putInt("EnergyStored", this.energyStorage.getEnergyStored());
-        tag.putBoolean("IsWorking", this.isWorking);
-        tag.putInt("CurrentMode", this.currentMode == Mode.MANA ? 0 : 1);
-        tag.putInt("BurnTimeMana", this.burnTimeMana);
-        tag.putInt("BurnTimeEnergy", this.burnTimeEnergy);
-    }
-
-    @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
-        this.manaStorage.setMana(tag.getInt("ManaStored"));
-        this.energyStorage.receiveEnergy(tag.getInt("EnergyStored"), false);
-        this.isWorking = tag.getBoolean("IsWorking");
-        this.currentMode = tag.getInt("CurrentMode") == 0 ? Mode.MANA : Mode.ENERGY;
-        this.burnTimeMana = tag.getInt("BurnTimeMana");
-        this.burnTimeEnergy = tag.getInt("BurnTimeEnergy");
-    }
-
-    public void toggleMode() {
-        // 切換模式
-        this.currentMode = this.currentMode == Mode.MANA ? Mode.ENERGY : Mode.MANA;
-
-        if (this.currentMode == Mode.MANA) {
-            // 切換到 MANA 模式，保留魔力燃燒進度並重置能量燃燒狀態
-            this.burnTimeEnergy = 0;
-            this.energyRate = 0; // 停止能量生成
-            if (burnTimeMana > 0) {
-                this.isWorking = true; // 保持魔力工作狀態
-            }
-        } else if (this.currentMode == Mode.ENERGY) {
-            // 切換到 ENERGY 模式，保留能量燃燒進度並重置魔力燃燒狀態
-            this.burnTimeMana = 0;
-            this.manaRate = 0; // 停止魔力生成
-            if (burnTimeEnergy > 0) {
-                this.isWorking = true; // 保持能量工作狀態
-            }
-        }
-
-        // 更新狀態
-        markUpdated();
     }
 }

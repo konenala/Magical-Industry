@@ -1,12 +1,11 @@
 package com.github.nalamodikk.common.block.entity.ManaGenerator;
 
 import com.github.nalamodikk.common.Capability.ManaStorage;
-import com.github.nalamodikk.common.mana.NalaEnergyStorage;
+import com.github.nalamodikk.common.compat.energy.NalaEnergyStorage;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;

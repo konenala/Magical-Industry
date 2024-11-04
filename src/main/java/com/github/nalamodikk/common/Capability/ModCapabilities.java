@@ -11,11 +11,11 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = MagicalIndustryMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModCapabilities {
     // 声明 Capability 实例
-    public static final Capability<IMana> MANA = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<IUnifiedManaHandler> MANA = CapabilityManager.get(new CapabilityToken<>() {});
 
     @SubscribeEvent
     public static void register(RegisterCapabilitiesEvent event) {
         // 注册 IMana 能力
-        event.register(IMana.class);
+        event.register(IUnifiedManaHandler.class);
     }
 }

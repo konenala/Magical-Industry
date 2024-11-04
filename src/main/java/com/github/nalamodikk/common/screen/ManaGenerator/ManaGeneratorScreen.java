@@ -20,6 +20,12 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
     private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
     private static final ResourceLocation ENERGY_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/energy_bar_full.png");
     private static final ResourceLocation FUEL_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/fuel_bar.png");
+    private static final int MANA_BAR_HEIGHT = 47;
+    private static final int MANA_BAR_WIDTH = 7;
+    private static final int ENERGY_BAR_HEIGHT = 47;
+    private static final int ENERGY_BAR_WIDTH = 7;
+    private static final int TOGGLE_BUTTON_X_OFFSET = 130;
+    private static final int TOGGLE_BUTTON_Y_OFFSET = 25;
 
     private UniversalTexturedButton toggleModeButton;
 
@@ -37,7 +43,7 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
 
         // 創建並添加自定義紋理按鈕
         toggleModeButton = new UniversalTexturedButton(
-                x + 130, y + 25, 20, 20,
+                x + TOGGLE_BUTTON_X_OFFSET, y + TOGGLE_BUTTON_Y_OFFSET, 20, 20,
                 Component.empty(),
                 BUTTON_TEXTURE, 20, 20,
                 btn -> {
@@ -76,46 +82,71 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
 
         // 渲染能量條（在右側）
         int energyBarHeight = 47;
-        int energyBarWidth = 7;
+        int energyBarWidth = 8;
         int energy = this.menu.getEnergyStored();
         int maxEnergy = this.menu.getMaxEnergy();
         if (maxEnergy > 0 && energy > 0) {
             int renderHeight = (int) (((float) energy / maxEnergy) * energyBarHeight);
             RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL);
-            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 157, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
+            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 156, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
         }
     }
 
 
-    @Override
+    private int getFuelProgressHeight() {
+        int burnTime = this.menu.getBurnTime();
+        int currentBurnTime = this.menu.getCurrentBurnTime();
+        return currentBurnTime > 0 ? (int) ((float) burnTime / currentBurnTime * 13) : 0;
+    }
+
     protected void renderLabels(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
         super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
+        int fuelHeight = getFuelProgressHeight();
+        if (fuelHeight > 0) {
+            RenderSystem.setShaderTexture(0, FUEL_TEXTURE);
+            pGuiGraphics.blit(FUEL_TEXTURE, 56, 36 + 12 - fuelHeight, 36, 36 - fuelHeight, 14, fuelHeight);
+        }
+
+
         String modeText = this.menu.getCurrentMode() == 1
                 ? Component.translatable("mode.magical_industry.energy").getString()
                 : Component.translatable("mode.magical_industry.mana").getString();
         Component currentMode = Component.translatable("screen.magical_industry.current_mode", modeText);
+
+        // 設置文字渲染的位置
         int x = (this.imageWidth - this.font.width(currentMode)) / 2;
         int y = 5;
+
+        // 渲染文字
         pGuiGraphics.drawString(this.font, currentMode, x, y, 4210752);
-
-        // 渲染燃料進度條
-        int burnTime = this.menu.getBurnTime();
-        int currentBurnTime = this.menu.getCurrentBurnTime();
-        if (currentBurnTime > 0 && burnTime > 0) {
-            int fuelHeight = (int) ((float) burnTime / currentBurnTime * 13);
-            RenderSystem.setShaderTexture(0, FUEL_TEXTURE);
-            pGuiGraphics.blit(FUEL_TEXTURE, 56, 36 + 12 - fuelHeight, 36, 36 - fuelHeight, 14, fuelHeight);
-        }
     }
-
-
-
-
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
-        this.renderBackground(pGuiGraphics); // 確保背景被正確渲染
+        this.renderBackground(pGuiGraphics);
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTicks);
+
+        if (isHoveringManaBar(pMouseX, pMouseY)) {
+            pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.mana", this.menu.getManaStored(), this.menu.getMaxMana()), pMouseX, pMouseY);
+        }
+
+        if (isHoveringEnergyBar(pMouseX, pMouseY)) {
+            pGuiGraphics.renderTooltip(this.font, Component.translatable("tooltip.energy", this.menu.getEnergyStored(), this.menu.getMaxEnergy()), pMouseX, pMouseY);
+        }
+
         this.renderTooltip(pGuiGraphics, pMouseX, pMouseY);
     }
+
+    private boolean isHoveringManaBar(int mouseX, int mouseY) {
+        int manaBarX = this.leftPos + 11;
+        int manaBarY = this.topPos + 19;
+        return mouseX >= manaBarX && mouseX <= manaBarX + MANA_BAR_WIDTH && mouseY >= manaBarY && mouseY <= manaBarY + MANA_BAR_HEIGHT;
+    }
+
+    private boolean isHoveringEnergyBar(int mouseX, int mouseY) {
+        int energyBarX = this.leftPos + 157;
+        int energyBarY = this.topPos + 19;
+        return mouseX >= energyBarX && mouseX <= energyBarX + ENERGY_BAR_WIDTH && mouseY >= energyBarY && mouseY <= energyBarY + ENERGY_BAR_HEIGHT;
+    }
+
 }

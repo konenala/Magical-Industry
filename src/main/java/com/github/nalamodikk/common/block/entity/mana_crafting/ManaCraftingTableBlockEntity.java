@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.block.entity.mana_crafting;
 
-import com.github.nalamodikk.common.Capability.IMana;
+import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
@@ -49,7 +49,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
-    private final LazyOptional<IMana> manaOptional = LazyOptional.of(() -> manaStorage);
+    private final LazyOptional<IUnifiedManaHandler> manaOptional = LazyOptional.of(() -> manaStorage);
 
     public static final int MAX_MANA = 1000;
     private static final int MANA_COST_PER_CRAFT = 50;
@@ -122,23 +122,24 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     public void addMana(int amount) {
         // 添加魔力
         this.getCapability(ModCapabilities.MANA).ifPresent(mana -> {
+            // 使用 addMana 方法增加魔力
             mana.addMana(amount);
-            // System.out.println("Mana added: " + amount + ", Current Mana: " + mana.getMana());
+            System.out.println("Mana added: " + amount + ", Current Mana: " + mana.getMana());
 
-            setChanged(); // 通知伺服器端數據已更改
+            // 通知伺服器端數據已更改
+            setChanged();
 
             // 更新客戶端
             if (!this.level.isClientSide()) {
                 BlockState state = this.level.getBlockState(worldPosition);
-                this.level.sendBlockUpdated(this.worldPosition, state, state, 3); // 通知客戶端方塊狀態已更新
+                this.level.sendBlockUpdated(this.worldPosition, state, state, 3);
             }
-
-            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
         });
 
         // 調用方法以更新當前的合成結果
         updateCraftingResult();
     }
+
 
     // 消耗魔力
     public void consumeMana(int amount) {
@@ -247,7 +248,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     public static class Provider implements ICapabilityProvider {
         private final ManaCraftingTableBlockEntity blockEntity;
-        private final LazyOptional<IMana> manaOptional;
+        private final LazyOptional<IUnifiedManaHandler > manaOptional;
 
         public Provider(ManaCraftingTableBlockEntity blockEntity) {
             this.blockEntity = blockEntity;

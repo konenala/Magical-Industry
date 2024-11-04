@@ -1,4 +1,4 @@
-package com.github.nalamodikk.common.compat;
+package com.github.nalamodikk.common.compat.JEI;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.ModBlocks;
@@ -90,10 +90,6 @@ public class ManaCraftingTableCategory implements IRecipeCategory<ManaCraftingTa
                     }
                 });
 
-
-
-
-
-    }
+         }
 
     }

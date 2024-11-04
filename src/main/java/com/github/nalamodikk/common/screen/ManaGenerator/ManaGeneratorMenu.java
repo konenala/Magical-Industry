@@ -104,24 +104,14 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
         return itemstack;
     }
 
-    public int getCurrentMode() {
-        return this.data.get(2); // 2 對應於模式
-    }
 
-    public int getManaStored() {
-        return this.data.get(0); // 0 對應於魔力儲存
-    }
-
-    public int getEnergyStored() {
-        return this.data.get(1); // 1 對應於能量儲存
-    }
 
     public int getMaxMana() {
         return ManaGeneratorBlockEntity.MAX_MANA;
     }
 
     public int getMaxEnergy() {
-        return 10000;
+        return ManaGeneratorBlockEntity.MAX_ENERGY;
     }
 
     public BlockPos getBlockEntityPos() {
@@ -143,12 +133,31 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
         return this.blockEntity;
     }
 
+
+
+    public int getCurrentMode() {
+        return this.data.get(ManaGeneratorBlockEntity.MODE_INDEX);
+    }
+
+    public int getManaStored() {
+        return this.data.get(ManaGeneratorBlockEntity.MANA_STORED_INDEX);
+    }
+
+    public int getEnergyStored() {
+        int energyStored = this.data.get(ManaGeneratorBlockEntity.ENERGY_STORED_INDEX);
+        MagicalIndustryMod.LOGGER.info("Client Energy (Menu): " + energyStored);
+        return energyStored;
+    }
+
+
     public int getBurnTime() {
-        return this.data.get(4); // 4 對應於當前燃燒時間
+        return this.data.get(ManaGeneratorBlockEntity.BURN_TIME_INDEX);
     }
 
     public int getCurrentBurnTime() {
-        return this.data.get(5); // 5 對應於總燃燒時間
+        return this.data.get(ManaGeneratorBlockEntity.CURRENT_BURN_TIME_INDEX);
     }
+
+
 
 }

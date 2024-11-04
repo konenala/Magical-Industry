@@ -1,25 +1,21 @@
 package com.github.nalamodikk.common;
 
 import com.github.nalamodikk.common.block.ModBlocks;
-import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
 import com.github.nalamodikk.common.item.ModItems;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.recipe.ModRecipes;
-import com.github.nalamodikk.common.register.ModMenuScreens;
-import com.github.nalamodikk.common.register.ModRenderers;
+import com.github.nalamodikk.common.register.*;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent; // 用于附加 Capability
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,6 +24,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
+import snownee.jade.api.IWailaCommonRegistration;
 import software.bernie.geckolib.GeckoLib;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -41,6 +38,9 @@ public class MagicalIndustryMod {
 
     public MagicalIndustryMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ConfigManager.registerConfigs();
+
         GeckoLib.initialize();
         // 注册创造模式标签
         ModCreativeModTabs.register(modEventBus);
@@ -61,6 +61,8 @@ public class MagicalIndustryMod {
         // 注册创造模式标签的内容
         modEventBus.addListener(this::addCreative);
 
+        CapabilityHandler.register();
+
 
         // 在模組初始化時加載魔力生成速率
 
@@ -71,6 +73,7 @@ public class MagicalIndustryMod {
     private void commonSetup(final FMLCommonSetupEvent event) {
         // 通用设置
         NetworkHandler.init(event);
+
 
     }
 
@@ -86,14 +89,7 @@ public class MagicalIndustryMod {
         LOGGER.info("HELLO from server starting");
     }
 
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
-    @SubscribeEvent
-    public void attachCapabilities(AttachCapabilitiesEvent<?> event) {
-        if (event.getObject() instanceof ManaCraftingTableBlockEntity blockEntity) {
-            event.addCapability(new ResourceLocation(MOD_ID, "mana"), new ManaCraftingTableBlockEntity.Provider(blockEntity));
-        }
-    }
+
 
     @SubscribeEvent
     public void onAddReloadListener(AddReloadListenerEvent event) {
@@ -109,7 +105,8 @@ public class MagicalIndustryMod {
             // 客户端设置
             ModMenuScreens.registerScreens();
             ModRenderers.registerBlockEntityRenderers();
-         //   BlockEntityRenderers.register(ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorRenderer::new);
+
+            //   BlockEntityRenderers.register(ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorRenderer::new);
         }
 
         @SubscribeEvent

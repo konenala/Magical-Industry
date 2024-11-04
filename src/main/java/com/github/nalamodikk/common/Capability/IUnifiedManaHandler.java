@@ -17,6 +17,33 @@ public interface IUnifiedManaHandler {
         return Math.max(0, getMaxMana() - getMana());
     }
 
+    /**
+     * Checks if this handler can receive mana.
+     * @return True if mana can be received.
+     */
+    default boolean canReceive() {
+        return getNeeded() > 0; // 如果還有空間則表示可以接收
+    }
+
+    /**
+     * Receives mana from an external source.
+     * @param amount Mana to receive.
+     * @param action The action to perform, either {@link ManaAction#EXECUTE} or {@link ManaAction#SIMULATE}.
+     * @return The amount of mana that was actually received.
+     */
+    default int receiveMana(int amount, ManaAction action) {
+        if (amount <= 0) {
+            return 0;
+        }
+        int toReceive = Math.min(amount, getNeeded());
+        if (action.execute()) {
+            addMana(toReceive);
+            onChanged(); // 接收成功後通知變化
+        }
+        return toReceive;
+    }
+
+
     default int insertMana(int amount, ManaAction action) {
         if (amount <= 0) {
             return 0;

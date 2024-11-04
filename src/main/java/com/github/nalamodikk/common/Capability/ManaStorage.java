@@ -1,6 +1,13 @@
 package com.github.nalamodikk.common.Capability;
 
-public class ManaStorage implements IMana {
+import com.github.nalamodikk.common.mana.ManaAction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+
+public class ManaStorage implements IUnifiedManaHandler {
+    public static final Capability<ManaStorage> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+
     private int mana;
     private final int capacity;
 
@@ -45,6 +52,41 @@ public class ManaStorage implements IMana {
     @Override
     public int getMaxMana() {
         return capacity;
+    }
+
+    @Override
+    public int getManaContainerCount() {
+        return 0;
+    }
+
+    @Override
+    public int getMana(int container) {
+        return 0;
+    }
+
+    @Override
+    public void setMana(int container, int mana) {
+
+    }
+
+    @Override
+    public int getMaxMana(int container) {
+        return 0;
+    }
+
+    @Override
+    public int getNeededMana(int container) {
+        return 0;
+    }
+
+    @Override
+    public int insertMana(int container, int amount, ManaAction action) {
+        return 0;
+    }
+
+    @Override
+    public int extractMana(int container, int amount, ManaAction action) {
+        return 0;
     }
 }
 

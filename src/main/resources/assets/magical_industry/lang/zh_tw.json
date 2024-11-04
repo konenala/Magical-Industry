@@ -25,6 +25,8 @@
   "tooltip.magical_industry.mana_generator.mana": "儲存的魔力: %s",
   "tooltip.magical_industry.mana_generator.status.generating": "發電中",
   "tooltip.magical_industry.mana_generator.status.stopped": "停止",
+  "tooltip.mana": "魔力: %s / %s",
+  "tooltip.energy": "能量: %s / %s",
 
   "block.magical_industry.mana_block": "魔法錠磚",
   "block.magical_industry.magic_ore": "魔法礦",

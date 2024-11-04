@@ -18,7 +18,7 @@ import net.minecraftforge.fml.common.Mod;
 import javax.annotation.Nullable;
 
 public class ManaCapability {
-    public static final Capability<IMana> MANA = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<IUnifiedManaHandler> MANA = CapabilityManager.get(new CapabilityToken<>() {});
 
     @Mod.EventBusSubscriber
     public static class EventHandler {
@@ -39,8 +39,8 @@ public class ManaCapability {
 
 
     public static class ManaProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-        private final IMana manaStorage = new ManaStorage(1000);
-        private final LazyOptional<IMana> lazyOptional = LazyOptional.of(() -> manaStorage);
+        private final IUnifiedManaHandler manaStorage = (IUnifiedManaHandler) new ManaStorage(1000);
+        private final LazyOptional<IUnifiedManaHandler> lazyOptional = LazyOptional.of(() -> manaStorage);
 
         @Override
         public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
