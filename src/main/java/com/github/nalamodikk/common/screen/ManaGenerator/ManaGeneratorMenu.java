@@ -38,7 +38,7 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
             addDataSlots(this.data);
             IItemHandler blockInventory = blockEntity.getInventory();
             // 添加機器的燃料槽
-            this.addSlot(new SlotItemHandler(blockInventory, 0, 80, 45) {
+            this.addSlot(new SlotItemHandler(blockInventory, 0, 80, 40) {
                 @Override
                 public boolean mayPlace(@NotNull ItemStack stack) {
                     // 根據當前模式設置不同的物品允許邏輯

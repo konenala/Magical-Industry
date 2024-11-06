@@ -6,7 +6,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class ManaStorage implements IUnifiedManaHandler {
-    public static final Capability<ManaStorage> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<ManaStorage> MANA = CapabilityManager.get(new CapabilityToken<>() {});
 
     private int mana;
     private final int capacity;
