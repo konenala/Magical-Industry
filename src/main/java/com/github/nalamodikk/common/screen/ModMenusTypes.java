@@ -3,6 +3,7 @@ package com.github.nalamodikk.common.screen;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
+import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -26,9 +27,11 @@ public class ModMenusTypes {
 
     // 添加菜單類型註冊
     public static final RegistryObject<MenuType<ManaGeneratorMenu>> MANA_GENERATOR_MENU =
-            registerMenuType("mana_generator_menu", (IContainerFactory<ManaGeneratorMenu>) ManaGeneratorMenu::new);
+            registerMenuType("mana_generator_menu", ManaGeneratorMenu::new);
 
-
+    public static final RegistryObject<MenuType<UniversalConfigMenu>> UNIVERSAL_CONFIG =
+            registerMenuType("universal_config", UniversalConfigMenu::new
+    );
 
     private static <T extends AbstractContainerMenu>RegistryObject<MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IForgeMenuType.create(factory));

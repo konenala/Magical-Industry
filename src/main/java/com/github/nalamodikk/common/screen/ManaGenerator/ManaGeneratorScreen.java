@@ -6,6 +6,7 @@ import com.github.nalamodikk.common.block.entity.ManaGenerator.ManaGeneratorBloc
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.ToggleModePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -149,12 +150,35 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
                 : Component.translatable("mode.magical_industry.mana").getString();
         Component currentMode = Component.translatable("screen.magical_industry.current_mode", modeText);
 
-        // 設置文字渲染的位置
-        int x = (this.imageWidth - this.font.width(currentMode)) / 2;
-        int y = 5;
+
+        // 設置文字的初始渲染位置（在縮放之前）
+        float originalX = (this.imageWidth - this.font.width(currentMode)) / 2f;
+        float originalY = 15f; // 假設你想讓文本在 Y 軸上距離 10 像素的位置顯示
+
+
+        // 從 pGuiGraphics 中獲取 PoseStack 以進行縮放操作
+        PoseStack poseStack = pGuiGraphics.pose();
+
+        // 設置縮放比例
+        float scale = 0.85f;
+
+        // 保存當前渲染狀態
+        poseStack.pushPose();
+
+        // 縮放文本
+        poseStack.scale(scale, scale, scale);
+
+        // 因為文字縮放了，所以位置也需要縮放來保證顯示正常
+        float scaledX = originalX / scale;
+        float scaledY = originalY / scale;
+
 
         // 渲染文字
-        pGuiGraphics.drawString(this.font, currentMode, x, y, 4210752);
+        pGuiGraphics.drawString(this.font, currentMode, (int) scaledX, (int) scaledY, 4210752);
+
+        // 恢復渲染狀態
+        poseStack.popPose();
+
     }
 
     @Override

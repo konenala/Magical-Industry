@@ -9,15 +9,35 @@
   "message.magical_industry.mana_mode_add_10": "Add 10 Mana",
   "message.magical_industry.mana_mode_add_100": "Add 100 Mana",
   "message.magical_industry.mana_mode_add_1000": "Add 1000 Mana",
+  "message.magical_industry.not_enough_mana": "Not enough mana in wand!",
+  "message.magical_industry.block_rotated": "Block rotated!",
+  "message.magical_industry.mode_changed": "Mode: %s",
 
+
+  "message.magical_industry.tech_wand.mode.configure_input": "Configure Input Mode",
+  "message.magical_industry.tech_wand.mode.configure_output": "Configure Output Mode",
+  "message.magical_industry.tech_wand.mode.add_mana": "Add Mana Mode",
+  "message.magical_industry.tech_wand.mode.rotate": "Rotate Block Mode",
+  "message.magical_industry.config_button_clicked": "Configuration button clicked!",
+
+  "item.magical_industry.basic_tech_wand": "Basic Tech Wand",
+  "item.magical_industry.basic_tech_wand.tooltip.mode": "Mode: %s",
+
+
+  "screen.magical_industry.configure_io": "Configure Input and Output",
   "screen.magical_industry.toggle_mode": "Toggle Mode",
   "screen.magical_industry.current_mode": "Current Mode: %s",
+  "screen.magical_industry.configure_input": "Configure Input",
+  "screen.magical_industry.configure_output": "Configure Output",
+
+
 
   "mode.magical_industry.mana": "Mana",
   "mode.magical_industry.energy": "Energy",
 
   "button.magical_industry.toggle_mode.tooltip_auto": "Automatic Mode",
   "button.magical_industry.toggle_mode.tooltip_manual": "Manual Mode",
+  "button.magical_industry.configure_io": "Configure Input/Output",
 
 
   "tooltip.magical_industry.mana_stored": "Mana: %1$d / %2$d",

@@ -20,6 +20,7 @@ public class ModCreativeModTabs {
                 .displayItems((pParameters, pOutput) -> {
 
                     pOutput.accept(ModItems.MANA_DEBUG_TOOL.get());
+                    pOutput.accept(ModItems.BASI_CTECH_WANDITEM.get());
                     pOutput.accept(ModItems.MANA_DUST.get());
                     pOutput.accept(ModItems.MANA_INGOT.get());
 

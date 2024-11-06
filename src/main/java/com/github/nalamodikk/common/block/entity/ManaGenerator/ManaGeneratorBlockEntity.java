@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.block.entity.ManaGenerator;
 
+import com.github.nalamodikk.common.API.IConfigurableBlock;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
@@ -55,8 +56,9 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 import java.math.BigDecimal;
+import java.util.EnumMap;
 
-public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider {
+public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider , IConfigurableBlock {
 
     public static final int MANA_STORED_INDEX = 0;
     public static final int ENERGY_STORED_INDEX = 1;
@@ -119,6 +121,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     private final LazyOptional<ItemStackHandler> lazyFuelHandler = LazyOptional.of(() -> fuelHandler);
     private final LazyOptional<UnifiedEnergyStorage> lazyEnergyStorage = LazyOptional.of(() -> energyStorage);
     private final LazyOptional<ManaStorage> lazyManaStorage = LazyOptional.of(() -> manaStorage);
+    private final EnumMap<Direction, Boolean> directionConfig = new EnumMap<>(Direction.class);
 
     public ManaGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MANA_GENERATOR_BE.get(), pos, state);
@@ -199,6 +202,16 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
         serverTick(level, pos, state, blockEntity);
+    }
+
+    @Override
+    public void setDirectionConfig(Direction direction, boolean isOutput) {
+        directionConfig.put(direction, isOutput);
+    }
+
+    @Override
+    public boolean isOutput(Direction direction) {
+        return directionConfig.getOrDefault(direction, false);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {

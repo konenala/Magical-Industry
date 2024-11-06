@@ -4,6 +4,7 @@ import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.ModBlocks;
 import com.github.nalamodikk.common.block.custom.blockitem.ManaGeneratorBlockItem;
 import com.github.nalamodikk.common.item.debug.ManaDebugToolItem;
+import com.github.nalamodikk.common.item.tool.BasicTechWandItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -25,6 +26,11 @@ public class ModItems {
 
     public static final RegistryObject<Item> MANA_DEBUG_TOOL = ITEMS.register("mana_debug_tool",
             () -> new ManaDebugToolItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> BASI_CTECH_WANDITEM = ITEMS.register("basi_ctech_wanditem",
+            () -> new BasicTechWandItem(new Item.Properties().stacksTo(1)));
+
+
 
     public static final RegistryObject<Item> MANA_GENERATOR_BLOCK_ITEM = ITEMS.register("mana_generator",
             () -> new ManaGeneratorBlockItem(ModBlocks.MANA_GENERATOR.get(), new Item.Properties()));
