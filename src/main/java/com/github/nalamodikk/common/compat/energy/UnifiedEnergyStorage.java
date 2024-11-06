@@ -26,21 +26,38 @@ public class UnifiedEnergyStorage implements IEnergyStorage {
         this.maxCapacity = new BigDecimal(capacity);
     }
 
+    public void setEnergy(BigDecimal value) {
+        // 確保能量不會超過最大容量，也不會低於 0
+        if (value.compareTo(BigDecimal.ZERO) < 0) {
+            energy = BigDecimal.ZERO;
+        } else if (value.compareTo(maxCapacity) > 0) {
+            energy = maxCapacity;
+        } else {
+            energy = value.setScale(DECIMAL_DIGITS, RoundingMode.DOWN);
+        }
+    }
+
     // 接收能量方法，支援 int、long、BigInteger
     @Override
     public int receiveEnergy(int maxReceive, boolean simulate) {
         if (maxReceive <= 0 || !canReceive()) {
             return 0;
         }
+
+        // 首先進行模擬操作來確認可以接收的能量量
         BigDecimal energyToAdd = BigDecimal.valueOf(maxReceive);
         BigDecimal acceptedEnergy = energyToAdd.min(maxCapacity.subtract(energy));
 
+        // 如果 simulate 為 false，則進行實際的儲存
         if (!simulate && acceptedEnergy.compareTo(BigDecimal.ZERO) > 0) {
             energy = energy.add(acceptedEnergy);
         }
 
+        // 返回這次（無論是模擬或真實）能夠接受的能量量
         return acceptedEnergy.intValue();
     }
+
+
 
     public long receiveEnergy(long maxReceive, boolean simulate) {
         if (maxReceive <= 0 || !canReceive()) {

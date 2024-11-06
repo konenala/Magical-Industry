@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.block.entity.ManaGenerator;
 
+import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
@@ -8,6 +9,7 @@ import com.github.nalamodikk.common.compat.energy.UnifiedEnergyStorage;
 import com.github.nalamodikk.common.mana.ManaAction;
 import com.github.nalamodikk.common.register.ConfigManager;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
+import com.github.nalamodikk.common.sync.UnifiedSyncManager;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
@@ -29,6 +31,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.common.util.LazyOptional;
@@ -51,6 +54,8 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.math.BigDecimal;
+
 public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider {
 
     public static final int MANA_STORED_INDEX = 0;
@@ -60,6 +65,8 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     public static final int CURRENT_BURN_TIME_INDEX = 4;
     public static final int DATA_COUNT = 5; // 總數據數量
     private int energyRate;
+    private final UnifiedSyncManager syncManager = new UnifiedSyncManager(5); // 假設有 5 個需要同步的數據
+
 
     private static int getConfigMaxEnergy() {
         return ConfigManager.COMMON.maxEnergy.get();
@@ -73,13 +80,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
         return ConfigManager.COMMON.manaRate.get();
     }
 
-    public static int getMaxMana() {
-        return MAX_MANA;
-    }
+
     public static final int MAX_MANA = 10000; // 或者保留 private，然後新增 getter
     public static final int MAX_ENERGY = 10000;
 
-    public final UnifiedEnergyStorage energyStorage = new UnifiedEnergyStorage(getConfigMaxEnergy());
+    private final UnifiedEnergyStorage energyStorage = new UnifiedEnergyStorage(getConfigMaxEnergy());
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
     private final ItemStackHandler fuelHandler = new ItemStackHandler(1) {
         @Override
@@ -107,13 +112,13 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     private int currentBurnTime;
     private double energyAccumulated = 0.0;
     private double manaAccumulated = 0.0;
-    int storedEnergy = energyStorage.getEnergyStored();
-
+//    int storedEnergy = energyStorage.getEnergyStored();
 
     protected static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
     protected static final RawAnimation WORKING_ANIM = RawAnimation.begin().thenLoop("working");
     private final LazyOptional<ItemStackHandler> lazyFuelHandler = LazyOptional.of(() -> fuelHandler);
     private final LazyOptional<UnifiedEnergyStorage> lazyEnergyStorage = LazyOptional.of(() -> energyStorage);
+    private final LazyOptional<ManaStorage> lazyManaStorage = LazyOptional.of(() -> manaStorage);
 
     public ManaGeneratorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MANA_GENERATOR_BE.get(), pos, state);
@@ -143,39 +148,45 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     }
 
     public ContainerData getContainerData() {
-        return containerData;
+        return syncManager.getContainerData();
     }
 
-    private final ContainerData containerData = new ContainerData() {
-        @Override
-        public int get(int index) {
-            return switch (index) {
-                case MANA_STORED_INDEX -> manaStorage.getMana();
-                case ENERGY_STORED_INDEX ->  energyStorage.getEnergyStored();
-                case MODE_INDEX -> currentMode == Mode.MANA ? 0 : 1;
-                case BURN_TIME_INDEX -> burnTime;
-                case CURRENT_BURN_TIME_INDEX -> currentBurnTime;
-                default -> 0;
-            };
-        }
 
-        @Override
-        public void set(int index, int value) {
-            switch (index) {
-                case MANA_STORED_INDEX -> manaStorage.setMana(value);
-                case ENERGY_STORED_INDEX -> energyStorage.receiveEnergy(value - energyStorage.getEnergyStored(), false);
+//    //已棄用方法
 
-                case MODE_INDEX -> currentMode = (value == 0) ? Mode.MANA : Mode.ENERGY;
-                case BURN_TIME_INDEX -> burnTime = value;
-                case CURRENT_BURN_TIME_INDEX -> currentBurnTime = value;
-            }
-        }
+//    private final ContainerData containerData = new ContainerData() {
+//        @Override
+//        public int get(int index) {
+//            return switch (index) {
+//                case MANA_STORED_INDEX -> manaStorage.getMana();
+//                case ENERGY_STORED_INDEX ->  energyStorage.getEnergyStored();
+//                case MODE_INDEX -> currentMode == Mode.MANA ? 0 : 1;
+//                case BURN_TIME_INDEX -> burnTime;
+//                case CURRENT_BURN_TIME_INDEX -> currentBurnTime;
+//                default -> 0;
+//            };
+//        }
+//
+//        @Override
+//        public void set(int index, int value) {
+//            switch (index) {
+//                case MANA_STORED_INDEX -> manaStorage.setMana(value);
+//                case ENERGY_STORED_INDEX -> energyStorage.setEnergy(BigDecimal.valueOf(value)); // 確保能量的更新是同步進行的
+//                case MODE_INDEX -> currentMode = (value == 0) ? Mode.MANA : Mode.ENERGY;
+//                case BURN_TIME_INDEX -> burnTime = value;
+//                case CURRENT_BURN_TIME_INDEX -> currentBurnTime = value;
+//            }
+//            setChanged(); // 確保標記數據變更
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return DATA_COUNT;
+//        }
+//    };
 
-        @Override
-        public int getCount() {
-            return DATA_COUNT;
-        }
-    };
+
+
 
     public ItemStackHandler getInventory() {
         return fuelHandler;
@@ -187,13 +198,28 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
 
     public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
-        if (!level.isClientSide) {
-            blockEntity.generateEnergyOrMana();
+        serverTick(level, pos, state, blockEntity);
+    }
 
+    public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
+        if (!level.isClientSide) {
+            blockEntity.sync();
+            blockEntity.generateEnergyOrMana();
             blockEntity.outputEnergyAndMana();
-            blockEntity.markUpdated();
+            blockEntity.markUpdated(); // 標記更新
         }
     }
+
+    private void sync() {
+        // 將能量和魔力的狀態同步到 UnifiedSyncManager 中
+        syncManager.set(ENERGY_STORED_INDEX, energyStorage.getEnergyStored());
+        syncManager.set(MANA_STORED_INDEX, manaStorage.getMana());
+        syncManager.set(MODE_INDEX, currentMode == Mode.MANA ? 0 : 1);
+        syncManager.set(BURN_TIME_INDEX, burnTime);
+        syncManager.set(CURRENT_BURN_TIME_INDEX, currentBurnTime);
+    }
+
+
     private void generateEnergyOrMana() {
         ItemStack fuel = fuelHandler.getStackInSlot(0);
         // 如果燃料槽為空且燃燒時間耗盡，停止工作
@@ -222,17 +248,22 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                 double energyToGenerate = (double) getConfigEnergyRate() / 20.0; // 每秒生成的能量除以 20
                 energyAccumulated += energyToGenerate; // 累積生成量
 
-                int energyToStore = (int) energyAccumulated; // 取整數部分
-                if (energyToStore > 0) {
+                if (energyAccumulated >= 1.0) { // 當累積能量達到1或以上
+                    int energyToStore = (int) energyAccumulated; // 取整數部分
                     energyAccumulated -= energyToStore; // 減去已存儲的部分
                     energyStorage.receiveEnergy(energyToStore, false); // 實際插入能量儲存
-                    MagicalIndustryMod.LOGGER.info("Energy Generated per tick: " + energyToGenerate);
-                    MagicalIndustryMod.LOGGER.info("Energy to Store: " + energyToStore);
+
+                    // 當成功插入能量時，進行同步
                     if (level != null && !level.isClientSide) {
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+                        setChanged(); // 確保數據更新被保存
+
                     }
 
+//                    MagicalIndustryMod.LOGGER.info("Energy to Generate: " + energyToGenerate);
+//                    MagicalIndustryMod.LOGGER.info("Energy to Store: " + energyToStore);
                 }
+
             } else if (currentMode == Mode.MANA) {
                 double manaToGenerate = (double) getConfigManaRate() / 20.0; // 每秒生成的魔力除以 20
                 manaAccumulated += manaToGenerate; // 累積生成量
@@ -242,16 +273,16 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                     manaAccumulated -= manaToStore; // 減去已存儲的部分
                     manaStorage.addMana(manaToStore); // 實際插入魔力儲存
                 }
+
             }
+
+//            // 日誌輸出以監控能量狀態
+//            MagicalIndustryMod.LOGGER.info("Current Energy: " + energyStorage.getEnergyStored());
+//            MagicalIndustryMod.LOGGER.info("Energy Accumulated: " + energyAccumulated);
+//            MagicalIndustryMod.LOGGER.info("Total Energy Stored: " + energyStorage.getEnergyStored());
+
         }
-        MagicalIndustryMod.LOGGER.info("Current Energy: " + energyStorage.getEnergyStored());
-
-        MagicalIndustryMod.LOGGER.info("Energy Accumulated: " + energyAccumulated);
-
-        MagicalIndustryMod.LOGGER.info("Total Energy Stored: " + energyStorage.getEnergyStored());
-
     }
-
 
     private void outputEnergyAndMana() {
         for (Direction direction : Direction.values()) {
@@ -276,6 +307,8 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
         }
     }
 
+
+
     @NotNull
     @Override
     public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
@@ -283,9 +316,13 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             return lazyFuelHandler.cast();
         } else if (cap == ForgeCapabilities.ENERGY) {
             return lazyEnergyStorage.cast();
+        } else if (cap == ManaCapability.MANA) {
+            return lazyManaStorage.cast();
         }
+
         return super.getCapability(cap, side);
     }
+
 
     @Override
     public void load(CompoundTag tag) {
@@ -357,9 +394,6 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
         ENERGY
     }
 
-    public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
-        blockEntity.tick(level, pos, state, blockEntity);
-    }
 
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {

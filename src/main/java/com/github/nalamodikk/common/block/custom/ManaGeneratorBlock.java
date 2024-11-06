@@ -86,11 +86,12 @@ public class ManaGeneratorBlock extends BaseEntityBlock {
         return new ManaGeneratorBlockEntity(pos, state);
     }
 
-    @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide ? null : createTickerHelper(type, ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorBlockEntity::tick);
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        return createTickerHelper(blockEntityType, ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorBlockEntity::serverTick);
     }
+
 
     @Override
     public RenderShape getRenderShape(BlockState state) {

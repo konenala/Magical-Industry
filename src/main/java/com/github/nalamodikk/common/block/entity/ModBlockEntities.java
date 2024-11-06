@@ -19,10 +19,10 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(ManaCraftingTableBlockEntity::new,
                             ModBlocks.MANA_CRAFTING_TABLE_BLOCK.get()).build(null));
 
-    public static final RegistryObject<BlockEntityType<ManaGeneratorBlockEntity>> MANA_GENERATOR_BE =
-            BLOCK_ENTITIES.register("mana_generator_be", () ->
-                    BlockEntityType.Builder.of(ManaGeneratorBlockEntity::new,
-                            ModBlocks.MANA_GENERATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<ManaGeneratorBlockEntity>> MANA_GENERATOR_BE = BLOCK_ENTITIES.register("mana_generator",
+            () -> BlockEntityType.Builder.of(ManaGeneratorBlockEntity::new, ModBlocks.MANA_GENERATOR.get())
+                    .build(null));
+
 
 
 

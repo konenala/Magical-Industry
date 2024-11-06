@@ -2,8 +2,11 @@ package com.github.nalamodikk.common.item.debug;
 
 import com.github.nalamodikk.common.Capability.ManaCapability;
 
+import com.github.nalamodikk.common.network.ManaUpdatePacket;
+import com.github.nalamodikk.common.network.NetworkHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class ManaDebugToolItem extends Item {
@@ -37,7 +41,7 @@ public class ManaDebugToolItem extends Item {
             BlockPos pos = context.getClickedPos();
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
-            if (blockEntity != null) {
+            if (blockEntity != null && blockEntity.getCapability(ManaCapability.MANA).isPresent()) {
                 // 檢查方塊實體是否具有魔力系統
                 blockEntity.getCapability(ManaCapability.MANA).ifPresent(manaStorage -> {
                     // 增加魔力
@@ -47,20 +51,32 @@ public class ManaDebugToolItem extends Item {
 
                     // 向玩家顯示訊息
                     Player player = context.getPlayer();
-                    if (player != null) {
-                        player.displayClientMessage(Component.translatable("message.magical_industry.mana_added", manaToAdd, manaStorage.getMana()), true);
+                    if (player instanceof ServerPlayer serverPlayer) {
+                        serverPlayer.displayClientMessage(Component.translatable("message.magical_industry.mana_added", manaToAdd, manaStorage.getMana()), true);
                     }
 
-                    // 確保狀態已更新
+                    // 確保狀態已更新並同步到所有客戶端
                     blockEntity.setChanged();
                     BlockState state = level.getBlockState(pos);
                     level.sendBlockUpdated(pos, state, state, 3);
+
+                    // 發送同步封包到附近玩家，以更新顯示
+                    if (level != null && !level.isClientSide) {
+                        if (level.getServer() != null && level.getServer().isDedicatedServer()) {
+                            // 如果是伺服器且為多人環境
+                            ManaUpdatePacket packet = new ManaUpdatePacket(pos, manaStorage.getMana());
+                            NetworkHandler.NETWORK_CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)), packet);
+                        }
+                    }
+
                 });
 
                 return InteractionResult.SUCCESS;
             }
         }
         return super.useOn(context);
+
+
     }
 
     @SubscribeEvent

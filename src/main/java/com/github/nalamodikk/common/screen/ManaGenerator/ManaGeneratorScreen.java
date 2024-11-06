@@ -2,6 +2,7 @@ package com.github.nalamodikk.common.screen.ManaGenerator;
 
 import com.github.nalamodikk.client.screenAPI.UniversalTexturedButton;
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.block.entity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.ToggleModePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -62,33 +63,68 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
 
     @Override
     protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
         RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
         pGuiGraphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight);
+//
+//        // 渲染魔力條
+//        int manaBarHeight = 47;
+//        int manaBarWidth = 7;
+//        int mana = this.menu.getManaStored();
+//        int maxMana = this.menu.getMaxMana();
+//        if (maxMana > 0 && mana > 0) {
+//            int renderHeight = (int) (((float) mana / maxMana) * manaBarHeight);
+//            RenderSystem.setShaderTexture(0, MANA_BAR_FULL);
+//            pGuiGraphics.blit(MANA_BAR_FULL, this.leftPos + 11, this.topPos + 19 + (manaBarHeight - renderHeight), 49, 11, manaBarWidth, renderHeight);
+//        }
 
-        // 渲染魔力條
-        int manaBarHeight = 47;
-        int manaBarWidth = 7;
-        int mana = this.menu.getManaStored();
-        int maxMana = this.menu.getMaxMana();
-        if (maxMana > 0 && mana > 0) {
-            int renderHeight = (int) (((float) mana / maxMana) * manaBarHeight);
-            RenderSystem.setShaderTexture(0, MANA_BAR_FULL);
-            pGuiGraphics.blit(MANA_BAR_FULL, this.leftPos + 11, this.topPos + 19 + (manaBarHeight - renderHeight), 49, 11, manaBarWidth, renderHeight);
-        }
+        drawManaBar(pGuiGraphics, 11, 19); // 魔力條的位置偏移（可以根據需要調整）
 
-        // 渲染能量條（在右側）
+        drawEnergyBar(pGuiGraphics, 156, 19); // 這裡的 xOffset 和 yOffset 是相對於 GUI 左上角的位置偏移
+
+//        // 渲染能量條（在右側）
+//        int energyBarHeight = 47;
+//        int energyBarWidth = 8;
+//        int energy = this.menu.getEnergyStored(); // 从 containerData 中获取能量值
+//        int maxEnergy = this.menu.getMaxEnergy();
+//        if (maxEnergy > 0 && energy > 0) {
+//            int renderHeight = (int) (((float) energy / maxEnergy) * ENERGY_BAR_HEIGHT);
+//            RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL);
+//            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 156, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
+//        }
+
+    }
+
+    private void drawEnergyBar(GuiGraphics pGuiGraphics, int xOffset, int yOffset) {
         int energyBarHeight = 47;
         int energyBarWidth = 8;
-        int energy = this.menu.getEnergyStored();
+        int energy = menu.getEnergyStored();
         int maxEnergy = this.menu.getMaxEnergy();
+
         if (maxEnergy > 0 && energy > 0) {
-            int renderHeight = (int) (((float) energy / maxEnergy) * energyBarHeight);
-            RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL);
-            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + 156, this.topPos + 19 + (energyBarHeight - renderHeight), 49, 11, energyBarWidth, renderHeight);
+            int renderHeight = (int) (((float) energy / maxEnergy) * energyBarHeight); // 計算應該渲染的高度
+            RenderSystem.setShaderTexture(0, ENERGY_BAR_FULL); // 設置能量條的紋理
+            pGuiGraphics.blit(ENERGY_BAR_FULL, this.leftPos + xOffset, this.topPos + yOffset + (energyBarHeight - renderHeight),
+                    49, 11, energyBarWidth, renderHeight);
+        }
+    }
+
+    private void drawManaBar(GuiGraphics pGuiGraphics, int xOffset, int yOffset) {
+        int manaBarHeight = 47;
+        int manaBarWidth = 8;
+        int mana = this.menu.getManaStored(); // 從 containerData 中獲取魔力值
+        int maxMana = this.menu.getMaxMana();
+
+        if (maxMana > 0 && mana > 0) {
+            int renderHeight = (int) (((float) mana / maxMana) * manaBarHeight); // 計算應該渲染的高度
+            RenderSystem.setShaderTexture(0, MANA_BAR_FULL); // 設置魔力條的紋理
+            pGuiGraphics.blit(MANA_BAR_FULL, this.leftPos + xOffset, this.topPos + yOffset + (manaBarHeight - renderHeight),
+                    49, 11, manaBarWidth, renderHeight);
         }
     }
 
