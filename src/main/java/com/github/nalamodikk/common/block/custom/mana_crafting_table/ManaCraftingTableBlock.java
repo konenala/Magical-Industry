@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.block.custom.mana_crafting_table;
 
+import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +13,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -66,4 +69,11 @@ public class ManaCraftingTableBlock extends BaseEntityBlock {
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new ManaCraftingTableBlockEntity(pPos, pState);  // 創建並返回 ManaCraftingTableBlockEntity
     }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, ModBlockEntities.MANA_CRAFTING_TABLE_BLOCK_BE.get(), ManaCraftingTableBlockEntity::serverTick);
+    }
+
 }

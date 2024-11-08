@@ -12,6 +12,7 @@ public interface IUnifiedManaHandler {
     void setMana(int amount);
     void onChanged();
     int getMaxMana();
+    boolean canExtract();
 
     default int getNeeded() {
         return Math.max(0, getMaxMana() - getMana());

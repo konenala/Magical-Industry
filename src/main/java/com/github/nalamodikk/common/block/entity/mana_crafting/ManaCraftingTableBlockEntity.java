@@ -5,6 +5,7 @@ import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.block.entity.ModBlockEntities;
+import com.github.nalamodikk.common.mana.ManaAction;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
 import net.minecraft.core.BlockPos;
@@ -20,6 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -49,7 +51,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
-    private final LazyOptional<ManaStorage> lazyManaStorage = LazyOptional.of(() -> manaStorage);
+    private LazyOptional<ManaStorage> lazyManaStorage = LazyOptional.of(() -> manaStorage);
 
     public static final int MAX_MANA = 1000;
     private static final int MANA_COST_PER_CRAFT = 50;
@@ -191,27 +193,65 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
+            // 返回物品處理器
             return lazyItemHandler.cast();
         } else if (cap == ManaCapability.MANA) {
-            return lazyManaStorage.cast();
+            // 返回魔力儲存
+            return LazyOptional.of(() -> this.manaStorage).cast();
         }
         return super.getCapability(cap, side);
     }
 
 
 
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, ManaCraftingTableBlockEntity blockEntity) {
+        if (!level.isClientSide) {
+            // 嘗試從相鄰方塊提取魔力
+            for (Direction direction : Direction.values()) {
+                BlockEntity neighborBlockEntity = level.getBlockEntity(pos.relative(direction));
+                if (neighborBlockEntity != null) {
+                    neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
+                        if (neighborManaStorage.canExtract()) {
+                            int manaToExtract = Math.min(50, neighborManaStorage.getMana());
+                            int extractedMana = neighborManaStorage.extractMana(manaToExtract, ManaAction.EXECUTE);
+                            blockEntity.extractManaFromStorage(extractedMana);
+                        }
+                    });
+                }
+            }
+
+            // 其他 tick 行為...
+        }
+    }
+
+
+
+
+
+    public void extractManaFromStorage(int amount) {
+        int extracted = manaStorage.extractMana(amount, ManaAction.EXECUTE);
+        if (extracted > 0) {
+            setChanged();  // 確保更新到伺服器端
+        }
+    }
+
+
     @Override
     public void onLoad() {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
+        lazyManaStorage = LazyOptional.of(() -> manaStorage); // 確保初始化 manaStorage
     }
+
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
-        lazyManaStorage.invalidate();
+        lazyManaStorage.invalidate(); // 確保無效化 manaStorage
     }
+
 
 
     public void drops() {

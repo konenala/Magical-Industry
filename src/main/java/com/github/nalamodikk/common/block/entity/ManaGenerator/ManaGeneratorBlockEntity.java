@@ -201,7 +201,6 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
         return (currentMode == Mode.MANA) ? 0 : 1;
     }
 
-
     public static void tick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
         serverTick(level, pos, state, blockEntity);
     }
