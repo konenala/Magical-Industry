@@ -27,7 +27,7 @@ public class ModItems {
     public static final RegistryObject<Item> MANA_DEBUG_TOOL = ITEMS.register("mana_debug_tool",
             () -> new ManaDebugToolItem(new Item.Properties().stacksTo(1)));
 
-    public static final RegistryObject<Item> BASI_CTECH_WANDITEM = ITEMS.register("basi_ctech_wanditem",
+    public static final RegistryObject<Item> BASIC_TECH_WANDITEM = ITEMS.register("basic_tech_wand",
             () -> new BasicTechWandItem(new Item.Properties().stacksTo(1)));
 
 

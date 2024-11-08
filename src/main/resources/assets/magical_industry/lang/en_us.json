@@ -3,6 +3,8 @@
   "item.magical_industry.mana_ingot": "Mana Ingot",
   "item.magical_industry.mana_debug_tool": "Mana Debug Tool",
   "item.magical_industry.corrupted_mana_dust": "Corrupted Mana Dust",
+  "item.magical_industry.basic_tech_wand": "Basic Tech Wand",
+  "item.magical_industry.basic_tech_wand.tooltip.mode": "Mode: %s",
 
   "message.magical_industry.mana_added": "Added %s Mana. Current Mana: %s",
   "message.magical_industry.mana_mode_changed": "Switched to mode: %s",
@@ -12,34 +14,54 @@
   "message.magical_industry.not_enough_mana": "Not enough mana in wand!",
   "message.magical_industry.block_rotated": "Block rotated!",
   "message.magical_industry.mode_changed": "Mode: %s",
+  "message.magical_industry.no_block_selected": "No block selected with the tech wand.",
+  "message.magical_industry.selected_block_unavailable": "Selected block is no longer available.",
+  "message.magical_industry.block_selected": "Selected block at position: {0}",
+  "message.magical_industry.block_not_configurable": "The selected block is not configurable.",
 
-
+  "message.magical_industry.add_mana_success": "Added 10 mana!",
+  "message.magical_industry.block_rotated_facing": "Block rotated! (FACING)",
+  "message.magical_industry.block_rotated_horizontal": "Block rotated! (HORIZONTAL_FACING)",
+  "message.magical_industry.block_cannot_rotate": "Block cannot be rotated!",
   "message.magical_industry.tech_wand.mode.configure_input": "Configure Input Mode",
   "message.magical_industry.tech_wand.mode.configure_output": "Configure Output Mode",
   "message.magical_industry.tech_wand.mode.add_mana": "Add Mana Mode",
   "message.magical_industry.tech_wand.mode.rotate": "Rotate Block Mode",
   "message.magical_industry.config_button_clicked": "Configuration button clicked!",
+  "message.magical_industry.config_changed": "Configuration for side %s has been changed to %s.",
 
-  "item.magical_industry.basic_tech_wand": "Basic Tech Wand",
-  "item.magical_industry.basic_tech_wand.tooltip.mode": "Mode: %s",
 
+  "direction.magical_industry.up": "Up",
+  "direction.magical_industry.down": "Down",
+  "direction.magical_industry.north": "North",
+  "direction.magical_industry.south": "South",
+  "direction.magical_industry.west": "West",
+  "direction.magical_industry.east": "East",
 
   "screen.magical_industry.configure_io": "Configure Input and Output",
   "screen.magical_industry.toggle_mode": "Toggle Mode",
   "screen.magical_industry.current_mode": "Current Mode: %s",
-  "screen.magical_industry.configure_input": "Configure Input",
-  "screen.magical_industry.configure_output": "Configure Output",
+  "screen.magical_industry.configure_side": "Configure Side: %s",
+  "screen.magical_industry.output": "Output",
+  "screen.magical_industry.input": "Input",
 
 
 
   "mode.magical_industry.mana": "Mana",
   "mode.magical_industry.energy": "Energy",
+  "mode.magical_industry.configure_io": "Configure Input/Output",
+  "mode.magical_industry.add_mana": "Add Mana",
+  "mode.magical_industry.rotate": "Rotate",
+  "mode.magical_industry.output": "Output",
+  "mode.magical_industry.input": "Input",
+  "mode.magical_industry.direction_config": "Direction Configuration Mode",
+
 
   "button.magical_industry.toggle_mode.tooltip_auto": "Automatic Mode",
   "button.magical_industry.toggle_mode.tooltip_manual": "Manual Mode",
   "button.magical_industry.configure_io": "Configure Input/Output",
 
-
+  "tooltip.magical_industry.mode": "Mode: %s",
   "tooltip.magical_industry.mana_stored": "Mana: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "Mana Cost: %1$d",
   "tooltip.magical_industry.mana_generator.mana": "Mana Stored: %s",
@@ -63,4 +85,5 @@
 
   "creativetab.magical_industry_items": "Magical Industry Items",
   "creativetab.magical_industry_blocks": "Magical Industry Blocks"
+
 }

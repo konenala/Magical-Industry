@@ -38,11 +38,15 @@ public class TechWandModePacket {
                     } else {
                         wand.setMode(stack, wand.getMode(stack).previous());
                     }
-                    player.displayClientMessage(Component.literal("Mode: " + wand.getMode(stack).name()), true);
+                    // 顯示本地化信息給玩家
+                    player.displayClientMessage(
+                            Component.translatable("message.magical_industry.mode_changed",
+                                    Component.translatable("mode.magical_industry." + wand.getMode(stack).name().toLowerCase())),
+                            true
+                    );
                 }
             }
         });
         ctx.get().setPacketHandled(true);
     }
 }
-

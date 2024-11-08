@@ -11,32 +11,55 @@
   "message.magical_industry.mana_mode_add_10": "增加 10 魔力",
   "message.magical_industry.mana_mode_add_100": "增加 100 魔力",
   "message.magical_industry.mana_mode_add_1000": "增加 1000 魔力",
+  "message.magical_industry.block_selected": "已選擇方塊於位置：{0}",
+  "message.magical_industry.block_not_configurable": "選中的方塊不支持配置。",
 
   "message.magical_industry.not_enough_mana": "魔杖中的魔力不足！",
   "message.magical_industry.block_rotated": "方塊已旋轉！",
   "message.magical_industry.mode_changed": "模式: %s",
-
+  "message.magical_industry.block_rotated_facing": "方塊已旋轉！（FACING）",
+  "message.magical_industry.block_rotated_horizontal": "方塊已旋轉！（HORIZONTAL_FACING）",
+  "message.magical_industry.block_cannot_rotate": "方塊無法旋轉！",
   "message.magical_industry.tech_wand.mode.configure_input": "配置輸入模式",
   "message.magical_industry.tech_wand.mode.configure_output": "配置輸出模式",
   "message.magical_industry.tech_wand.mode.add_mana": "增加魔力模式",
   "message.magical_industry.tech_wand.mode.rotate": "旋轉方塊模式",
-
+  "message.magical_industry.add_mana_success": "成功添加10魔力!",
   "message.magical_industry.config_button_clicked": "配置按鈕已點擊！",
+  "message.magical_industry.config_changed": "側面 %s 的配置已更改為 %s。",
+  "message.magical_industry.no_block_selected": "尚未使用科技魔杖選擇方塊。",
+  "message.magical_industry.selected_block_unavailable": "選擇的方塊已不可用。",
 
+  "direction.magical_industry.up": "上方",
+  "direction.magical_industry.down": "下方",
+  "direction.magical_industry.north": "北方",
+  "direction.magical_industry.south": "南方",
+  "direction.magical_industry.west": "西方",
+  "direction.magical_industry.east": "東方",
 
   "screen.magical_industry.configure_io": "配置輸入和輸出",
+  "screen.magical_industry.configure_side": "配置方向：%s",
+  "screen.magical_industry.output": "輸出",
+  "screen.magical_industry.input": "輸入",
+
 
   "screen.magical_industry.toggle_mode": "切換模式",
   "screen.magical_industry.current_mode": "當前模式: %s",
 
   "mode.magical_industry.mana": "魔力",
   "mode.magical_industry.energy": "能量",
+  "mode.magical_industry.configure_io": "配置輸入/輸出",
+  "mode.magical_industry.add_mana": "增加魔力",
+  "mode.magical_industry.rotate": "旋轉",
+  "mode.magical_industry.output": "輸出",
+  "mode.magical_industry.input": "輸入",
+  "mode.magical_industry.direction_config": "方向配置模式",
 
   "button.magical_industry.toggle_mode.tooltip_auto": "自動模式",
   "button.magical_industry.toggle_mode.tooltip_manual": "手動模式",
   "button.magical_industry.configure_io": "配置輸入/輸出",
 
-
+  "tooltip.magical_industry.mode": "模式：%s",
   "tooltip.magical_industry.mana_stored": "魔力: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "魔力消耗: %1$d",
   "tooltip.magical_industry.mana_generator.mana": "儲存的魔力: %s",

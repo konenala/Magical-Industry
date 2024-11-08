@@ -16,5 +16,6 @@ public class ModMenuScreens {
         MenuScreens.register(ModMenusTypes.MANA_GENERATOR_MENU.get(), ManaGeneratorScreen::new);
         MenuScreens.register(ModMenusTypes.UNIVERSAL_CONFIG.get(), UniversalConfigScreen::new);
 
+
     }
 }

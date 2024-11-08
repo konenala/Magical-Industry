@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.item.tool;
 
+import com.github.nalamodikk.common.API.IConfigurableBlock;
 import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
@@ -8,6 +9,7 @@ import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.TechWandModePacket;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
@@ -26,6 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.client.event.InputEvent;
@@ -44,6 +47,7 @@ public class BasicTechWandItem extends Item {
     // 定義科技魔杖的模式
     public enum TechWandMode {
         CONFIGURE_IO, // 合併輸入和輸出配置
+        DIRECTION_CONFIG,
         ADD_MANA,
         ROTATE;
 
@@ -52,19 +56,16 @@ public class BasicTechWandItem extends Item {
             return modes[(this.ordinal() + 1) % modes.length];
         }
 
-        // 獲取上一個模式（循環切換）
         public TechWandMode previous() {
             TechWandMode[] modes = values();
             return modes[(this.ordinal() - 1 + modes.length) % modes.length];
         }
     }
 
-    // 從物品中獲取當前模式
     public TechWandMode getMode(ItemStack stack) {
         return TechWandMode.values()[stack.getOrCreateTag().getInt("TechWandMode")];
     }
 
-    // 設置物品的模式
     public void setMode(ItemStack stack, TechWandMode mode) {
         stack.getOrCreateTag().putInt("TechWandMode", mode.ordinal());
     }
@@ -75,9 +76,37 @@ public class BasicTechWandItem extends Item {
             TechWandMode currentMode = getMode(stack);
             TechWandMode newMode = currentMode.next();
             setMode(stack, newMode);
-            serverPlayer.displayClientMessage(Component.literal("Mode: " + newMode.name()), true);
+            serverPlayer.displayClientMessage(Component.translatable("message.magical_industry.mode_changed",
+                    Component.translatable("mode.magical_industry." + newMode.name().toLowerCase())), true);
         }
     }
+
+    @SubscribeEvent
+    public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        Player player = event.getEntity();
+        Level level = player.level();
+        ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
+
+        if (player.isCrouching() && stack.getItem() instanceof BasicTechWandItem) {
+            BlockPos pos = event.getPos();
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+
+            if (blockEntity instanceof IConfigurableBlock) {
+                CompoundTag tag = stack.getOrCreateTag();
+                tag.putInt("SelectedX", pos.getX());
+                tag.putInt("SelectedY", pos.getY());
+                tag.putInt("SelectedZ", pos.getZ());
+                stack.setTag(tag);
+
+                // 向玩家顯示一條消息，確認選擇了哪個方塊
+                player.displayClientMessage(Component.translatable("message.magical_industry.block_selected", pos), true);
+                event.setCanceled(true); // 防止進行默認左鍵行為，例如破壞方塊
+            } else {
+                player.displayClientMessage(Component.translatable("message.magical_industry.block_not_configurable"), true);
+            }
+        }
+    }
+
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
@@ -91,71 +120,71 @@ public class BasicTechWandItem extends Item {
             TechWandMode mode = getMode(stack);
 
             if (blockEntity != null) {
-                LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
+                // 如果是支持配置的機器，檢查 IConfigurableBlock 接口
+                if (blockEntity instanceof IConfigurableBlock configurableBlock) {
+                    Direction clickedFace = context.getClickedFace();
 
-                if (manaCap.isPresent()) {
                     switch (mode) {
+                        case DIRECTION_CONFIG:
+                            // 獲取當前設置，切換方向配置
+                            boolean isCurrentlyOutput = configurableBlock.isOutput(clickedFace);
+                            configurableBlock.setDirectionConfig(clickedFace, !isCurrentlyOutput);
+                            player.displayClientMessage(Component.translatable(
+                                    "message.magical_industry.config_changed",
+                                    clickedFace.getName(), !isCurrentlyOutput ? Component.translatable("mode.magical_industry.output") : Component.translatable("mode.magical_industry.input")), true);
+                            return InteractionResult.SUCCESS;
+
                         case CONFIGURE_IO:
-                            // 配置輸入和輸出
+                            // 開啟配置界面
                             NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider(
                                     (id, playerInventory, playerEntity) -> new UniversalConfigMenu(id, playerInventory, blockEntity),
                                     Component.translatable("screen.magical_industry.configure_io")
                             ), pos);
                             return InteractionResult.SUCCESS;
 
+
                         case ADD_MANA:
-                            // 增加魔力，並消耗魔杖的魔力
-                            LazyOptional<IUnifiedManaHandler> wandManaCap = stack.getCapability(ManaCapability.MANA);
-                            if (wandManaCap.isPresent()) {
-                                wandManaCap.ifPresent(wandMana -> {
-                                    int manaToConsume = 10;
-                                    if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
-                                        wandMana.extractMana(manaToConsume, ManaAction.get(false));
-                                        manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
-                                        player.displayClientMessage(Component.literal("Added 10 Mana!"), true);
-                                    } else {
-                                        player.displayClientMessage(Component.literal("Not enough mana in wand!"), true);
-                                    }
-                                });
-                                return InteractionResult.SUCCESS;
+                            // 與機器進行魔力交互
+                            LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
+                            if (manaCap.isPresent()) {
+                                LazyOptional<IUnifiedManaHandler> wandManaCap = stack.getCapability(ManaCapability.MANA);
+                                if (wandManaCap.isPresent()) {
+                                    wandManaCap.ifPresent(wandMana -> {
+                                        int manaToConsume = 10;
+                                        if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
+                                            wandMana.extractMana(manaToConsume, ManaAction.get(false));
+                                            manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
+                                            player.displayClientMessage(Component.translatable("message.magical_industry.add_mana_success"), true);
+                                        } else {
+                                            player.displayClientMessage(Component.translatable("message.magical_industry.not_enough_mana"), true);
+                                        }
+                                    });
+                                    return InteractionResult.SUCCESS;
+                                }
                             }
                             break;
-
 
                         case ROTATE:
-                            // 獲取方塊的當前狀態
+                            // 旋轉機器方塊
                             BlockState state = level.getBlockState(pos);
-
-                            // 1. 首先檢查是否具有 FACING 屬性
                             if (state.hasProperty(BlockStateProperties.FACING)) {
                                 Direction currentDirection = state.getValue(BlockStateProperties.FACING);
-                                Direction newDirection = currentDirection.getClockWise(); // 順時針旋轉
+                                Direction newDirection = currentDirection.getClockWise();
                                 BlockState newState = state.setValue(BlockStateProperties.FACING, newDirection);
-
-                                // 更新方塊狀態
                                 level.setBlock(pos, newState, 3);
-                                player.displayClientMessage(Component.literal("Block rotated! (FACING)"), true);
+                                player.displayClientMessage(Component.translatable("message.magical_industry.block_rotated_facing"), true);
                                 return InteractionResult.SUCCESS;
-                            }
-
-                            // 2. 如果沒有 FACING 屬性，則檢查是否具有 HORIZONTAL_FACING 屬性
-                            else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                            } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                                 Direction currentDirection = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-                                Direction newDirection = currentDirection.getClockWise(); // 順時針旋轉
+                                Direction newDirection = currentDirection.getClockWise();
                                 BlockState newState = state.setValue(BlockStateProperties.HORIZONTAL_FACING, newDirection);
-
-                                // 更新方塊狀態
                                 level.setBlock(pos, newState, 3);
-                                player.displayClientMessage(Component.literal("Block rotated! (HORIZONTAL_FACING)"), true);
+                                player.displayClientMessage(Component.translatable("message.magical_industry.block_rotated_horizontal"), true);
                                 return InteractionResult.SUCCESS;
-                            }
-
-                            // 3. 如果既沒有 FACING 也沒有 HORIZONTAL_FACING，則顯示無法旋轉的消息
-                            else {
-                                player.displayClientMessage(Component.literal("Block cannot be rotated!"), true);
+                            } else {
+                                player.displayClientMessage(Component.translatable("message.magical_industry.block_cannot_rotate"), true);
                             }
                             break;
-
                     }
                 }
             }
@@ -163,7 +192,6 @@ public class BasicTechWandItem extends Item {
         return InteractionResult.PASS;
     }
 
-    // 處理玩家的蹲下滾輪滾動來切換模式
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
@@ -172,24 +200,18 @@ public class BasicTechWandItem extends Item {
             ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
             if (heldItem.getItem() instanceof BasicTechWandItem) {
                 BasicTechWandItem wand = (BasicTechWandItem) heldItem.getItem();
-
-                // 強制類型轉換，將滾輪方向變量從 double 轉為 float
                 float scrollDelta = (float) event.getScrollDelta();
-
-                // 發送切換模式封包，根據滾輪方向決定是前進還是後退
                 NetworkHandler.NETWORK_CHANNEL.sendToServer(new TechWandModePacket(scrollDelta > 0));
-
-                event.setCanceled(true); // 阻止玩家切換物品欄位
+                event.setCanceled(true);
             }
         }
     }
-
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, world, tooltip, flag);
-        tooltip.add(Component.literal("Mode: " + getMode(stack).name()));
+        tooltip.add(Component.translatable("tooltip.magical_industry.mode", Component.translatable("mode.magical_industry." + getMode(stack).name().toLowerCase())));
     }
 
 }

@@ -207,12 +207,19 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     @Override
     public void setDirectionConfig(Direction direction, boolean isOutput) {
         directionConfig.put(direction, isOutput);
+        setChanged();  // 標記狀態已更改，以確保變更被保存
+        markUpdated(); // 同步更新到客戶端
+        MagicalIndustryMod.LOGGER.info("Direction {} set to {} for block at {}", direction, isOutput ? "Output" : "Input", worldPosition);
+
     }
 
+
+    // 確認某個方向是否為輸出
     @Override
     public boolean isOutput(Direction direction) {
         return directionConfig.getOrDefault(direction, false);
     }
+
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
         if (!level.isClientSide) {
@@ -235,14 +242,23 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     private void generateEnergyOrMana() {
         ItemStack fuel = fuelHandler.getStackInSlot(0);
+
         // 如果燃料槽為空且燃燒時間耗盡，停止工作
         if (fuel.isEmpty() && burnTime <= 0) {
             isWorking = false;
             return;
         }
 
-        // 如果燃燒時間耗盡，且有燃料，開始新一輪燃燒
+        // 如果燃燒時間耗盡，且有燃料，並且能量/魔力未滿，開始新一輪燃燒
         if (burnTime <= 0 && !fuel.isEmpty()) {
+            // 檢查當前模式下的存儲是否已滿
+            if ((currentMode == Mode.ENERGY && energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) ||
+                    (currentMode == Mode.MANA && manaStorage.getMana() >= manaStorage.getMaxMana())) {
+                // 如果能量或魔力已滿，則不消耗燃料
+                isWorking = false;
+                return;
+            }
+
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuel.getItem());
             FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
             int burnTimeForFuel = (fuelRate != null) ? fuelRate.getBurnTime() : ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
@@ -258,6 +274,12 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             burnTime--; // 每 tick 燃燒時間減少
 
             if (currentMode == Mode.ENERGY) {
+                // 如果能量存儲已滿，停止工作
+                if (energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) {
+                    isWorking = false;
+                    return;
+                }
+
                 double energyToGenerate = (double) getConfigEnergyRate() / 20.0; // 每秒生成的能量除以 20
                 energyAccumulated += energyToGenerate; // 累積生成量
 
@@ -270,14 +292,16 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                     if (level != null && !level.isClientSide) {
                         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
                         setChanged(); // 確保數據更新被保存
-
                     }
-
-//                    MagicalIndustryMod.LOGGER.info("Energy to Generate: " + energyToGenerate);
-//                    MagicalIndustryMod.LOGGER.info("Energy to Store: " + energyToStore);
                 }
 
             } else if (currentMode == Mode.MANA) {
+                // 如果魔力存儲已滿，停止工作
+                if (manaStorage.getMana() >= manaStorage.getMaxMana()) {
+                    isWorking = false;
+                    return;
+                }
+
                 double manaToGenerate = (double) getConfigManaRate() / 20.0; // 每秒生成的魔力除以 20
                 manaAccumulated += manaToGenerate; // 累積生成量
 
@@ -286,39 +310,38 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                     manaAccumulated -= manaToStore; // 減去已存儲的部分
                     manaStorage.addMana(manaToStore); // 實際插入魔力儲存
                 }
-
             }
-
-//            // 日誌輸出以監控能量狀態
-//            MagicalIndustryMod.LOGGER.info("Current Energy: " + energyStorage.getEnergyStored());
-//            MagicalIndustryMod.LOGGER.info("Energy Accumulated: " + energyAccumulated);
-//            MagicalIndustryMod.LOGGER.info("Total Energy Stored: " + energyStorage.getEnergyStored());
-
         }
     }
 
     private void outputEnergyAndMana() {
         for (Direction direction : Direction.values()) {
-            BlockEntity neighborBlockEntity = level.getBlockEntity(worldPosition.relative(direction));
-            if (neighborBlockEntity != null) {
-                neighborBlockEntity.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(neighborEnergyStorage -> {
-                    if (neighborEnergyStorage.canReceive()) {
-                        int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
-                        int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
-                        energyStorage.extractEnergy(acceptedEnergy, false);
-                    }
-                });
+            // 只在設置為「輸出」的方向上進行能量和魔力的輸出
+            if (isOutput(direction)) {
+                BlockEntity neighborBlockEntity = level.getBlockEntity(worldPosition.relative(direction));
+                if (neighborBlockEntity != null) {
+                    // 嘗試將能量輸出到相鄰方塊
+                    neighborBlockEntity.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(neighborEnergyStorage -> {
+                        if (neighborEnergyStorage.canReceive()) {
+                            int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
+                            int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
+                            energyStorage.extractEnergy(acceptedEnergy, false);
+                        }
+                    });
 
-                neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
-                    if (neighborManaStorage.canReceive()) {
-                        int manaToTransfer = Math.min(manaStorage.getMana(), 50);
-                        int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
-                        manaStorage.extractMana(acceptedMana, ManaAction.get(false));
-                    }
-                });
+                    // 嘗試將魔力輸出到相鄰方塊
+                    neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
+                        if (neighborManaStorage.canReceive()) {
+                            int manaToTransfer = Math.min(manaStorage.getMana(), 50);
+                            int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
+                            manaStorage.extractMana(acceptedMana, ManaAction.get(false));
+                        }
+                    });
+                }
             }
         }
     }
+
 
 
 
@@ -340,6 +363,8 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+
+        // 加載燃料庫存
         if (tag.contains("FuelInventory", Tag.TAG_COMPOUND)) {
             CompoundTag inventoryTag = tag.getCompound("FuelInventory");
             for (int i = 0; i < fuelHandler.getSlots(); i++) {
@@ -349,6 +374,16 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                 }
             }
         }
+
+        // 加載方向配置
+        if (tag.contains("DirectionConfig", Tag.TAG_COMPOUND)) {
+            CompoundTag directionTag = tag.getCompound("DirectionConfig");
+            for (Direction direction : Direction.values()) {
+                this.directionConfig.put(direction, directionTag.getBoolean(direction.getName()));
+            }
+        }
+
+        // 加載其他屬性
         manaStorage.setMana(tag.getInt("ManaStored"));
         energyStorage.receiveEnergy(tag.getInt("EnergyStored"), false);
         isWorking = tag.getBoolean("IsWorking");
@@ -359,18 +394,30 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     @Override
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
+
+        // 保存燃料庫存
         CompoundTag inventoryTag = new CompoundTag();
         for (int i = 0; i < fuelHandler.getSlots(); i++) {
             ItemStack stack = fuelHandler.getStackInSlot(i);
             inventoryTag.put("Slot" + i, stack.save(new CompoundTag()));
         }
         tag.put("FuelInventory", inventoryTag);
+
+        // 保存方向配置
+        CompoundTag directionTag = new CompoundTag();
+        for (Direction direction : Direction.values()) {
+            directionTag.putBoolean(direction.getName(), this.directionConfig.getOrDefault(direction, false));
+        }
+        tag.put("DirectionConfig", directionTag);
+
+        // 保存其他屬性
         tag.putInt("ManaStored", manaStorage.getMana());
         tag.putInt("EnergyStored", energyStorage.getEnergyStored());
         tag.putBoolean("IsWorking", isWorking);
         tag.putInt("CurrentMode", currentMode == Mode.MANA ? 0 : 1);
         tag.putInt("BurnTime", burnTime);
     }
+
 
     @Override
     public Component getDisplayName() {

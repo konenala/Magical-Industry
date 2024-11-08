@@ -24,8 +24,6 @@ public class ModBlockEntities {
                     .build(null));
 
 
-
-
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }
