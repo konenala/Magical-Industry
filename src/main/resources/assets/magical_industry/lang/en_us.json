@@ -19,6 +19,7 @@
   "message.magical_industry.block_selected": "Selected block at position: {0}",
   "message.magical_industry.block_not_configurable": "The selected block is not configurable.",
 
+
   "message.magical_industry.add_mana_success": "Added 10 mana!",
   "message.magical_industry.block_rotated_facing": "Block rotated! (FACING)",
   "message.magical_industry.block_rotated_horizontal": "Block rotated! (HORIZONTAL_FACING)",
@@ -61,6 +62,9 @@
   "button.magical_industry.toggle_mode.tooltip_manual": "Manual Mode",
   "button.magical_industry.configure_io": "Configure Input/Output",
 
+  "tooltip.magical_industry.saved_direction_config": "%s: %s",
+  "tooltip.magical_industry.saved_block_position": "Saved Block Position: (%s, %s, %s)",
+  "tooltip.magical_industry.no_saved_block": "No block saved",
   "tooltip.magical_industry.mode": "Mode: %s",
   "tooltip.magical_industry.mana_stored": "Mana: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "Mana Cost: %1$d",

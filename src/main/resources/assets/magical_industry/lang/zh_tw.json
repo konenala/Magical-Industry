@@ -14,6 +14,7 @@
   "message.magical_industry.block_selected": "已選擇方塊於位置：{0}",
   "message.magical_industry.block_not_configurable": "選中的方塊不支持配置。",
 
+
   "message.magical_industry.not_enough_mana": "魔杖中的魔力不足！",
   "message.magical_industry.block_rotated": "方塊已旋轉！",
   "message.magical_industry.mode_changed": "模式: %s",
@@ -59,6 +60,10 @@
   "button.magical_industry.toggle_mode.tooltip_manual": "手動模式",
   "button.magical_industry.configure_io": "配置輸入/輸出",
 
+
+  "tooltip.magical_industry.saved_direction_config": "%s: %s",
+  "tooltip.magical_industry.saved_block_position": "已保存方塊位置: (%s, %s, %s)",
+  "tooltip.magical_industry.no_saved_block": "未保存任何方塊",
   "tooltip.magical_industry.mode": "模式：%s",
   "tooltip.magical_industry.mana_stored": "魔力: %1$d / %2$d",
   "tooltip.magical_industry.mana_cost": "魔力消耗: %1$d",
@@ -67,6 +72,7 @@
   "tooltip.magical_industry.mana_generator.status.stopped": "停止",
   "tooltip.mana": "魔力: %s / %s",
   "tooltip.energy": "能量: %s / %s",
+
 
   "block.magical_industry.mana_block": "魔法錠磚",
   "block.magical_industry.magic_ore": "魔法礦",

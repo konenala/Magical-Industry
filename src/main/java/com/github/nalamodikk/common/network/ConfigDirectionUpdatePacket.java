@@ -19,7 +19,8 @@ import java.util.function.Supplier;
 
 public class ConfigDirectionUpdatePacket {
     private final Direction direction;
-    private final BlockPos blockPos;;
+    private final BlockPos blockPos;
+    ;
     private final boolean isOutput;
 
     public ConfigDirectionUpdatePacket(BlockPos blockPos, Direction direction, boolean isOutput) {
@@ -53,23 +54,26 @@ public class ConfigDirectionUpdatePacket {
 
     public static void handle(ConfigDirectionUpdatePacket packet, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
-        ServerPlayer player = context.getSender();
-        if (player == null) return;
-
-        BlockPos pos = packet.getPos();
-        Direction direction = packet.getDirection();
-
         context.enqueueWork(() -> {
-            Level level = player.level();
-            if (level != null) {
-                BlockEntity blockEntity = level.getBlockEntity(pos);
-                if (blockEntity instanceof IConfigurableBlock configurableBlock) {
-                    configurableBlock.setDirectionConfig(direction, packet.isOutput());
-                    blockEntity.setChanged(); // 標記狀態已更改以保存到伺服器
+            ServerPlayer player = context.getSender();
+            if (player == null) return;  // 確保玩家不為空
 
-                    // 向所有玩家同步方塊更新
-                    level.sendBlockUpdated(pos, blockEntity.getBlockState(), blockEntity.getBlockState(), 3);
-                }
+            // 嘗試使用不同的方式來獲取伺服器等級
+            ServerLevel level = player.serverLevel();  // 或者使用 player.getLevel(); 根據你的版本來選擇
+
+            BlockPos pos = packet.getPos();
+            Direction direction = packet.getDirection();
+
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof IConfigurableBlock configurableBlock) {
+                configurableBlock.setDirectionConfig(direction, packet.isOutput());
+                blockEntity.setChanged(); // 標記狀態已更改以便保存到伺服器
+
+                // 向所有玩家同步方塊狀態更新
+                level.sendBlockUpdated(pos, blockEntity.getBlockState(), blockEntity.getBlockState(), 3);
+
+                // 日誌打印，用於檢查方向變更是否成功
+                MagicalIndustryMod.LOGGER.info("Direction {} set to {} for block at {}", direction, packet.isOutput() ? "Output" : "Input", pos);
             }
         });
 
