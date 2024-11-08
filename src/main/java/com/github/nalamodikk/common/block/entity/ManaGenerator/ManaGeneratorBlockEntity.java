@@ -1,6 +1,7 @@
 package com.github.nalamodikk.common.block.entity.ManaGenerator;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
+import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
@@ -57,6 +58,7 @@ import software.bernie.geckolib.core.object.PlayState;
 
 import java.math.BigDecimal;
 import java.util.EnumMap;
+import java.util.function.BiConsumer;
 
 public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider , IConfigurableBlock {
 
@@ -322,19 +324,25 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                 if (neighborBlockEntity != null) {
                     // 嘗試將能量輸出到相鄰方塊
                     neighborBlockEntity.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(neighborEnergyStorage -> {
-                        if (neighborEnergyStorage.canReceive()) {
-                            int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
-                            int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
-                            energyStorage.extractEnergy(acceptedEnergy, false);
+                        if (neighborEnergyStorage.canReceive() && neighborBlockEntity instanceof IConfigurableBlock configurableNeighborBlock) {
+                            // 確認相鄰的方塊在這個方向上是「輸入」
+                            if (!configurableNeighborBlock.isOutput(direction.getOpposite())) {
+                                int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
+                                int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
+                                energyStorage.extractEnergy(acceptedEnergy, false);
+                            }
                         }
                     });
 
                     // 嘗試將魔力輸出到相鄰方塊
                     neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
-                        if (neighborManaStorage.canReceive()) {
-                            int manaToTransfer = Math.min(manaStorage.getMana(), 50);
-                            int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
-                            manaStorage.extractMana(acceptedMana, ManaAction.get(false));
+                        if (neighborManaStorage.canReceive() && neighborBlockEntity instanceof IConfigurableBlock configurableNeighborBlock) {
+                            // 確認相鄰的方塊在這個方向上是「輸入」
+                            if (!configurableNeighborBlock.isOutput(direction.getOpposite())) {
+                                int manaToTransfer = Math.min(manaStorage.getMana(), 50);
+                                int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
+                                manaStorage.extractMana(acceptedMana, ManaAction.get(false));
+                            }
                         }
                     });
                 }
@@ -343,6 +351,20 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     }
 
 
+//    private void outputCapability(Direction direction, BlockEntity neighborBlockEntity, Capability<?> capability, int amount, BiConsumer<Integer, Boolean> extractor) {
+//        neighborBlockEntity.getCapability(capability, direction.getOpposite()).ifPresent(neighborStorage -> {
+//            if (neighborStorage instanceof IConfigurableBlock configurableNeighborBlock && !configurableNeighborBlock.isOutput(direction.getOpposite())) {
+//                if (capability == ForgeCapabilities.ENERGY) {
+//                    int acceptedEnergy = ((IEnergyStorage) neighborStorage).receiveEnergy(amount, false);
+//                    extractor.accept(acceptedEnergy, false);
+//                } else if (capability == ModCapabilities.MANA) {
+//                    int acceptedMana = ((IUnifiedManaHandler) neighborStorage).receiveMana(amount, ManaAction.get(false));
+//                    extractor.accept(acceptedMana, ManaAction.get(false));
+//                }
+//            }
+//        });
+//    }
+//
 
 
     @NotNull
