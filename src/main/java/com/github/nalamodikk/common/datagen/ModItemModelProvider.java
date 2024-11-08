@@ -18,7 +18,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         simpleItem(ModItems.MANA_DEBUG_TOOL);
-        simpleItem(ModItems.BASIC_TECH_WANDITEM);
+        simpleItem(ModItems.BASIC_TECH_WAND);
         simpleItem(ModItems.MANA_DUST);
         simpleItem(ModItems.MANA_INGOT);
         simpleItem(ModItems.CORRUPTED_MANA_DUST);

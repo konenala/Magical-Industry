@@ -25,10 +25,7 @@ public class CapabilityHandler {
         if (event.getObject() instanceof ManaCraftingTableBlockEntity blockEntity) {
             // 判斷是否已經具有 MANA 能力，避免重複附加
             LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
-            if (!manaCap.isPresent()) {
-                // 添加 mana 能力
-                event.addCapability(new ResourceLocation(MOD_ID, "mana"), new ManaCraftingTableBlockEntity.Provider(blockEntity));
-            }
+
         }
     }
 }

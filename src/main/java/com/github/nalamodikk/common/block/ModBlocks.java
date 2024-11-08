@@ -41,7 +41,7 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> DEEPSLATE_MAGIC_ORE = registerBlock("deepslate_magic_ore",
             () -> new DropExperienceBlock(BlockBehaviour.Properties.copy(Blocks.DEEPSLATE)
-                    .strength(4f).requiresCorrectToolForDrops(), UniformInt.of(3, 6)));
+                    .strength(4f).requiresCorrectToolForDrops(), UniformInt.of(3, 8)));
 
 
 

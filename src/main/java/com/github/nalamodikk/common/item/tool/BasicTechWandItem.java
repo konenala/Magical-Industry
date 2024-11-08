@@ -153,26 +153,26 @@ public class BasicTechWandItem extends Item {
                             });
                             return InteractionResult.SUCCESS;
 
-                        case ADD_MANA:
-                            // 與機器進行魔力交互
-                            LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
-                            if (manaCap.isPresent()) {
-                                LazyOptional<IUnifiedManaHandler> wandManaCap = stack.getCapability(ManaCapability.MANA);
-                                if (wandManaCap.isPresent()) {
-                                    wandManaCap.ifPresent(wandMana -> {
-                                        int manaToConsume = 10;
-                                        if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
-                                            wandMana.extractMana(manaToConsume, ManaAction.get(false));
-                                            manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
-                                            player.displayClientMessage(Component.translatable("message.magical_industry.add_mana_success"), true);
-                                        } else {
-                                            player.displayClientMessage(Component.translatable("message.magical_industry.not_enough_mana"), true);
-                                        }
-                                    });
-                                    return InteractionResult.SUCCESS;
-                                }
-                            }
-                            break;
+//                        case ADD_MANA:
+//                            // 與機器進行魔力交互
+//                            LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
+//                            if (manaCap.isPresent()) {
+//                                LazyOptional<IUnifiedManaHandler> wandManaCap = stack.getCapability(ManaCapability.MANA);
+//                                if (wandManaCap.isPresent()) {
+//                                    wandManaCap.ifPresent(wandMana -> {
+//                                        int manaToConsume = 10;
+//                                        if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
+//                                            wandMana.extractMana(manaToConsume, ManaAction.get(false));
+//                                            manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
+//                                            player.displayClientMessage(Component.translatable("message.magical_industry.add_mana_success"), true);
+//                                        } else {
+//                                            player.displayClientMessage(Component.translatable("message.magical_industry.not_enough_mana"), true);
+//                                        }
+//                                    });
+//                                    return InteractionResult.SUCCESS;
+//                                }
+//                            }
+//                            break;
 
                         case ROTATE:
                             // 旋轉機器方塊

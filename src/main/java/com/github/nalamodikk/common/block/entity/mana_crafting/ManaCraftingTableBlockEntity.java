@@ -49,7 +49,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
-    private final LazyOptional<IUnifiedManaHandler> manaOptional = LazyOptional.of(() -> manaStorage);
+    private final LazyOptional<ManaStorage> lazyManaStorage = LazyOptional.of(() -> manaStorage);
 
     public static final int MAX_MANA = 1000;
     private static final int MANA_COST_PER_CRAFT = 50;
@@ -86,7 +86,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         }
     }
 
-    public Optional<ManaCraftingTableRecipe> getCurrentRecipe() {
+    public Optional<ManaCraftingTableRecipe>        getCurrentRecipe() {
         SimpleContainer inventory = new SimpleContainer(9);
         for (int i = INPUT_SLOT_START; i <= INPUT_SLOT_END; i++) {
             inventory.setItem(i - INPUT_SLOT_START, this.itemHandler.getStackInSlot(i));
@@ -191,14 +191,13 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            // 返回物品處理器
             return lazyItemHandler.cast();
         } else if (cap == ManaCapability.MANA) {
-            // 返回魔力儲存
-            return LazyOptional.of(() -> this.manaStorage).cast();
+            return lazyManaStorage.cast();
         }
         return super.getCapability(cap, side);
     }
+
 
 
     @Override
@@ -211,8 +210,9 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     public void invalidateCaps() {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
-        manaOptional.invalidate();
+        lazyManaStorage.invalidate();
     }
+
 
     public void drops() {
         SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
@@ -246,22 +246,4 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         manaStorage.setMana(pTag.getInt("ManaStored"));
     }
 
-    public static class Provider implements ICapabilityProvider {
-        private final ManaCraftingTableBlockEntity blockEntity;
-        private final LazyOptional<IUnifiedManaHandler > manaOptional;
-
-        public Provider(ManaCraftingTableBlockEntity blockEntity) {
-            this.blockEntity = blockEntity;
-            this.manaOptional = LazyOptional.of(() -> blockEntity.manaStorage);
-        }
-
-        @NotNull
-        @Override
-        public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-            if (cap == ModCapabilities.MANA) {
-                return manaOptional.cast();
-            }
-            return LazyOptional.empty();
-        }
-    }
 }
