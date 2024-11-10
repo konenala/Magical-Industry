@@ -1,18 +1,13 @@
-package com.github.nalamodikk.common.network;
+package com.github.nalamodikk.common.network.toolpacket;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
-import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
-import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.entity.ManaGenerator.ManaGeneratorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -58,9 +53,7 @@ public class ConfigDirectionUpdatePacket {
             ServerPlayer player = context.getSender();
             if (player == null) return;  // 確保玩家不為空
 
-            // 嘗試使用不同的方式來獲取伺服器等級
-            ServerLevel level = player.serverLevel();  // 或者使用 player.getLevel(); 根據你的版本來選擇
-
+            ServerLevel level = player.serverLevel();
             BlockPos pos = packet.getPos();
             Direction direction = packet.getDirection();
 
@@ -73,12 +66,17 @@ public class ConfigDirectionUpdatePacket {
                 level.sendBlockUpdated(pos, blockEntity.getBlockState(), blockEntity.getBlockState(), 3);
 
                 // 日誌打印，用於檢查方向變更是否成功
-                MagicalIndustryMod.LOGGER.info("Direction {} set to {} for block at {}", direction, packet.isOutput() ? "Output" : "Input", pos);
+                MagicalIndustryMod.LOGGER.info("Player {} set Direction {} to {} for block at {}",
+                        player.getName().getString(), direction, packet.isOutput() ? "Output" : "Input", pos);
+            } else {
+                // 如果 blockEntity 不是可配置的方塊，記錄錯誤信息
+                MagicalIndustryMod.LOGGER.error("Failed to set direction for block at {} because it is not an instance of IConfigurableBlock.", pos);
             }
         });
 
         context.setPacketHandled(true);
     }
+
 
 }
 

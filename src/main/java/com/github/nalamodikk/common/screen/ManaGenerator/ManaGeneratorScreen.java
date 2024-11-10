@@ -2,9 +2,8 @@ package com.github.nalamodikk.common.screen.ManaGenerator;
 
 import com.github.nalamodikk.client.screenAPI.UniversalTexturedButton;
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.entity.ManaGenerator.ManaGeneratorBlockEntity;
-import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.ToggleModePacket;
+import com.github.nalamodikk.common.network.handler.NetworkHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;

@@ -1,4 +1,4 @@
-package com.github.nalamodikk.common.network;
+package com.github.nalamodikk.common.network.toolpacket;
 
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import net.minecraft.client.Minecraft;
@@ -6,6 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -32,19 +34,27 @@ public class ManaUpdatePacket {
 
     // 處理封包的方法，當封包到達客戶端時的操作
     public static void handle(ManaUpdatePacket msg, Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> {
-            Level level = Minecraft.getInstance().level;
-            if (level != null) {
-                BlockEntity blockEntity = level.getBlockEntity(msg.pos);
-                if (blockEntity != null) {
-                    // 不指定具體的方塊類型，改為檢查是否有 ManaCapability
-                    blockEntity.getCapability(ManaCapability.MANA).ifPresent(manaStorage -> {
-                        manaStorage.setMana(msg.mana); // 使用魔力能力來更新魔力值
-                    });
-                }
-            }
-        });
-        context.get().setPacketHandled(true);
+        NetworkEvent.Context ctx = context.get();
+
+        // 根據目標側判斷是否需要在伺服器或客戶端處理
+        if (ctx.getDirection().getReceptionSide().isClient()) {
+            ctx.enqueueWork(() -> {
+                // 確保只在客戶端執行
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                    Level level = Minecraft.getInstance().level;
+                    if (level != null) {
+                        BlockEntity blockEntity = level.getBlockEntity(msg.pos);
+                        if (blockEntity != null) {
+                            blockEntity.getCapability(ManaCapability.MANA).ifPresent(manaStorage -> {
+                                manaStorage.setMana(msg.mana);
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        ctx.setPacketHandled(true);
     }
 
 }

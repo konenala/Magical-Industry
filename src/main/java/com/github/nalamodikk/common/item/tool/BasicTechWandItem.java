@@ -1,18 +1,19 @@
 package com.github.nalamodikk.common.item.tool;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
-import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
-import com.github.nalamodikk.common.Capability.ManaCapability;
-import com.github.nalamodikk.common.mana.ManaAction;
-import com.github.nalamodikk.common.network.NetworkHandler;
-import com.github.nalamodikk.common.network.TechWandModePacket;
+import com.github.nalamodikk.common.network.handler.NetworkHandler;
+import com.github.nalamodikk.common.network.toolpacket.TechWandModePacket;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
 import com.github.nalamodikk.common.util.helpers.BlockSelector;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.*;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,17 +21,16 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -87,31 +87,33 @@ public class BasicTechWandItem extends Item {
         ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
 
         if (player.isCrouching() && stack.getItem() instanceof BasicTechWandItem) {
-            // 使用射線追蹤來選擇玩家視角中的方塊
-            BlockPos targetBlockPos = BlockSelector.getTargetBlock(player, 5.0); // 假設 5 格內有效
-            if (targetBlockPos != null) {
-                BlockEntity blockEntity = level.getBlockEntity(targetBlockPos);
+            if (!level.isClientSide()) { // 只在伺服器端處理選擇方塊的邏輯
+                // 使用射線追蹤來選擇玩家視角中的方塊
+                BlockPos targetBlockPos = BlockSelector.getTargetBlock(player, 5.0); // 假設 5 格內有效
+                if (targetBlockPos != null) {
+                    BlockEntity blockEntity = level.getBlockEntity(targetBlockPos);
 
-                if (blockEntity instanceof IConfigurableBlock) {
-                    // 保存方塊的位置到工具的 NBT
-                    CompoundTag tag = stack.getOrCreateTag();
-                    tag.putInt("SelectedX", targetBlockPos.getX());
-                    tag.putInt("SelectedY", targetBlockPos.getY());
-                    tag.putInt("SelectedZ", targetBlockPos.getZ());
-                    for (Direction direction : Direction.values()) {
-                        boolean isOutput = ((IConfigurableBlock) blockEntity).isOutput(direction);
-                        tag.putBoolean("Direction_" + direction.getName(), isOutput);
+                    if (blockEntity instanceof IConfigurableBlock) {
+                        // 保存方塊的位置到工具的 NBT
+                        CompoundTag tag = stack.getOrCreateTag();
+                        tag.putInt("SelectedX", targetBlockPos.getX());
+                        tag.putInt("SelectedY", targetBlockPos.getY());
+                        tag.putInt("SelectedZ", targetBlockPos.getZ());
+                        for (Direction direction : Direction.values()) {
+                            boolean isOutput = ((IConfigurableBlock) blockEntity).isOutput(direction);
+                            tag.putBoolean("Direction_" + direction.getName(), isOutput);
+                        }
+                        stack.setTag(tag);
+
+                        // 向玩家顯示一條消息，確認選擇了哪個方塊
+                        player.displayClientMessage(Component.translatable("message.magical_industry.block_selected", targetBlockPos), true);
+                        event.setCanceled(true); // 防止默認左鍵行為，例如破壞方塊
+                    } else {
+                        player.displayClientMessage(Component.translatable("message.magical_industry.block_not_configurable"), true);
                     }
-                    stack.setTag(tag);
-
-                    // 向玩家顯示一條消息，確認選擇了哪個方塊
-                    player.displayClientMessage(Component.translatable("message.magical_industry.block_selected", targetBlockPos), true);
-                    event.setCanceled(true); // 防止默認左鍵行為，例如破壞方塊
                 } else {
-                    player.displayClientMessage(Component.translatable("message.magical_industry.block_not_configurable"), true);
+                    player.displayClientMessage(Component.translatable("message.magical_industry.no_block_selected"), true);
                 }
-            } else {
-                player.displayClientMessage(Component.translatable("message.magical_industry.no_block_selected"), true);
             }
         }
     }
@@ -144,35 +146,16 @@ public class BasicTechWandItem extends Item {
 
                         case CONFIGURE_IO:
                             // 直接開啟配置界面，不在這裡改變方向配置
-                            NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider(
-                                    (id, playerInventory, playerEntity) -> new UniversalConfigMenu(id, playerInventory, blockEntity, stack),
-                                    Component.translatable("screen.magical_industry.configure_io")
-                            ), buf -> {
-                                buf.writeBlockPos(blockEntity.getBlockPos());
-                                buf.writeItem(stack);
-                            });
+                            if (player instanceof ServerPlayer serverPlayer) {
+                                NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                                        (id, playerInventory, playerEntity) -> new UniversalConfigMenu(id, playerInventory, blockEntity, stack),
+                                        Component.translatable("screen.magical_industry.configure_io")
+                                ), buf -> {
+                                    buf.writeBlockPos(blockEntity.getBlockPos());
+                                    buf.writeItem(stack);
+                                });
+                            }
                             return InteractionResult.SUCCESS;
-
-//                        case ADD_MANA:
-//                            // 與機器進行魔力交互
-//                            LazyOptional<IUnifiedManaHandler> manaCap = blockEntity.getCapability(ManaCapability.MANA);
-//                            if (manaCap.isPresent()) {
-//                                LazyOptional<IUnifiedManaHandler> wandManaCap = stack.getCapability(ManaCapability.MANA);
-//                                if (wandManaCap.isPresent()) {
-//                                    wandManaCap.ifPresent(wandMana -> {
-//                                        int manaToConsume = 10;
-//                                        if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
-//                                            wandMana.extractMana(manaToConsume, ManaAction.get(false));
-//                                            manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
-//                                            player.displayClientMessage(Component.translatable("message.magical_industry.add_mana_success"), true);
-//                                        } else {
-//                                            player.displayClientMessage(Component.translatable("message.magical_industry.not_enough_mana"), true);
-//                                        }
-//                                    });
-//                                    return InteractionResult.SUCCESS;
-//                                }
-//                            }
-//                            break;
 
                         case ROTATE:
                             // 旋轉機器方塊
@@ -211,14 +194,19 @@ public class BasicTechWandItem extends Item {
             if (heldItem.getItem() instanceof BasicTechWandItem) {
                 BasicTechWandItem wand = (BasicTechWandItem) heldItem.getItem();
                 float scrollDelta = (float) event.getScrollDelta();
-                NetworkHandler.NETWORK_CHANNEL.sendToServer(new TechWandModePacket(scrollDelta > 0));
-                event.setCanceled(true);
+
+                // 確認封包系統是否已正確註冊
+                if (scrollDelta != 0) {
+                    boolean forward = scrollDelta > 0;
+                    NetworkHandler.NETWORK_CHANNEL.sendToServer(new TechWandModePacket(forward));
+                    event.setCanceled(true);
+                }
             }
         }
     }
 
+
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, world, tooltip, flag);
 
@@ -254,5 +242,4 @@ public class BasicTechWandItem extends Item {
             tooltip.add(Component.translatable("tooltip.magical_industry.no_saved_block"));
         }
     }
-
 }

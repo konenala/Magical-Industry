@@ -2,8 +2,9 @@ package com.github.nalamodikk.common.item.debug;
 
 import com.github.nalamodikk.common.Capability.ManaCapability;
 
-import com.github.nalamodikk.common.network.ManaUpdatePacket;
-import com.github.nalamodikk.common.network.NetworkHandler;
+import com.github.nalamodikk.common.network.handler.NetworkHandler;
+import com.github.nalamodikk.common.network.toolpacket.ManaUpdatePacket;
+import com.github.nalamodikk.common.network.toolpacket.ModeChangePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,10 +26,11 @@ import net.minecraftforge.network.PacketDistributor;
 
 @Mod.EventBusSubscriber
 public class ManaDebugToolItem extends Item {
+    public static final String TAG_MODE_INDEX = "ModeIndex";
+
 
     private static final int[] MANA_AMOUNTS = {10, 100, 1000};
     private static final String[] MODES = {"message.magical_industry.mana_mode_add_10", "message.magical_industry.mana_mode_add_100", "message.magical_industry.mana_mode_add_1000"};
-    private int modeIndex = 0;
 
     public ManaDebugToolItem(Properties properties) {
         super(properties);
@@ -42,12 +44,12 @@ public class ManaDebugToolItem extends Item {
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
             if (blockEntity != null && blockEntity.getCapability(ManaCapability.MANA).isPresent()) {
-                // 檢查方塊實體是否具有魔力系統
                 blockEntity.getCapability(ManaCapability.MANA).ifPresent(manaStorage -> {
                     // 增加魔力
+                    ItemStack stack = context.getItemInHand();
+                    int modeIndex = stack.getOrCreateTag().getInt(TAG_MODE_INDEX);
                     int manaToAdd = MANA_AMOUNTS[modeIndex];
                     manaStorage.addMana(manaToAdd);
-                    System.out.println("Debug: Added " + manaToAdd + " Mana. Current Mana: " + manaStorage.getMana());
 
                     // 向玩家顯示訊息
                     Player player = context.getPlayer();
@@ -60,23 +62,15 @@ public class ManaDebugToolItem extends Item {
                     BlockState state = level.getBlockState(pos);
                     level.sendBlockUpdated(pos, state, state, 3);
 
-                    // 發送同步封包到附近玩家，以更新顯示
-                    if (level != null && !level.isClientSide) {
-                        if (level.getServer() != null && level.getServer().isDedicatedServer()) {
-                            // 如果是伺服器且為多人環境
-                            ManaUpdatePacket packet = new ManaUpdatePacket(pos, manaStorage.getMana());
-                            NetworkHandler.NETWORK_CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)), packet);
-                        }
-                    }
-
+                    // 發送同步封包到所有玩家
+                    ManaUpdatePacket packet = new ManaUpdatePacket(pos, manaStorage.getMana());
+                    NetworkHandler.NETWORK_CHANNEL.send(PacketDistributor.TRACKING_CHUNK.with(() -> level.getChunkAt(pos)), packet);
                 });
 
                 return InteractionResult.SUCCESS;
             }
         }
         return super.useOn(context);
-
-
     }
 
     @SubscribeEvent
@@ -88,22 +82,30 @@ public class ManaDebugToolItem extends Item {
 
             if (heldItem.getItem() instanceof ManaDebugToolItem && player.isCrouching()) {
                 ManaDebugToolItem manaDebugToolItem = (ManaDebugToolItem) heldItem.getItem();
-                manaDebugToolItem.cycleMode(event.getScrollDelta() > 0);
-                player.displayClientMessage(Component.translatable("message.magical_industry.mana_mode_changed", manaDebugToolItem.getCurrentModeDescription()), true);
+                manaDebugToolItem.cycleMode(heldItem, event.getScrollDelta() > 0);
+
+                // 發送封包同步到伺服器
+                int modeIndex = heldItem.getOrCreateTag().getInt(TAG_MODE_INDEX);
+                NetworkHandler.NETWORK_CHANNEL.sendToServer(new ModeChangePacket(modeIndex));
+
+                player.displayClientMessage(Component.translatable("message.magical_industry.mana_mode_changed", manaDebugToolItem.getCurrentModeDescription(heldItem)), true);
                 event.setCanceled(true); // 阻止玩家切換物品欄位
             }
         }
     }
 
-    private void cycleMode(boolean forward) {
+    private void cycleMode(ItemStack stack, boolean forward) {
+        int modeIndex = stack.getOrCreateTag().getInt(TAG_MODE_INDEX);
         if (forward) {
             modeIndex = (modeIndex + 1) % MANA_AMOUNTS.length;
         } else {
             modeIndex = (modeIndex - 1 + MANA_AMOUNTS.length) % MANA_AMOUNTS.length;
         }
+        stack.getOrCreateTag().putInt(TAG_MODE_INDEX, modeIndex);
     }
 
-    private String getCurrentModeDescription() {
+    private String getCurrentModeDescription(ItemStack stack) {
+        int modeIndex = stack.getOrCreateTag().getInt(TAG_MODE_INDEX);
         return Component.translatable(MODES[modeIndex]).getString();
     }
 }

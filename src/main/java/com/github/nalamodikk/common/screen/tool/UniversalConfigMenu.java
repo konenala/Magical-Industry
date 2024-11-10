@@ -2,30 +2,21 @@ package com.github.nalamodikk.common.screen.tool;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.network.ConfigDirectionUpdatePacket;
-import com.github.nalamodikk.common.network.NetworkHandler;
+import com.github.nalamodikk.common.network.handler.NetworkHandler;
+import com.github.nalamodikk.common.network.toolpacket.ConfigDirectionUpdatePacket;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class UniversalConfigMenu extends AbstractContainerMenu {
     private final EnumMap<Direction, Boolean> currentConfig = new EnumMap<>(Direction.class);

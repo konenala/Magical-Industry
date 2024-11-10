@@ -5,7 +5,7 @@ import com.github.nalamodikk.common.block.entity.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
 import com.github.nalamodikk.common.item.ModItems;
-import com.github.nalamodikk.common.network.NetworkHandler;
+import com.github.nalamodikk.common.network.handler.NetworkHandler;
 import com.github.nalamodikk.common.recipe.ModRecipes;
 import com.github.nalamodikk.common.register.*;
 import com.github.nalamodikk.common.screen.ModMenusTypes;
@@ -24,7 +24,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
-import snownee.jade.api.IWailaCommonRegistration;
 import software.bernie.geckolib.GeckoLib;
 
 // The value here should match an entry in the META-INF/mods.toml file
