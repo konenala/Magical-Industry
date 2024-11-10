@@ -40,25 +40,21 @@ public class NetworkHandler {
     }
 
     public static void registerPackets() {
-        // 使用 PacketIDHelper 生成唯一的封包 ID
+        // 註冊伺服器端封包
+        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ToggleModePacket.class, ToggleModePacket::encode, ToggleModePacket::decode, ToggleModePacket::handle);
+        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ConfigDirectionUpdatePacket.class, ConfigDirectionUpdatePacket::encode, ConfigDirectionUpdatePacket::decode, PacketHandler::handleConfigDirectionUpdate);
+        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ModeChangePacket.class, ModeChangePacket::toBytes, ModeChangePacket::new, ModeChangePacket::handle);
 
-        // 註冊所有封包
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ToggleModePacket.class,
-                ToggleModePacket::encode, ToggleModePacket::decode, ToggleModePacket::handle);
+        // 註冊客戶端專用封包 (只在客戶端註冊)
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ManaUpdatePacket.class, ManaUpdatePacket::encode, ManaUpdatePacket::decode, ManaUpdatePacket::handle);
+            NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), TechWandModePacket.class, TechWandModePacket::encode, TechWandModePacket::decode, TechWandModePacket::handle);
 
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ConfigDirectionUpdatePacket.class,
-                ConfigDirectionUpdatePacket::encode, ConfigDirectionUpdatePacket::decode, PacketHandler::handleConfigDirectionUpdate);
 
-        // 客戶端專用封包註冊
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ModeChangePacket.class,
-                ModeChangePacket::toBytes, ModeChangePacket::new, ModeChangePacket::handle);
+        }
 
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), TechWandModePacket.class,
-                TechWandModePacket::encode, TechWandModePacket::decode, TechWandModePacket::handle);
-
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ManaUpdatePacket.class,
-                ManaUpdatePacket::encode, ManaUpdatePacket::decode, ManaUpdatePacket::handle);
     }
+
 
 
     public static class PacketHandler {

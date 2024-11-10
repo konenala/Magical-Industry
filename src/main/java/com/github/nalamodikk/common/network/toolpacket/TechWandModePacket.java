@@ -17,6 +17,10 @@ public class TechWandModePacket {
         this.forward = forward;
     }
 
+    public boolean isForward() {
+        return forward;
+    }
+
     // 編碼和解碼方法保持不變
     public static void encode(TechWandModePacket msg, FriendlyByteBuf buffer) {
         buffer.writeBoolean(msg.forward);
@@ -27,25 +31,29 @@ public class TechWandModePacket {
     }
 
     // 封包處理方法
-    public static void handle(TechWandModePacket msg, Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context ctx = context.get();
-        ctx.enqueueWork(() -> {
-            ServerPlayer serverPlayer = ctx.getSender(); // 確保這裡獲取的是伺服器端的玩家
-            if (serverPlayer != null) {
-                ItemStack stack = serverPlayer.getItemInHand(InteractionHand.MAIN_HAND);
-                if (stack.getItem() instanceof BasicTechWandItem) {
-                    BasicTechWandItem wand = (BasicTechWandItem) stack.getItem();
-                    BasicTechWandItem.TechWandMode currentMode = wand.getMode(stack);
-                    BasicTechWandItem.TechWandMode newMode = msg.forward ? currentMode.next() : currentMode.previous();
-                    wand.setMode(stack, newMode);
+    public static void handle(TechWandModePacket msg, Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            // 確保處理邏輯在伺服器端進行
+            if (context.getDirection().getReceptionSide().isServer()) {
+                ServerPlayer player = context.getSender();
+                if (player != null) {
+                    ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+                    if (heldItem.getItem() instanceof BasicTechWandItem) {
+                        BasicTechWandItem wand = (BasicTechWandItem) heldItem.getItem();
+                        BasicTechWandItem.TechWandMode currentMode = wand.getMode(heldItem);
+                        BasicTechWandItem.TechWandMode newMode = msg.isForward() ? currentMode.next() : currentMode.previous();
+                        wand.setMode(heldItem, newMode);
 
-                    // 向玩家顯示切換模式的信息
-                    serverPlayer.displayClientMessage(Component.translatable(
-                            "message.magical_industry.mode_changed",
-                            Component.translatable("mode.magical_industry." + newMode.name().toLowerCase())), true);
+                        player.displayClientMessage(Component.translatable(
+                                "message.magical_industry.mode_changed",
+                                Component.translatable("mode.magical_industry." + newMode.name().toLowerCase())), true);
+                    }
                 }
             }
         });
-        ctx.setPacketHandled(true);
+        context.setPacketHandled(true);
     }
+
+
 }

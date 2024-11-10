@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.network.toolpacket;
 
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.item.debug.ManaDebugToolItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -46,7 +47,7 @@ public class ModeChangePacket {
                         heldItem.getOrCreateTag().putInt(ManaDebugToolItem.TAG_MODE_INDEX, modeIndex);
 
                         // 日誌記錄以確認更新操作
-//                        MagicalIndustryMod.LOGGER.info("Updated mode index for ManaDebugToolItem held by player: {} to {}", player.getName().getString(), modeIndex);
+                        MagicalIndustryMod.LOGGER.info("Updated mode index for ManaDebugToolItem held by player: {} to {}", player.getName().getString(), modeIndex);
                     }
                 }
             }
