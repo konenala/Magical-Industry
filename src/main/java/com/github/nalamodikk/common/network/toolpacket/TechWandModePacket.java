@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.network.toolpacket;
 
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.item.tool.BasicTechWandItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -42,9 +43,13 @@ public class TechWandModePacket {
                     if (heldItem.getItem() instanceof BasicTechWandItem) {
                         BasicTechWandItem wand = (BasicTechWandItem) heldItem.getItem();
                         BasicTechWandItem.TechWandMode currentMode = wand.getMode(heldItem);
-                        BasicTechWandItem.TechWandMode newMode = msg.isForward() ? currentMode.next() : currentMode.previous();
+                        BasicTechWandItem.TechWandMode newMode = msg.forward ? currentMode.next() : currentMode.previous();
                         wand.setMode(heldItem, newMode);
 
+                        // 調試信息，確認模式切換被處理
+                        MagicalIndustryMod.LOGGER.debug("TechWandMode changed to: " + newMode);
+
+                        // 向玩家發送顯示消息
                         player.displayClientMessage(Component.translatable(
                                 "message.magical_industry.mode_changed",
                                 Component.translatable("mode.magical_industry." + newMode.name().toLowerCase())), true);

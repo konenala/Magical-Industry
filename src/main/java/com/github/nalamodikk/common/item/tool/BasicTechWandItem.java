@@ -1,6 +1,7 @@
 package com.github.nalamodikk.common.item.tool;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.network.handler.NetworkHandler;
 import com.github.nalamodikk.common.network.toolpacket.TechWandModePacket;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
@@ -36,8 +37,9 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = MagicalIndustryMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class BasicTechWandItem extends Item {
+    // 你的代碼
 
     public BasicTechWandItem(Properties properties) {
         super(properties);
@@ -195,15 +197,19 @@ public class BasicTechWandItem extends Item {
                 BasicTechWandItem wand = (BasicTechWandItem) heldItem.getItem();
                 float scrollDelta = (float) event.getScrollDelta();
 
-                // 確認封包系統是否已正確註冊
                 if (scrollDelta != 0) {
                     boolean forward = scrollDelta > 0;
+
+                    // 調試信息，確認封包被發送
+                    MagicalIndustryMod.LOGGER.debug("Sending TechWandModePacket: " + (forward ? "Next" : "Previous"));
+
                     NetworkHandler.NETWORK_CHANNEL.sendToServer(new TechWandModePacket(forward));
                     event.setCanceled(true);
                 }
             }
         }
     }
+
 
 
     @Override

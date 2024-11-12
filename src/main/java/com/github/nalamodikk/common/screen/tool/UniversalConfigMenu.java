@@ -57,6 +57,7 @@ public class UniversalConfigMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
 
+        // 只在伺服器端更新方塊配置
         if (!player.level().isClientSide) {
             if (this.blockEntity instanceof IConfigurableBlock configurableBlock) {
                 boolean configChanged = false;
@@ -66,16 +67,21 @@ public class UniversalConfigMenu extends AbstractContainerMenu {
                     if (configurableBlock.isOutput(direction) != newConfig) {
                         configurableBlock.setDirectionConfig(direction, newConfig);
                         configChanged = true;
-
-                        // 每次配置更改時，發送封包來同步方向配置
-                        NetworkHandler.NETWORK_CHANNEL.sendToServer(new ConfigDirectionUpdatePacket(this.blockEntity.getBlockPos(), direction, newConfig));
                     }
                 }
 
                 if (configChanged) {
                     MagicalIndustryMod.LOGGER.info("Updated configuration for block at {}", this.blockEntity.getBlockPos());
                     this.blockEntity.setChanged(); // 標記方塊為已變更以保存數據
+                    // 同步方塊狀態更新
+                    player.level().sendBlockUpdated(this.blockEntity.getBlockPos(), this.blockEntity.getBlockState(), this.blockEntity.getBlockState(), 3);
                 }
+            }
+        } else {
+            // 只在客戶端發送封包到伺服器
+            for (Direction direction : Direction.values()) {
+                boolean newConfig = this.currentConfig.get(direction);
+                NetworkHandler.NETWORK_CHANNEL.sendToServer(new ConfigDirectionUpdatePacket(this.blockEntity.getBlockPos(), direction, newConfig));
             }
         }
 

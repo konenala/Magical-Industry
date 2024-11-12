@@ -2,7 +2,6 @@ package com.github.nalamodikk.common.network.handler;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.network.PacketIDHelper;
 import com.github.nalamodikk.common.network.ToggleModePacket;
 import com.github.nalamodikk.common.network.toolpacket.ConfigDirectionUpdatePacket;
 import com.github.nalamodikk.common.network.toolpacket.ManaUpdatePacket;
@@ -15,12 +14,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 public class NetworkHandler {
@@ -35,25 +36,34 @@ public class NetworkHandler {
 
     public static void init(final FMLCommonSetupEvent event) {
         // 使用 FMLCommonSetupEvent 進行封包的統一註冊
-        // 統一註冊所有封包
         event.enqueueWork(NetworkHandler::registerPackets);
     }
 
     public static void registerPackets() {
-        // 註冊伺服器端封包
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ToggleModePacket.class, ToggleModePacket::encode, ToggleModePacket::decode, ToggleModePacket::handle);
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ConfigDirectionUpdatePacket.class, ConfigDirectionUpdatePacket::encode, ConfigDirectionUpdatePacket::decode, PacketHandler::handleConfigDirectionUpdate);
-        NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ModeChangePacket.class, ModeChangePacket::toBytes, ModeChangePacket::new, ModeChangePacket::handle);
+        AtomicInteger packetId = new AtomicInteger();
 
-        // 註冊客戶端專用封包 (只在客戶端註冊)
+        // 通用封包註冊
+        registerCommonPackets(packetId);
+
+        // 僅在客戶端環境中註冊客戶端專屬封包
         if (FMLEnvironment.dist == Dist.CLIENT) {
-            NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), ManaUpdatePacket.class, ManaUpdatePacket::encode, ManaUpdatePacket::decode, ManaUpdatePacket::handle);
-            NETWORK_CHANNEL.registerMessage(PacketIDHelper.getNextId(), TechWandModePacket.class, TechWandModePacket::encode, TechWandModePacket::decode, TechWandModePacket::handle);
-
-
+            registerClientPackets(packetId);
         }
-
     }
+
+    private static void registerCommonPackets(AtomicInteger packetId) {
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), ToggleModePacket.class, ToggleModePacket::encode, ToggleModePacket::decode, ToggleModePacket::handle);
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), ConfigDirectionUpdatePacket.class, ConfigDirectionUpdatePacket::encode, ConfigDirectionUpdatePacket::decode, ConfigDirectionUpdatePacket::handle);
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), ConfigDirectionUpdatePacket.class, ConfigDirectionUpdatePacket::encode, ConfigDirectionUpdatePacket::decode, PacketHandler::handleConfigDirectionUpdate);
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), ModeChangePacket.class, ModeChangePacket::toBytes, ModeChangePacket::new, ModeChangePacket::handle);
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), TechWandModePacket.class, TechWandModePacket::encode, TechWandModePacket::decode, TechWandModePacket::handle);
+    }
+
+    private static void registerClientPackets(AtomicInteger packetId) {
+        NETWORK_CHANNEL.registerMessage(packetId.getAndIncrement(), ManaUpdatePacket.class, ManaUpdatePacket::encode, ManaUpdatePacket::decode, ManaUpdatePacket::handle);
+    }
+
+
 
 
 
