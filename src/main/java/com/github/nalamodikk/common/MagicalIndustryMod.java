@@ -1,24 +1,21 @@
 package com.github.nalamodikk.common;
 
-import com.github.nalamodikk.common.block.ModBlocks;
-import com.github.nalamodikk.common.block.entity.mana_crafting.ManaCraftingTableBlockEntity;
-import com.github.nalamodikk.common.block.entity.ModBlockEntities;
+import com.github.nalamodikk.common.register.ModBlocks;
+import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
-import com.github.nalamodikk.common.datagen.ManaGenerationRateLoader;
 import com.github.nalamodikk.common.item.ModCreativeModTabs;
-import com.github.nalamodikk.common.item.ModItems;
+import com.github.nalamodikk.common.register.ModItems;
 import com.github.nalamodikk.common.network.NetworkHandler;
-import com.github.nalamodikk.common.recipe.ModRecipes;
-import com.github.nalamodikk.common.register.ModMenuScreens;
-import com.github.nalamodikk.common.register.ModRenderers;
-import com.github.nalamodikk.common.screen.ModMenusTypes;
+import com.github.nalamodikk.common.register.ModRecipes;
+import com.github.nalamodikk.common.register.*;
+import com.github.nalamodikk.common.register.ModMenusTypes;
+import com.github.nalamodikk.common.util.loader.FuelRateLoader;
 import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent; // 用于附加 Capability
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,6 +37,9 @@ public class MagicalIndustryMod {
 
     public MagicalIndustryMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ConfigManager.registerConfigs();
+
         GeckoLib.initialize();
         // 注册创造模式标签
         ModCreativeModTabs.register(modEventBus);
@@ -60,9 +60,10 @@ public class MagicalIndustryMod {
         // 注册创造模式标签的内容
         modEventBus.addListener(this::addCreative);
 
+        CapabilityHandler.register();
+
 
         // 在模組初始化時加載魔力生成速率
-        ManaGenerationRateLoader.loadManaAndEnergyGenerationRates();
 
         // 注册 MinecraftForge 的事件总线
         MinecraftForge.EVENT_BUS.register(this);
@@ -71,6 +72,7 @@ public class MagicalIndustryMod {
     private void commonSetup(final FMLCommonSetupEvent event) {
         // 通用设置
         NetworkHandler.init(event);
+
 
     }
 
@@ -86,16 +88,14 @@ public class MagicalIndustryMod {
         LOGGER.info("HELLO from server starting");
     }
 
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
-    // 附加 Capability 给 ManaCraftingTableBlockEntity
+
+
     @SubscribeEvent
-    public void attachCapabilities(AttachCapabilitiesEvent<?> event) {
-        if (event.getObject() instanceof ManaCraftingTableBlockEntity blockEntity) {
-            event.addCapability(new ResourceLocation(MOD_ID, "mana"), new ManaCraftingTableBlockEntity.Provider(blockEntity));
-        }
+    public void onAddReloadListener(AddReloadListenerEvent event) {
+        // 註冊 FuelRateLoader 作為資源重載監聽器
+        event.addListener(new FuelRateLoader());
+        LOGGER.info("Successfully registered FuelRateLoader as a resource reload listener.");
     }
-
-
     // 客户端事件订阅器
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
@@ -104,7 +104,8 @@ public class MagicalIndustryMod {
             // 客户端设置
             ModMenuScreens.registerScreens();
             ModRenderers.registerBlockEntityRenderers();
-         //   BlockEntityRenderers.register(ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorRenderer::new);
+
+            //   BlockEntityRenderers.register(ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorRenderer::new);
         }
 
         @SubscribeEvent

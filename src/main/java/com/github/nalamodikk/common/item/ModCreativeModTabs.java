@@ -1,7 +1,8 @@
 package com.github.nalamodikk.common.item;
 
-import com.github.nalamodikk.common.block.ModBlocks;
+import com.github.nalamodikk.common.register.ModBlocks;
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.register.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -20,6 +21,7 @@ public class ModCreativeModTabs {
                 .displayItems((pParameters, pOutput) -> {
 
                     pOutput.accept(ModItems.MANA_DEBUG_TOOL.get());
+                    pOutput.accept(ModItems.BASIC_TECH_WAND.get());
                     pOutput.accept(ModItems.MANA_DUST.get());
                     pOutput.accept(ModItems.MANA_INGOT.get());
 

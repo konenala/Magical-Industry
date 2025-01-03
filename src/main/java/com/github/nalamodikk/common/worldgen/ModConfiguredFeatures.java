@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.worldgen;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.ModBlocks;
+import com.github.nalamodikk.common.register.ModBlocks;
 //eimport com.github.nalamodikk.common.worldgen.tree.custom.PineFoliagePlacer;
 //import com.github.nalamodikk.common.worldgen.tree.custom.PineTrunkPlacer;
 import net.minecraft.core.registries.Registries;

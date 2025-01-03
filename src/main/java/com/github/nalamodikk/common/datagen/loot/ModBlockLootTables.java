@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.datagen.loot;
 
-import com.github.nalamodikk.common.block.ModBlocks;
-import com.github.nalamodikk.common.item.ModItems;
+import com.github.nalamodikk.common.register.ModBlocks;
+import com.github.nalamodikk.common.register.ModItems;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;

@@ -44,6 +44,10 @@ public class DynamicTooltip {
         }
         return charSequences;
     }
+
+    public List<Component> toComponentList() {
+        return tooltipSupplier.get();
+        }
 }
 
 

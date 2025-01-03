@@ -1,12 +1,14 @@
 package com.github.nalamodikk.common.datagen;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.item.ModItems;
+import com.github.nalamodikk.common.register.ModItems;
+import com.github.nalamodikk.common.register.ModBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +26,10 @@ public class ModItemTagGenerator extends ItemTagsProvider {
 
             // 使用 pProvider 作為標籤的來源
             tag(ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana")))
-                    .add(ModItems.CORRUPTED_MANA_DUST.get()); // 將物品加入到 "mana" 標籤中
+                    .add(ModItems.CORRUPTED_MANA_DUST.get())
+                    .add(ModItems.MANA_DUST.get())
+                    .add(ModItems.MANA_INGOT.get())
+                    .add(Item.byBlock(ModBlocks.MANA_BLOCK.get()));// 將物品加入到 "mana" 標籤中
         }
     }
 

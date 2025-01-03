@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.recipe;
 
+import com.github.nalamodikk.common.register.ModRecipes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;

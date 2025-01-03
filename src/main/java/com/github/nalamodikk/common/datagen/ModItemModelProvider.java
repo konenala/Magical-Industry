@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.datagen;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.item.ModItems;
+import com.github.nalamodikk.common.register.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -18,6 +18,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         simpleItem(ModItems.MANA_DEBUG_TOOL);
+        simpleItem(ModItems.BASIC_TECH_WAND);
         simpleItem(ModItems.MANA_DUST);
         simpleItem(ModItems.MANA_INGOT);
         simpleItem(ModItems.CORRUPTED_MANA_DUST);

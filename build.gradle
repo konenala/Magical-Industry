@@ -130,6 +130,28 @@ repositories {
     // Put repositories for dependencies here
     // ForgeGradle automatically adds the Forge maven and Maven Central for you
 
+
+    maven {
+        url "https://maven2.bai.lol"
+        content {
+            includeGroup "lol.bai"
+            includeGroup "mcp.mobius.waila"
+        }
+    }
+
+    maven { // TOP
+        name 'tterrag maven'
+        url "https://maven.tterrag.com/"
+    }
+
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+
     maven {
         name = 'GeckoLib'
         url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
@@ -160,7 +182,20 @@ dependencies {
     // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    compileOnly   fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
+    runtimeOnly    fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
 
+    compileOnly  fg.deobf("mcp.mobius.waila:wthit-api:forge-${wthitVersion}")
+
+    // run against the full jar
+    compileOnly  fg.deobf("mcp.mobius.waila:wthit:forge-${wthitVersion}")
+    compileOnly  fg.deobf("lol.bai:badpackets:forge-${badpacketsVersion}")
+
+    runtimeOnly   fg.deobf("mcp.mobius.waila:wthit:forge-${wthitVersion}")
+    runtimeOnly   fg.deobf("lol.bai:badpackets:forge-${badpacketsVersion}")
+
+    compileOnly  fg.deobf("curse.maven:jade-324717:${jade_id}")
+    runtimeOnly   fg.deobf("curse.maven:jade-324717:${jade_id}")
 
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${minecraft_version}:${geckolib_version}")
     implementation("com.eliotlash.mclib:mclib:20")
@@ -209,6 +244,29 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+tasks.register('copyGeneratedResources', Copy) {
+    group = 'build'
+    description = 'Copy generated resources to src/generated'
+
+    // 複製來源目錄
+    from('build/resources/main/data/magical_industry/recipes/fuel_rates') {
+        include '**/*' // 包含所有文件
+    }
+    from('build/resources/main/data/magical_industry/rate') {
+        include '**/*' // 包含所有文件
+    }
+
+    // 目標目錄
+    into('src/generated/resources/data/magical_industry') // 複製到 src/generated 下相應的路徑
+
+    // 確保構建過程先完成資源生成
+    dependsOn 'processResources'
+}
+
+// 確保在 processResources 之後執行
+tasks.named('processResources').configure {
+    finalizedBy 'copyGeneratedResources'
+}
 
 // Example for how to get properties into the manifest for reading at runtime.
 tasks.named('jar', Jar).configure {

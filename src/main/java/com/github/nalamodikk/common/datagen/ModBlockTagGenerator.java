@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.datagen;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.ModBlocks;
+import com.github.nalamodikk.common.register.ModBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
@@ -26,7 +26,9 @@ public class ModBlockTagGenerator extends BlockTagsProvider {
         this.tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(ModBlocks.MANA_BLOCK.get(),
                         ModBlocks.MAGIC_ORE.get(),
-                        ModBlocks.DEEPSLATE_MAGIC_ORE.get()
+                        ModBlocks.DEEPSLATE_MAGIC_ORE.get(),
+
+                        ModBlocks.MANA_GENERATOR.get()
                        /* ModBlocks.RAW_SAPPHIRE_BLOCK.get(),
                         ModBlocks.SAPPHIRE_ORE.get(),
                         ModBlocks.DEEPSLATE_SAPPHIRE_ORE.get(),
@@ -36,6 +38,12 @@ public class ModBlockTagGenerator extends BlockTagsProvider {
                         */
 
                 );
+        this.tag(BlockTags.MINEABLE_WITH_AXE)
+                .add(ModBlocks.MANA_CRAFTING_TABLE_BLOCK.get()
+
+
+                );
+
 
         this.tag(BlockTags.NEEDS_IRON_TOOL)
                // .add(ModBlocks.SAPPHIRE_BLOCK.get())
