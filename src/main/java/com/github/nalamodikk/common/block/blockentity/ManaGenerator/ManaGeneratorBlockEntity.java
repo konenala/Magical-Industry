@@ -438,7 +438,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     @Override
     public AABB getRenderBoundingBox() {
-        return super.getRenderBoundingBox();
+        // 將 Y 軸渲染範圍從當前位置擴展到高出 2 個方塊
+        return new AABB(
+                worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
+                worldPosition.getX() + 1, worldPosition.getY() + 3, worldPosition.getZ() + 1
+        );
     }
 
     @Override
