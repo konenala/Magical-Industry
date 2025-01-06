@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -27,14 +28,19 @@ import org.jetbrains.annotations.Nullable;
 public class ManaGeneratorBlock extends BaseEntityBlock {
     public ManaGeneratorBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(WORKING, false));
+
     }
     private final FacingHandler facingHandler = new FacingHandler();
+    public static final BooleanProperty WORKING = BooleanProperty.create("working");
+
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
+        builder.add(WORKING);
     }
 
     @Override
