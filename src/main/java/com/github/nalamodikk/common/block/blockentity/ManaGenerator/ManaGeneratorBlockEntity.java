@@ -32,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -235,45 +236,50 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     }
 
 
-    public void generateEnergyOrMana() {
-        boolean wasWorking = this.isWorking;
+    private void generateEnergyOrMana() {
         ItemStack fuel = fuelHandler.getStackInSlot(0);
 
+        // 如果燃料槽為空且燃燒時間耗盡，停止工作
         if (fuel.isEmpty() && burnTime <= 0) {
-            setWorking(false);
+            isWorking = false;
             return;
         }
 
+        // 如果燃燒時間耗盡，且有燃料，並且能量/魔力未滿，開始新一輪燃燒
         if (burnTime <= 0 && !fuel.isEmpty()) {
             if ((currentMode == Mode.ENERGY && energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) ||
                     (currentMode == Mode.MANA && manaStorage.getMana() >= manaStorage.getMaxMana())) {
-                setWorking(false);
+                setWorking(false); // 停止工作
                 return;
             }
 
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuel.getItem());
             int burnTimeForFuel = BurnTimeFuelLoader.getBurnTime(itemId);
-            if (burnTimeForFuel > 0) {
-                burnTime = burnTimeForFuel;
+            int manaValue = ManaFuelLoader.getManaFuelValue(itemId);
+
+            if (burnTimeForFuel > 0 || manaValue > 0) {
+                burnTime = (currentMode == Mode.ENERGY) ? burnTimeForFuel : manaValue;
                 fuelHandler.extractItem(0, 1, false);
-                setWorking(true); // 開始工作時設置為工作狀態
+                setWorking(true); // 開始工作並設置發光狀態
             }
         }
 
+        // 燃燒完成時
         if (burnTime > 0) {
             burnTime--;
+            if (burnTime == 0) {
+                setWorking(false); // 停止工作並取消發光狀態
+            }
+
             if (currentMode == Mode.ENERGY) {
                 generateEnergy();
             } else if (currentMode == Mode.MANA) {
                 generateMana();
             }
-            setWorking(true); // 持續工作
-        } else {
-            setWorking(false); // 停止工作
         }
-    }
 
-    // ==========================================================================
+    }
+// ==========================================================================
     private void generateEnergy() {
         if (energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) {
             isWorking = false;
@@ -431,6 +437,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
 
     @Override
+    public AABB getRenderBoundingBox() {
+        return super.getRenderBoundingBox();
+    }
+
+    @Override
     public Component getDisplayName() {
         return Component.translatable("block.magical_industry.mana_generator");
     }
@@ -466,23 +477,18 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     public void setWorking(boolean isWorking) {
         this.isWorking = isWorking;
-        this.setChanged(); // 標記區塊更改
+        this.setChanged(); // 標記數據已更新
 
-        if (this.level != null && this.worldPosition != null) {
+        if (this.level != null) {
             BlockState currentState = this.level.getBlockState(this.worldPosition);
-
-            // 檢查 BlockState 是否具有 WORKING 屬性
             if (currentState.hasProperty(ManaGeneratorBlock.WORKING)) {
                 BlockState newState = currentState.setValue(ManaGeneratorBlock.WORKING, isWorking);
-
-                // 更新方塊狀態並同步到客戶端
-                this.level.setBlock(this.worldPosition, newState, 3);
-                if (!this.level.isClientSide) {
-                    this.level.sendBlockUpdated(this.worldPosition, currentState, newState, 3);
-                }
+                this.level.setBlock(this.worldPosition, newState, 3); // 更新方塊狀態
+                this.level.sendBlockUpdated(this.worldPosition, currentState, newState, 3); // 同步到客戶端
             }
         }
     }
+
 
     public enum Mode {
         MANA,
