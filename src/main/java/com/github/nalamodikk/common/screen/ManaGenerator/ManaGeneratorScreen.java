@@ -6,6 +6,7 @@ import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.ToggleModePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -27,6 +28,11 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
     private static final int ENERGY_BAR_WIDTH = 7;
     private static final int TOGGLE_BUTTON_X_OFFSET = 130;
     private static final int TOGGLE_BUTTON_Y_OFFSET = 25;
+    private boolean showWarning = false; // 控制紅字是否顯示
+    private long warningEndTime = 0; // 警告結束時間
+    private long jitterStartTime = 0; // 抖動開始的時間
+    private static final long JITTER_DURATION = 1000; // 抖動持續時間（毫秒）
+
 
     private UniversalTexturedButton toggleModeButton;
 
@@ -48,10 +54,17 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
                 Component.empty(),
                 BUTTON_TEXTURE, 20, 20,
                 btn -> {
-                    // 發送封包到伺服器
                     BlockPos blockPos = this.menu.getBlockEntityPos();
-                    NetworkHandler.NETWORK_CHANNEL.sendToServer(new ToggleModePacket(blockPos));
-//                    MagicalIndustryMod.LOGGER.info("ToggleModePacket sent for block at: " + blockPos);
+                    if (this.menu.isWorking()) {
+                        // 如果正在工作，顯示警告
+                        showWarning = true;
+                        warningEndTime = System.currentTimeMillis() + 3000; // 警告顯示 3 秒
+                    } else {
+                        // 發送封包到伺服器切換模式
+                        NetworkHandler.NETWORK_CHANNEL.sendToServer(new ToggleModePacket(blockPos));
+                        showWarning = false;
+                    }
+
                 }
         );
 
@@ -135,50 +148,89 @@ public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMe
         return currentBurnTime > 0 ? (int) ((float) burnTime / currentBurnTime * 13) : 0;
     }
 
+
     protected void renderLabels(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
         super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
+
+        // 渲染燃料進度條
         int fuelHeight = getFuelProgressHeight();
         if (fuelHeight > 0) {
             RenderSystem.setShaderTexture(0, FUEL_TEXTURE);
             pGuiGraphics.blit(FUEL_TEXTURE, 56, 36 + 12 - fuelHeight, 36, 36 - fuelHeight, 14, fuelHeight);
         }
 
-
+        // 渲染當前模式文字
         String modeText = this.menu.getCurrentMode() == 1
                 ? Component.translatable("mode.magical_industry.energy").getString()
                 : Component.translatable("mode.magical_industry.mana").getString();
         Component currentMode = Component.translatable("screen.magical_industry.current_mode", modeText);
 
-
-        // 設置文字的初始渲染位置（在縮放之前）
+        // 設置模式文字的 X 和 Y
         float originalX = (this.imageWidth - this.font.width(currentMode)) / 2f;
-        float originalY = 15f; // 假設你想讓文本在 Y 軸上距離 10 像素的位置顯示
+        float originalY = 15f;
 
-
-        // 從 pGuiGraphics 中獲取 PoseStack 以進行縮放操作
+        // 縮放並渲染模式文字
         PoseStack poseStack = pGuiGraphics.pose();
-
-        // 設置縮放比例
-        float scale = 0.85f;
-
-        // 保存當前渲染狀態
         poseStack.pushPose();
-
-        // 縮放文本
-        poseStack.scale(scale, scale, scale);
-
-        // 因為文字縮放了，所以位置也需要縮放來保證顯示正常
-        float scaledX = originalX / scale;
-        float scaledY = originalY / scale;
-
-
-        // 渲染文字
-        pGuiGraphics.drawString(this.font, currentMode, (int) scaledX, (int) scaledY, 4210752);
-
-        // 恢復渲染狀態
+        poseStack.scale(0.85f, 0.85f, 0.85f);
+        pGuiGraphics.drawString(this.font, currentMode, (int) (originalX / 0.85f), (int) (originalY / 0.85f), 4210752);
         poseStack.popPose();
 
+        // 如果需要顯示警告
+        if (showWarning) {
+            // 第一次顯示時，初始化抖動開始時間
+            if (jitterStartTime == 0) {
+                jitterStartTime = System.currentTimeMillis();
+            }
+
+            // 計算當前時間是否在抖動時間內
+            long currentTime = System.currentTimeMillis();
+            boolean shouldJitter = currentTime <= jitterStartTime + JITTER_DURATION;
+
+            // 如果超過抖動時間，停止抖動
+            if (!shouldJitter) {
+                jitterStartTime = 0; // 重置抖動時間
+                showWarning = false; // 隱藏警告
+                return;
+            }
+
+            // 定義警告文字
+            Component workingStatus = Component.translatable("message.magical_industry.screen.generator_working");
+
+            // 計算文字位置
+            int textWidth = this.font.width(workingStatus);
+            int centerX = (this.imageWidth - textWidth) / 2;
+
+            // 加入偏移量，將文字向右移動
+            int offsetX = 20; // 向右移動 20 像素
+            centerX += offsetX;
+
+            int adjustedY = 60; // 原本的 Y
+
+            // 計算滑順的抖動效果
+            double elapsedTime = (currentTime - jitterStartTime) / 1000.0; // 已經過的秒數
+            int jitterX = (int) (Math.sin(elapsedTime * Math.PI * 4) * 2); // X 軸滑順抖動
+            int jitterY = (int) (Math.cos(elapsedTime * Math.PI * 4) * 2); // Y 軸滑順抖動
+
+            // 縮放
+            poseStack.pushPose();
+            poseStack.scale(0.8f, 0.8f, 0.8f);
+
+            // 渲染紅色抖動文字
+            pGuiGraphics.drawString(
+                    this.font,
+                    workingStatus,
+                    (int) ((centerX + jitterX) / 0.8f), // 調整 X 位置
+                    (int) ((adjustedY + jitterY) / 0.8f), // 調整 Y 位置並降低高度
+                    0xFF5555
+            );
+
+            // 恢復
+            poseStack.popPose();
+        }
     }
+
+
 
     @Override
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {

@@ -10,6 +10,8 @@ import com.github.nalamodikk.common.register.ModRecipes;
 import com.github.nalamodikk.common.register.*;
 import com.github.nalamodikk.common.register.ModMenusTypes;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
+import com.github.nalamodikk.common.util.loader.ManaGenerator.BurnTimeFuelLoader;
+import com.github.nalamodikk.common.util.loader.ManaGenerator.ManaFuelLoader;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -93,8 +95,12 @@ public class MagicalIndustryMod {
     @SubscribeEvent
     public void onAddReloadListener(AddReloadListenerEvent event) {
         // 註冊 FuelRateLoader 作為資源重載監聽器
-        event.addListener(new FuelRateLoader());
+        event.addListener(new FuelRateLoader());    //燃料載入
+        event.addListener(new ManaFuelLoader());    // 生產魔力配置加載
+        event.addListener(new BurnTimeFuelLoader());  //燃燒時間加載
+
         LOGGER.info("Successfully registered FuelRateLoader as a resource reload listener.");
+
     }
     // 客户端事件订阅器
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

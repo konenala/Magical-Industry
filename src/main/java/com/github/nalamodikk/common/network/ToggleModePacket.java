@@ -1,8 +1,10 @@
 package com.github.nalamodikk.common.network;
 
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,25 +27,30 @@ public class ToggleModePacket {
         return new ToggleModePacket(buffer.readBlockPos());
     }
 
-    public static void handle(ToggleModePacket msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(ToggleModePacket packet, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-//                MagicalIndustryMod.LOGGER.info("Handling toggle mode packet on server for position: " + msg.pos);
-                ServerLevel level = (ServerLevel) player.getCommandSenderWorld();
-
-                BlockEntity blockEntity = level.getBlockEntity(msg.pos);
+                // 获取方块实体
+                BlockEntity blockEntity = player.level().getBlockEntity(packet.pos);
                 if (blockEntity instanceof ManaGeneratorBlockEntity manaGenerator) {
-                    manaGenerator.toggleMode(); // 切換模式
-                    level.sendBlockUpdated(msg.pos, manaGenerator.getBlockState(), manaGenerator.getBlockState(), 3);
+                    // 检查工作状态
+                    if (manaGenerator.getWorkingStatus()) {
+                        player.displayClientMessage(Component.translatable("message.magical_industry.cannot_toggle_while_working"), true);
+                    } else {
+                        manaGenerator.toggleMode();
+                        manaGenerator.setChanged(); // 标记数据变化
+                    }
+                } else {
+                    MagicalIndustryMod.LOGGER.warn("Failed to toggle mode: BlockEntity at {} is not a ManaGeneratorBlockEntity.", packet.pos);
                 }
             }
         });
         ctx.get().setPacketHandled(true);
     }
-
-
-
+    public BlockPos getPos() {
+        return pos;
+    }
 
 
 }

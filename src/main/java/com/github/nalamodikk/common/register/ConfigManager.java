@@ -15,7 +15,7 @@ public class ConfigManager {
     }
 
     public static void registerConfigs() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC, "ManaGeneratorBlock-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC, "magical_industry/ManaGeneratorBlock-common.toml");
     }
 
     public static class CommonConfig {
@@ -30,8 +30,8 @@ public class ConfigManager {
             builder.push("mana_generator");
 
             energyRate = builder
-                    .comment("能量生成速率 (每秒)")
-                    .defineInRange("energyRate", 1, 1, Integer.MAX_VALUE);
+                    .comment("能量生成速率 (每tick)")
+                    .defineInRange("energyRate", 1, 0, Integer.MAX_VALUE);
 
             maxEnergy = builder
                     .comment("最大能量存儲")
@@ -39,20 +39,20 @@ public class ConfigManager {
 
             defaultBurnTime = builder
                     .comment("默認燃燒時間（適用於無特定配置的物品）")
-                    .defineInRange("defaultBurnTime", 200, 1, Integer.MAX_VALUE);
+                    .defineInRange("defaultBurnTime", 200, 0, Integer.MAX_VALUE);
 
             defaultEnergyRate = builder
                     .comment("默認能量生成速率（適用於無特定配置的物品）")
-                    .defineInRange("defaultEnergyRate", 1, 1, Integer.MAX_VALUE);
+                    .defineInRange("defaultEnergyRate", 1, 0, Integer.MAX_VALUE);
 
             defaultManaRate = builder
                     .comment("默認魔力生成速率（適用於無特定配置的物品）")
-                    .defineInRange("defaultManaRate", 5, 1, Integer.MAX_VALUE);
+                    .defineInRange("defaultManaRate", 5, 0, Integer.MAX_VALUE);
 
 
             manaRate = builder
-                    .comment("魔力生成速率 (每秒)")
-                    .defineInRange("manaRate", 5, 1, Integer.MAX_VALUE);
+                    .comment("魔力生成速率 (每tick)")
+                    .defineInRange("manaRate", 5, 0, Integer.MAX_VALUE);
 
             builder.pop();
         }

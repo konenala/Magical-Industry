@@ -12,6 +12,8 @@ import com.github.nalamodikk.common.register.ConfigManager;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import com.github.nalamodikk.common.sync.UnifiedSyncManager;
 import com.github.nalamodikk.common.util.loader.FuelRateLoader;
+import com.github.nalamodikk.common.util.loader.ManaGenerator.BurnTimeFuelLoader;
+import com.github.nalamodikk.common.util.loader.ManaGenerator.ManaFuelLoader;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -243,19 +245,19 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
         // 如果燃燒時間耗盡，且有燃料，並且能量/魔力未滿，開始新一輪燃燒
         if (burnTime <= 0 && !fuel.isEmpty()) {
-            // 檢查當前模式下的存儲是否已滿
             if ((currentMode == Mode.ENERGY && energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) ||
                     (currentMode == Mode.MANA && manaStorage.getMana() >= manaStorage.getMaxMana())) {
-                // 如果能量或魔力已滿，則不消耗燃料
                 isWorking = false;
-                return;
+                return; // 如果能量或魔力已滿，則不消耗燃料
             }
 
             ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(fuel.getItem());
-            FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
-            int burnTimeForFuel = (fuelRate != null) ? fuelRate.getBurnTime() : ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
-            if (burnTimeForFuel > 0) {
-                burnTime = burnTimeForFuel; // 設置燃燒時間
+            int burnTimeForFuel = BurnTimeFuelLoader.getBurnTime(itemId);
+            int manaValue = ManaFuelLoader.getManaFuelValue(itemId);
+
+            // 使用燃燒時間優先，若為魔力模式則使用魔力值
+            if (burnTimeForFuel > 0 || manaValue > 0) {
+                burnTime = (currentMode == Mode.ENERGY) ? burnTimeForFuel : manaValue; // 設置燃燒或魔力時間
                 fuelHandler.extractItem(0, 1, false); // 消耗燃料
                 isWorking = true; // 設置為工作狀態
             }
@@ -266,45 +268,43 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             burnTime--; // 每 tick 燃燒時間減少
 
             if (currentMode == Mode.ENERGY) {
-                // 如果能量存儲已滿，停止工作
-                if (energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) {
-                    isWorking = false;
-                    return;
-                }
-
-                double energyToGenerate = (double) getConfigEnergyRate();//生成能量
-                energyAccumulated += energyToGenerate; // 累積生成量
-
-                if (energyAccumulated >= 1.0) { // 當累積能量達到1或以上
-                    int energyToStore = (int) energyAccumulated; // 取整數部分
-                    energyAccumulated -= energyToStore; // 減去已存儲的部分
-                    energyStorage.receiveEnergy(energyToStore, false); // 實際插入能量儲存
-
-                    // 當成功插入能量時，進行同步
-                    if (level != null && !level.isClientSide) {
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                        setChanged(); // 確保數據更新被保存
-                    }
-                }
-
+                generateEnergy(); // 單獨封裝生成能量的邏輯
             } else if (currentMode == Mode.MANA) {
-                // 如果魔力存儲已滿，停止工作
-                if (manaStorage.getMana() >= manaStorage.getMaxMana()) {
-                    isWorking = false;
-                    return;
-                }
-
-                double manaToGenerate = (double) getConfigManaRate(); // 每秒生成的魔力除以 20
-                manaAccumulated += manaToGenerate; // 累積生成量
-
-                int manaToStore = (int) manaAccumulated; // 取整數部分
-                if (manaToStore > 0) {
-                    manaAccumulated -= manaToStore; // 減去已存儲的部分
-                    manaStorage.addMana(manaToStore); // 實際插入魔力儲存
-                }
+                generateMana(); // 單獨封裝生成魔力的邏輯
             }
         }
     }
+// ==========================================================================
+    private void generateEnergy() {
+        if (energyStorage.getEnergyStored() >= energyStorage.getMaxEnergyStored()) {
+            isWorking = false;
+            return; // 如果能量已滿，停止工作
+        }
+
+        energyAccumulated += getConfigEnergyRate();
+        if (energyAccumulated >= 1.0) {
+            int energyToStore = (int) energyAccumulated;
+            energyAccumulated -= energyToStore;
+            energyStorage.receiveEnergy(energyToStore, false);
+        }
+    }
+// ==========================================================================
+
+    private void generateMana() {
+        if (manaStorage.getMana() >= manaStorage.getMaxMana()) {
+            isWorking = false;
+            return; // 如果魔力已滿，停止工作
+        }
+
+        manaAccumulated += getConfigManaRate();
+        if (manaAccumulated >= 1.0) {
+            int manaToStore = (int) manaAccumulated;
+            manaAccumulated -= manaToStore;
+            manaStorage.addMana(manaToStore);
+        }
+    }
+// ==========================================================================
+
 
     private void outputEnergyAndMana() {
         for (Direction direction : Direction.values()) {
@@ -459,6 +459,15 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             tAnimationState.getController().setAnimation(IDLE_ANIM);
         }
         return PlayState.CONTINUE;
+    }
+
+    public boolean  getWorkingStatus() {
+        return isWorking;
+    }
+
+    public void setWorking(boolean isWorking) {
+        this.isWorking = isWorking;
+        this.setChanged(); // 标记为更新，通知同步
     }
 
     public enum Mode {

@@ -122,6 +122,11 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
         }
     }
 
+    public boolean isWorking() {
+        return this.blockEntity.getWorkingStatus();
+    }
+
+
     public int getCurrentMode() {
         return this.data.get(ManaGeneratorBlockEntity.MODE_INDEX);
     }

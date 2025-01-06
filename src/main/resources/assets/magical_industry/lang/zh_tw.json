@@ -1,8 +1,8 @@
 {
-  "item.magical_industry.mana_dust": "魔法粉",
-  "item.magical_industry.mana_ingot": "魔法錠",
+  "item.magical_industry.mana_dust": "魔力粉",
+  "item.magical_industry.mana_ingot": "魔力錠",
   "item.magical_industry.mana_debug_tool": "魔力除錯工具",
-  "item.magical_industry.corrupted_mana_dust": "汙穢的魔法粉",
+  "item.magical_industry.corrupted_mana_dust": "汙穢的魔力粉",
   "item.magical_industry.basic_tech_wand": "基礎科技魔杖",
   "item.magical_industry.basic_tech_wand.tooltip.mode": "模式: %s",
 
@@ -13,7 +13,9 @@
   "message.magical_industry.mana_mode_add_1000": "增加 1000 魔力",
   "message.magical_industry.block_selected": "已選擇方塊於位置：{0}",
   "message.magical_industry.block_not_configurable": "選中的方塊不支持配置。",
+  "message.magical_industry.cannot_toggle_while_working": "發電機正在工作時無法切換模式！",
 
+  "message.magical_industry.screen.generator_working": "發電機正在工作，無法切換模式。",
 
   "message.magical_industry.not_enough_mana": "魔杖中的魔力不足！",
   "message.magical_industry.block_rotated": "方塊已旋轉！",

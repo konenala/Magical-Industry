@@ -18,7 +18,9 @@
   "message.magical_industry.selected_block_unavailable": "Selected block is no longer available.",
   "message.magical_industry.block_selected": "Selected block at position: {0}",
   "message.magical_industry.block_not_configurable": "The selected block is not configurable.",
+  "message.magical_industry.cannot_toggle_while_working": "You cannot toggle modes while the generator is working!",
 
+  "message.magical_industry.screen.generator_working": "Generator is working. Mode switching is disabled.",
 
   "message.magical_industry.add_mana_success": "Added 10 mana!",
   "message.magical_industry.block_rotated_facing": "Block rotated! (FACING)",
