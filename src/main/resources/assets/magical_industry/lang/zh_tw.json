@@ -74,6 +74,8 @@
   "tooltip.magical_industry.mana_generator.status.stopped": "停止",
   "tooltip.mana": "魔力: %s / %s",
   "tooltip.energy": "能量: %s / %s",
+  "tooltip.magical_industry.mana_conduit.description": "用於在連接的設備之間傳輸魔力的導管。",
+  "tooltip.magical_industry.mana_conduit.usage": "將其放置於魔力設備之間以進行連接。",
 
 
   "block.magical_industry.mana_block": "魔法錠磚",
@@ -82,6 +84,7 @@
   "block.magical_industry.mana_generator": "魔力發電機",
   "block.magical_industry.mana_crafting_table": "魔力合成台",
   "block.magical_industry.advanced_mana_crafting_table": "高級魔力合成台",
+  "block.magical_industry.mana_conduit": "魔力導管",
 
   "button.mode.auto": "自動模式",
   "button.mode.manual": "手動模式",

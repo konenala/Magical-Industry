@@ -45,7 +45,7 @@ public class ModCreativeModTabs {
 
                         pOutput.accept(ModBlocks.MANA_CRAFTING_TABLE_BLOCK.get());
                         pOutput.accept(ModItems.MANA_GENERATOR_BLOCK_ITEM.get());
-
+                        pOutput.accept(ModBlocks.MANA_CONDUIT.get());
 
                     })
                     .build());

@@ -1,7 +1,7 @@
 package com.github.nalamodikk.client.renderer;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.block.ManaGeneratorBlock;
+import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.client.model.ManaGeneratorModel;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 

@@ -1,6 +1,7 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.block.block.ManaGeneratorBlock;
+import com.github.nalamodikk.common.block.block.Conduit.ManaConduitBlock;
+import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.block.block.mana_crafting_table.ManaCraftingTableBlock;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -31,6 +32,9 @@ public class ModBlocks {
     public static final RegistryObject<Block> MANA_GENERATOR = BLOCKS.register("mana_generator",
             () -> new ManaGeneratorBlock(BlockBehaviour.Properties.copy(Blocks.STONE).noOcclusion()));
 
+    // 魔力管道註冊
+    public static final RegistryObject<Block> MANA_CONDUIT = registerBlock("mana_conduit",
+            ManaConduitBlock::new);
 
 
     // 新增魔法礦物的註冊

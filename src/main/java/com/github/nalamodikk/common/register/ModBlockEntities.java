@@ -1,6 +1,7 @@
 package com.github.nalamodikk.common.register;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.common.block.blockentity.mana_crafting.ManaCraftingTableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,6 +23,14 @@ public class ModBlockEntities {
             () -> BlockEntityType.Builder.of(ManaGeneratorBlockEntity::new, ModBlocks.MANA_GENERATOR.get())
                     .build(null));
 
+
+
+    public static final RegistryObject<BlockEntityType<ManaConduitBlockEntity>> MANA_CONDUIT_BE =
+            BLOCK_ENTITIES.register("mana_conduit_be",
+                    () -> BlockEntityType.Builder.of(
+                            ManaConduitBlockEntity::new, // BlockEntity 的構造函數
+                            ModBlocks.MANA_CONDUIT.get() // 支援的方塊
+                    ).build(null));
 
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);

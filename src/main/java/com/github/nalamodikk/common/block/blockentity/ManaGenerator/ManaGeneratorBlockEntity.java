@@ -5,7 +5,7 @@ import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.block.ManaGeneratorBlock;
+import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.compat.energy.UnifiedEnergyStorage;
 import com.github.nalamodikk.common.mana.ManaAction;
