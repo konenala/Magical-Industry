@@ -1,8 +1,12 @@
 package com.github.nalamodikk.common.block.block.Conduit;
 
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -18,6 +22,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class ManaConduitBlock extends BaseEntityBlock {
     public static final BooleanProperty NORTH = BooleanProperty.create("north");
@@ -51,6 +57,19 @@ public class ManaConduitBlock extends BaseEntityBlock {
         builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
     }
 
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+        // 添加多行自定義工具提示
+        if (Screen.hasShiftDown()) {
+            tooltip.add(Component.translatable("tooltip.magical_industry.mana_conduit.line1"));
+            tooltip.add(Component.translatable("tooltip.magical_industry.mana_conduit.line2"));
+            tooltip.add(Component.translatable("tooltip.magical_industry.mana_conduit.line3"));
+
+        } else {
+            tooltip.add(Component.translatable("tooltip.magical_industry.mana_conduit.hold_shift"));
+
+        }
+    }
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return updateConnections(context.getLevel(), context.getClickedPos(), this.defaultBlockState());

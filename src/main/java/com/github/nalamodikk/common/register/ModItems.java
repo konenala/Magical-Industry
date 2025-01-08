@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.register;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.block.block.blockitem.ManaGeneratorBlockItem;
+import com.github.nalamodikk.common.block.block.blockitem.ManaGenerator.ManaGeneratorBlockItem;
 import com.github.nalamodikk.common.item.debug.ManaDebugToolItem;
 import com.github.nalamodikk.common.item.tool.BasicTechWandItem;
 import net.minecraft.world.item.Item;

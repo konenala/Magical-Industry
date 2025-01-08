@@ -77,6 +77,11 @@
   "tooltip.magical_industry.mana_conduit.description": "用於在連接的設備之間傳輸魔力的導管。",
   "tooltip.magical_industry.mana_conduit.usage": "將其放置於魔力設備之間以進行連接。",
 
+  "tooltip.magical_industry.mana_conduit.line1": "用於傳輸魔力的導管。",
+  "tooltip.magical_industry.mana_conduit.line2": "可以連接到其他與魔力相關的設備。",
+  "tooltip.magical_industry.mana_conduit.line3": "Shift+右鍵點擊以配置連接。",
+  "tooltip.magical_industry.mana_conduit.hold_shift": "按住 SHIFT 查看更多信息。",
+
 
   "block.magical_industry.mana_block": "魔法錠磚",
   "block.magical_industry.magic_ore": "魔法礦",

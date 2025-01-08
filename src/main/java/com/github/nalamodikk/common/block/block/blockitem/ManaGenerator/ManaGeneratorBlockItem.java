@@ -1,4 +1,4 @@
-package com.github.nalamodikk.common.block.block.blockitem;
+package com.github.nalamodikk.common.block.block.blockitem.ManaGenerator;
 
 import com.github.nalamodikk.client.renderer.ManaGeneratorBlockItemRenderer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
