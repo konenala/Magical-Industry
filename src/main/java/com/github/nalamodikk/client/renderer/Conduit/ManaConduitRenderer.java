@@ -1,5 +1,6 @@
 package com.github.nalamodikk.client.renderer.Conduit;
 
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.block.Conduit.ManaConduitBlock;
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.github.nalamodikk.common.util.RenderUtils;
@@ -14,7 +15,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.Direction;
 
 public class ManaConduitRenderer implements BlockEntityRenderer<ManaConduitBlockEntity> {
-    private static final ResourceLocation CONDUIT_TEXTURE = new ResourceLocation("magical_industry", "textures/block/mana_conduit.png");
+    private static final ResourceLocation CONDUIT_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/block/mana_conduit_texture.png");
 
     public ManaConduitRenderer(BlockEntityRendererProvider.Context context) {}
 

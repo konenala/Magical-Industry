@@ -26,7 +26,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.MANA_BLOCK);
         blockWithItem(ModBlocks.MAGIC_ORE);
         // conduit 導管
-        registerConduit(ModBlocks.MANA_CONDUIT, "mana_conduit");
+        registerConduit(ModBlocks.MANA_CONDUIT, "mana_conduit", "mana_conduit_texture");
 
 
 
@@ -69,11 +69,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
 
-    // conduit 魔力導管
-    private void registerConduit(RegistryObject<Block> blockRegistryObject, String conduitName) {
-        getMultipartBuilder(blockRegistryObject.get())
-                .part().modelFile(models().getExistingFile(new ResourceLocation("magical_industry", "block/conduit/" + conduitName + "_center"))).addModel()
-                .end();
+    // 通用方法，為導管生成 BlockState 和物品模型
+    private void registerConduit(RegistryObject<Block> blockRegistryObject, String conduitName, String textureName) {
+        // 使用指定材質創建中心模型
+        ModelFile centerModel = models().withExistingParent(conduitName, mcLoc("block/cube_all"))
+                .texture("all", modLoc("block/conduit/" + textureName));
+
+        // 初始化 Multipart Builder 並添加中心模型
+        var multipartBuilder = getMultipartBuilder(blockRegistryObject.get());
+        multipartBuilder.part().modelFile(centerModel).addModel().end();
 
         // 定義所有方向及其屬性對應關係
         Map<String, BooleanProperty> directions = Map.of(
@@ -85,18 +89,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 "down", ManaConduitBlock.DOWN
         );
 
-        // 動態處理每個方向
-        for (Map.Entry<String, BooleanProperty> entry : directions.entrySet()) {
-            String directionName = entry.getKey();
-            BooleanProperty property = entry.getValue();
+        // 對每個方向動態添加部分
+        directions.forEach((directionName, property) ->
+                multipartBuilder.part()
+                        .modelFile(centerModel) // 使用相同的中心模型
+                        .addModel()
+                        .condition(property, true)
+                        .end()
+        );
 
-            getMultipartBuilder(blockRegistryObject.get())
-                    .part()
-                    .modelFile(models().getExistingFile(new ResourceLocation("magical_industry", "block/conduit/" + conduitName + "_" + directionName)))
-                    .addModel()
-                    .condition(property, true)
-                    .end();
-        }
+        // 為物品生成模型
+        itemModels().withExistingParent(conduitName, mcLoc("block/cube_all"))
+                .texture("all", modLoc("block/conduit/" + textureName));
     }
+
 
 }
