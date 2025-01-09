@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common.block.block.Conduit;
 
+import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -33,13 +34,14 @@ public class ManaConduitBlock extends BaseEntityBlock {
     public static final BooleanProperty UP = BooleanProperty.create("up");
     public static final BooleanProperty DOWN = BooleanProperty.create("down");
 
-    private static final VoxelShape CENTER_SHAPE = Block.box(6, 6, 6, 10, 10, 10);
-    private static final VoxelShape NORTH_SHAPE = Block.box(6, 6, 0, 10, 10, 6);
-    private static final VoxelShape EAST_SHAPE = Block.box(10, 6, 6, 16, 10, 10);
-    private static final VoxelShape SOUTH_SHAPE = Block.box(6, 6, 10, 10, 10, 16);
-    private static final VoxelShape WEST_SHAPE = Block.box(0, 6, 6, 6, 10, 10);
-    private static final VoxelShape UP_SHAPE = Block.box(6, 10, 6, 10, 16, 10);
-    private static final VoxelShape DOWN_SHAPE = Block.box(6, 0, 6, 10, 6, 10);
+    public static final VoxelShape CENTER_SHAPE = Block.box(6, 6, 6, 10, 10, 10);
+    public static final VoxelShape NORTH_SHAPE = Block.box(6, 6, 0, 10, 10, 6);
+    public static final VoxelShape EAST_SHAPE = Block.box(10, 6, 6, 16, 10, 10);
+    public static final VoxelShape SOUTH_SHAPE = Block.box(6, 6, 10, 10, 10, 16);
+    public static final VoxelShape WEST_SHAPE = Block.box(0, 6, 6, 6, 10, 10);
+    public static final VoxelShape UP_SHAPE = Block.box(6, 10, 6, 10, 16, 10);
+    public static final VoxelShape DOWN_SHAPE = Block.box(6, 0, 6, 10, 6, 10);
+
 
     public ManaConduitBlock() {
         super(BlockBehaviour.Properties.copy(Blocks.IRON_BLOCK).noOcclusion());
@@ -56,6 +58,7 @@ public class ManaConduitBlock extends BaseEntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
     }
+
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
@@ -76,10 +79,31 @@ public class ManaConduitBlock extends BaseEntityBlock {
     }
 
     @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof ManaConduitBlockEntity conduit) {
+            VoxelShape cachedShape = conduit.getCachedShape(state);
+            return cachedShape != null ? cachedShape : CENTER_SHAPE;
+        }
+        return CENTER_SHAPE; // 預設返回中心形狀
+    }
+
+
+    @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean isMoving) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, isMoving);
-        level.setBlock(pos, updateConnections(level, pos, state), 3);
+        BlockState updatedState = updateConnections(level, pos, state);
+        if (!state.equals(updatedState)) {
+            level.setBlock(pos, updatedState, 3);
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof ManaConduitBlockEntity conduit) {
+                conduit.invalidateShapeCache(); // 當連接狀態確實改變時，才重置形狀緩存
+            }
+        }
     }
+
+
+
 
     private BlockState updateConnections(Level level, BlockPos pos, BlockState state) {
         return state.setValue(NORTH, canConnect(level, pos.relative(Direction.NORTH)))
@@ -92,20 +116,14 @@ public class ManaConduitBlock extends BaseEntityBlock {
 
     private boolean canConnect(Level level, BlockPos neighborPos) {
         BlockEntity neighborEntity = level.getBlockEntity(neighborPos);
-        return neighborEntity instanceof ManaConduitBlockEntity; // 僅連接其他 ManaConduitBlockEntity
+        if (neighborEntity instanceof ManaConduitBlockEntity) {
+            return true;
+        }
+
+        // 支持其他有魔力能力的機器
+        return neighborEntity != null && neighborEntity.getCapability(ModCapabilities.MANA).isPresent();
     }
 
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape shape = CENTER_SHAPE;
-        if (state.getValue(NORTH)) shape = Shapes.or(shape, NORTH_SHAPE);
-        if (state.getValue(EAST)) shape = Shapes.or(shape, EAST_SHAPE);
-        if (state.getValue(SOUTH)) shape = Shapes.or(shape, SOUTH_SHAPE);
-        if (state.getValue(WEST)) shape = Shapes.or(shape, WEST_SHAPE);
-        if (state.getValue(UP)) shape = Shapes.or(shape, UP_SHAPE);
-        if (state.getValue(DOWN)) shape = Shapes.or(shape, DOWN_SHAPE);
-        return shape;
-    }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {

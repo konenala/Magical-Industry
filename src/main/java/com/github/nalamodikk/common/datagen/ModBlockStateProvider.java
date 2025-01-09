@@ -20,7 +20,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
     protected void registerStatesAndModels() {
         blockWithItem(ModBlocks.MANA_BLOCK);
         blockWithItem(ModBlocks.MAGIC_ORE);
-        blockWithItem(ModBlocks.MANA_CONDUIT);
+
 
 
 
