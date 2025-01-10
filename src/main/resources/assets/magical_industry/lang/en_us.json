@@ -75,6 +75,11 @@
   "tooltip.magical_industry.mana_generator.status.stopped": "Stopped",
   "tooltip.mana": "Mana: %s / %s",
   "tooltip.energy": "Energy: %s / %s",
+  "tooltip.magical_industry.mana_conduit.line1": "A conduit to transfer mana.",
+  "tooltip.magical_industry.mana_conduit.line2": "Connects to mana machines and networks.",
+  "tooltip.magical_industry.mana_conduit.line3": "Supports multi-directional connections.",
+  "tooltip.magical_industry.mana_conduit.hold_shift": "Hold SHIFT for more details.",
+
 
   "block.magical_industry.mana_block": "Mana Block",
   "block.magical_industry.magic_ore": "Magic Ore",
@@ -82,6 +87,7 @@
   "block.magical_industry.mana_generator": "Mana Generator",
   "block.magical_industry.mana_crafting_table": "Mana Crafting Table",
   "block.magical_industry.advanced_mana_crafting_table": "Advanced Mana Crafting Table",
+  "block.magical_industry.mana_conduit": "Mana Conduit",
 
   "button.mode.auto": "auto mode",
   "button.mode.manual": "manual mode",

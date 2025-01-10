@@ -1,0 +1,57 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "down": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "magical_industry:block/mana_conduit"
+      },
+      "when": {
+        "north": "true"
+      }
+    }
+  ]
+}
