@@ -126,4 +126,7 @@ public interface IUnifiedManaHandler {
         }
         return extracted; // 返回實際提取的量
     }
+
+
+
 }

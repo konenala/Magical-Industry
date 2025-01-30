@@ -1,57 +1,31 @@
 {
   "multipart": [
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      }
+      "apply": { "model": "magical_industry:block/mana_conduit_center" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "up": "true"
-      }
+      "when": { "up": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_up" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "west": "true"
-      }
+      "when": { "down": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_down" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "south": "true"
-      }
+      "when": { "north": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_north" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "down": "true"
-      }
+      "when": { "south": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_south" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "east": "true"
-      }
+      "when": { "east": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_east" }
     },
     {
-      "apply": {
-        "model": "magical_industry:block/mana_conduit"
-      },
-      "when": {
-        "north": "true"
-      }
+      "when": { "west": "true" },
+      "apply": { "model": "magical_industry:block/mana_conduit_west" }
     }
   ]
 }

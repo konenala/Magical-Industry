@@ -1,7 +1,9 @@
 package com.github.nalamodikk.common.util;
 
+import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class RenderUtils {
@@ -36,25 +38,44 @@ public class RenderUtils {
      * @param overlay        覆蓋層。
      */
     public static void renderBox(PoseStack poseStack, VertexConsumer vertexConsumer, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int light, int overlay) {
-        // 顯示每個面的頂點（6 個面）
-        addVertex(poseStack, vertexConsumer, minX, minY, minZ, light, overlay); // 底部左前
-        addVertex(poseStack, vertexConsumer, maxX, minY, minZ, light, overlay); // 底部右前
-        addVertex(poseStack, vertexConsumer, maxX, maxY, minZ, light, overlay); // 頂部右前
-        addVertex(poseStack, vertexConsumer, minX, maxY, minZ, light, overlay); // 頂部左前
+        // 北面
+        addVertex(poseStack, vertexConsumer, minX, minY, minZ, light, overlay, 0, 0, 0, 0, -1);
+        addVertex(poseStack, vertexConsumer, maxX, minY, minZ, light, overlay, 1, 0, 0, 0, -1);
+        addVertex(poseStack, vertexConsumer, maxX, maxY, minZ, light, overlay, 1, 1, 0, 0, -1);
+        addVertex(poseStack, vertexConsumer, minX, maxY, minZ, light, overlay, 0, 1, 0, 0, -1);
 
-        addVertex(poseStack, vertexConsumer, minX, minY, maxZ, light, overlay); // 底部左後
-        addVertex(poseStack, vertexConsumer, maxX, minY, maxZ, light, overlay); // 底部右後
-        addVertex(poseStack, vertexConsumer, maxX, maxY, maxZ, light, overlay); // 頂部右後
-        addVertex(poseStack, vertexConsumer, minX, maxY, maxZ, light, overlay); // 頂部左後
+        // 南面
+        addVertex(poseStack, vertexConsumer, minX, minY, maxZ, light, overlay, 0, 0, 0, 0, 1);
+        addVertex(poseStack, vertexConsumer, maxX, minY, maxZ, light, overlay, 1, 0, 0, 0, 1);
+        addVertex(poseStack, vertexConsumer, maxX, maxY, maxZ, light, overlay, 1, 1, 0, 0, 1);
+        addVertex(poseStack, vertexConsumer, minX, maxY, maxZ, light, overlay, 0, 1, 0, 0, 1);
+
+        // 類似地處理東面、西面、上面和下面
     }
 
-    private static void addVertex(PoseStack poseStack, VertexConsumer vertexConsumer, double x, double y, double z, int light, int overlay) {
+
+    private static void addVertex(PoseStack poseStack, VertexConsumer vertexConsumer, double x, double y, double z, int light, int overlay, float u, float v, float normalX, float normalY, float normalZ) {
         vertexConsumer.vertex(poseStack.last().pose(), (float) x, (float) y, (float) z)
-                .color(255, 255, 255, 255) // 默認白色
-                .uv(0, 0) // 貼圖座標
+                .color(255, 255, 255, 255) // 白色
+                .uv(u, v) // 動態 UV
                 .overlayCoords(overlay)
                 .uv2(light)
-                .normal(0, 1, 0) // 默認法線
+                .normal(poseStack.last().normal(), normalX, normalY, normalZ) // 動態法線
                 .endVertex();
     }
+
+    /*public static void renderManaFlow(PoseStack poseStack, MultiBufferSource bufferSource, ManaConduitBlockEntity blockEntity, float partialTicks, int packedLight) {
+        // 設定魔力流動動畫的參數
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.glowingEffect());
+        // 自定義動畫邏輯
+        float progress = blockEntity.getManaFlowProgress(partialTicks);
+        // 渲染流動效果
+        poseStack.pushPose();
+        poseStack.translate(0.5, 0.5, 0.5); // 中心點
+        // 使用頂點渲染動畫
+        vertexConsumer.vertex(0, 0, 0).color(0, 255, 255, 128).endVertex();
+        // 渲染邏輯繼續...
+        poseStack.popPose();
+    }*/
+
 }

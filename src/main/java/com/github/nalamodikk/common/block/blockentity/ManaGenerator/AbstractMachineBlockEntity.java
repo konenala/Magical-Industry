@@ -1,4 +1,4 @@
-package com.github.nalamodikk.common.block.blockentity;
+package com.github.nalamodikk.common.block.blockentity.ManaGenerator;
 
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;

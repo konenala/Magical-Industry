@@ -26,7 +26,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.MANA_BLOCK);
         blockWithItem(ModBlocks.MAGIC_ORE);
         // conduit 導管
-
+        registerConduit(ModBlocks.MANA_CONDUIT, "mana_conduit", "mana_conduit_texture");
 
 
 
@@ -68,6 +68,43 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     }
 
+
+    // 通用方法，為導管生成 BlockState 和物品模型
+    private void registerConduit(RegistryObject<Block> blockRegistryObject, String conduitName, String textureName) {
+        // 創建中心模型
+        ModelFile centerModel = models().withExistingParent(conduitName, mcLoc("block/cube_all"))
+                .texture("all", modLoc("block/conduit/" + textureName));
+
+        // 初始化 Multipart Builder 並添加中心模型
+        var multipartBuilder = getMultipartBuilder(blockRegistryObject.get());
+        multipartBuilder.part().modelFile(centerModel).addModel().end();
+
+        // 定義方向屬性對應關係
+        Map<String, BooleanProperty> directions = Map.of(
+                "north", ManaConduitBlock.NORTH,
+                "east", ManaConduitBlock.EAST,
+                "south", ManaConduitBlock.SOUTH,
+                "west", ManaConduitBlock.WEST,
+                "up", ManaConduitBlock.UP,
+                "down", ManaConduitBlock.DOWN
+        );
+
+        // 動態添加每個方向條件及模型
+        directions.forEach((directionName, property) -> {
+            multipartBuilder.part()
+                    .modelFile(centerModel)
+                    .addModel()
+                    .condition(property, Boolean.TRUE) // 明確傳遞 Boolean 值
+                    .end();
+
+        MagicalIndustryMod.LOGGER.info("Condition for {} is " + true, property.getName());
+
+        });
+
+        // 為物品生成模型
+        itemModels().withExistingParent(conduitName, mcLoc("block/cube_all"))
+                .texture("all", modLoc("block/conduit/" + textureName));
+    }
 
 
 }

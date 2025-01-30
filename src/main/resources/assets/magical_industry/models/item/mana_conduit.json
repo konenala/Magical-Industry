@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "magical_industry:block/conduit/mana_conduit_texture"
-  }
+  "parent": "magical_industry:block/mana_conduit_center"
 }

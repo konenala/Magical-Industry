@@ -1,36 +1,61 @@
 package com.github.nalamodikk.common.Capability;
 
 import com.github.nalamodikk.common.mana.ManaAction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
+/**
+ * ManaStorage 是一個魔力存儲類，支持插入、提取以及同步功能。
+ */
 public class ManaStorage implements IUnifiedManaHandler {
-    public static final Capability<ManaStorage> MANA = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final Capability<IUnifiedManaHandler> MANA = CapabilityManager.get(new CapabilityToken<>() {});
 
-    private int mana;
-    private final int capacity;
+    private int mana; // 當前魔力存儲量
+    private final int capacity; // 最大魔力存儲量
 
     public ManaStorage(int capacity) {
         this.capacity = capacity;
         this.mana = 0;
     }
 
+    /**
+     * 檢查當前是否已滿。
+     */
     public boolean isFull() {
-        return this.getMana() >= this.getMaxMana();
+        return mana >= capacity;
     }
 
+    /**
+     * 檢查當前是否為空。
+     */
+    public boolean isEmpty() {
+        return mana <= 0;
+    }
 
     @Override
     public void addMana(int amount) {
-        this.mana = Math.min(this.mana + amount, capacity);
-        onChanged(); // 添加魔力時通知變化
+        mana = Math.min(mana + amount, capacity);
+        onChanged(); // 通知數據變更
     }
 
     @Override
     public void consumeMana(int amount) {
-        this.mana = Math.max(this.mana - amount, 0);
-        onChanged(); // 消耗魔力時通知變化
+        mana = Math.max(mana - amount, 0);
+        onChanged(); // 通知數據變更
+    }
+
+    /**
+     * 獲取當前儲存的魔力值
+     *
+     * @return 當前魔力值
+     */
+    public int getManaStored() {
+        return mana;
     }
 
     @Override
@@ -40,13 +65,8 @@ public class ManaStorage implements IUnifiedManaHandler {
 
     @Override
     public void setMana(int amount) {
-        this.mana = Math.min(amount, capacity);
-        onChanged(); // 設置魔力時通知變化
-    }
-
-    @Override
-    public void onChanged() {
-        // 可以加入一些狀態同步的邏輯，如果需要的話
+        mana = Math.min(Math.max(amount, 0), capacity);
+        onChanged(); // 通知數據變更
     }
 
     @Override
@@ -56,61 +76,66 @@ public class ManaStorage implements IUnifiedManaHandler {
 
     @Override
     public int getManaContainerCount() {
-        return 0;
+        return 1; // 單槽存儲
     }
 
     @Override
     public int getMana(int container) {
-        return 0;
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return mana;
     }
 
     @Override
     public void setMana(int container, int mana) {
-
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        this.mana = Math.min(Math.max(mana, 0), capacity);
+        onChanged();
     }
 
     @Override
     public int getMaxMana(int container) {
-        return 0;
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return capacity;
     }
 
     @Override
     public int getNeededMana(int container) {
-        return 0;
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return capacity - mana;
     }
 
     @Override
     public int insertMana(int container, int amount, ManaAction action) {
-        // 如果当前魔力已满，则无法插入
-        if (this.mana >= this.capacity) {
-            return 0;
-        }
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
 
-        // 计算实际可以插入的魔力
-        int manaToInsert = Math.min(amount, this.capacity - this.mana);
-
-        // 如果是执行操作，实际插入魔力
+        // 計算可以插入的量
+        int manaToInsert = Math.min(amount, capacity - mana);
         if (action.execute()) {
-            this.mana += manaToInsert;
-            onChanged(); // 通知数据已更改
+            mana += manaToInsert;
+            onChanged(); // 通知數據變更
         }
-
         return manaToInsert;
     }
 
     @Override
     public int extractMana(int container, int amount, ManaAction action) {
-        // 如果当前没有足够的魔力，则只能提取现有魔力
-        int manaToExtract = Math.min(amount, this.mana);
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
 
-        // 如果是执行操作，实际提取魔力
+        // 計算可以提取的量
+        int manaToExtract = Math.min(amount, mana);
         if (action.execute()) {
-            this.mana -= manaToExtract;
-            onChanged(); // 通知数据已更改
+            mana -= manaToExtract;
+            onChanged(); // 通知數據變更
         }
-
         return manaToExtract;
     }
 
+    /**
+     * 當魔力變化時調用，用於同步或觸發事件。
+     * 可以在這裡實現數據同步或其他邏輯。
+     */
+    @Override
+    public void onChanged() {
+        // 暫時保留空方法，僅供日後擴展用
+    }
 }
-
