@@ -242,8 +242,12 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     @Override
     public void onLoad() {
         super.onLoad();
-        NetworkManager.onConduitPlaced(this.level, this.worldPosition);
+        if (level != null && !level.isClientSide) {
+            NetworkManager manager = NetworkManager.getInstance(level);
+            manager.registerMachine(worldPosition, 1); // 註冊為可接收魔力的機器
+        }
     }
+
 
 
 
@@ -443,6 +447,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
         // **先嘗試透過導管網路輸出魔力**
         AtomicLong excessMana = new AtomicLong(manager.insertMana(worldPosition, 50));
+        MagicalIndustryMod.LOGGER.info("Mana Generator at {} trying to insert mana, excess: {}", worldPosition, excessMana.get());
 
         for (Direction direction : Direction.values()) {
             if (isOutput(direction)) {

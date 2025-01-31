@@ -20,6 +20,16 @@ build
 # other
 eclipse
 run
+runs
+run-data
 
-# Files from Forge MDK
-forge*changelog.txt
+repo
+/.gitattributes
+/.github/workflows/build.yml
+/src/main/java/com/example/examplemod/Config.java
+/src/main/resources/assets/examplemod/lang/en_us.json
+/src/main/java/com/example/examplemod/ExampleMod.java
+/src/generated/resources/data/magical_industry/loot_tables/blocks/mana_conduit.json
+/src/main/templates/META-INF/neoforge.mods.toml
+/README.md
+/TEMPLATE_LICENSE.txt

@@ -7,17 +7,22 @@ import com.github.nalamodikk.common.mana.ManaAction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class NetworkManager {
+
     // 靜態變量，用於管理所有 Level 的 NetworkManager 實例
     private static final Map<Level, NetworkManager> managers = new HashMap<>();
 
-    private final Level level;
-    private final Map<BlockPos, Integer> connectedMachines = new HashMap<>(); // 儲存位置與權重
-    private final Set<BlockPos> conduits = new HashSet<>(); // 所有導管位置
+    private final Level level; // 當前世界
+    private final Map<BlockPos, Integer> connectedMachines = new HashMap<>(); // 儲存機器位置與優先級
+    private final Set<BlockPos> conduits = new HashSet<>(); // 儲存所有導管位置
+
+    private static final int MAX_RECURSION_DEPTH = 1000;
 
     // 私有構造函數，禁止外部直接調用
     private NetworkManager(Level level) {
@@ -30,77 +35,6 @@ public class NetworkManager {
     public static NetworkManager getInstance(Level level) {
         return managers.computeIfAbsent(level, NetworkManager::new);
     }
-
-    /**
-     * 插入魔力
-     */
-    /**
-     * 插入魔力到連接的設備中
-     */
-    // 🔥 讓 `insertMana()` 和 `requestMana()` 呼叫時傳入新的 `visited` 集合
-    public long insertMana(BlockPos pos, long mana) {
-        return handleManaTransfer(pos, mana, true, new HashSet<>()); // 插入模式
-    }
-
-    /**
-     * 處理魔力請求，從連接的設備中提取魔力
-     */
-
-
-    public int requestMana(BlockPos requester, int amount) {
-        return (int) (amount - handleManaTransfer(requester, amount, false, new HashSet<>())); // 提取模式
-    }
-    /**
-     * 處理魔力的插入和提取邏輯
-     *
-     * @param pos          發起插入/請求的位置
-     * @param mana         插入/請求的魔力量
-     * @param isInsertMode 是否為插入模式（true：插入；false：請求）
-     * @return 剩餘未處理的魔力量
-     */
-    private long handleManaTransfer(BlockPos pos, long mana, boolean isInsertMode, Set<BlockPos> visited) {
-        if (visited.contains(pos)) return mana; // 避免無限循環
-        visited.add(pos);
-
-        List<Map.Entry<BlockPos, Integer>> sortedMachines = new ArrayList<>(connectedMachines.entrySet());
-        sortedMachines.sort(Map.Entry.comparingByValue()); // 根據優先級排序
-
-        long remainingMana = mana;
-
-        // **1️⃣ 先嘗試與設備交換魔力**
-        for (Map.Entry<BlockPos, Integer> entry : sortedMachines) {
-            BlockPos machinePos = entry.getKey();
-            LazyOptional<IUnifiedManaHandler> cap = getCapability(machinePos);
-
-            if (cap.isPresent()) {
-                IUnifiedManaHandler handler = cap.orElseThrow(() ->
-                        new IllegalStateException("Mana capability missing at " + machinePos)
-                );
-
-                long processed = isInsertMode
-                        ? handler.insertMana((int) remainingMana, ManaAction.get(false))
-                        : handler.extractMana((int) remainingMana, ManaAction.get(false));
-
-                remainingMana -= processed;
-
-                if (remainingMana <= 0) return 0; // 魔力已完全處理，結束
-            }
-        }
-
-        // **2️⃣ 傳輸魔力到導管內部**
-        for (BlockPos conduit : conduits) {
-            if (!conduit.equals(pos) && isConnected(pos, conduit)) {
-                remainingMana = handleManaTransfer(conduit, remainingMana, isInsertMode, visited);
-                if (remainingMana <= 0) return 0;
-            }
-        }
-
-        return remainingMana;
-    }
-
-
-
-
 
     /**
      * 註冊導管
@@ -135,18 +69,31 @@ public class NetworkManager {
     }
 
     /**
+     * 插入魔力到連接的設備中
+     */
+    public long insertMana(BlockPos pos, long mana) {
+        return handleManaTransfer(pos, mana, true, new HashSet<>(), 0);
+    }
+
+    /**
+     * 從連接的設備中提取魔力
+     */
+    public long requestMana(BlockPos requester, long amount) {
+        return amount - handleManaTransfer(requester, amount, false, new HashSet<>(), 0);
+    }
+
+    /**
      * 更新網路結構
      */
     public void updateNetwork() {
         Set<BlockPos> visited = new HashSet<>();
         Queue<BlockPos> toVisit = new LinkedList<>();
 
+        // 從設備或導管開始遍歷
         if (!connectedMachines.isEmpty()) {
-            BlockPos start = connectedMachines.keySet().iterator().next();
-            toVisit.add(start);
+            toVisit.add(connectedMachines.keySet().iterator().next());
         } else if (!conduits.isEmpty()) {
-            BlockPos start = conduits.iterator().next();
-            toVisit.add(start);
+            toVisit.add(conduits.iterator().next());
         }
 
         while (!toVisit.isEmpty()) {
@@ -165,32 +112,89 @@ public class NetworkManager {
             }
         }
 
-        // 只保留已訪問的導管，刪除不連接的導管
+        // 只保留真正連接的節點
         conduits.retainAll(visited);
+        connectedMachines.keySet().retainAll(visited);
+
+        MagicalIndustryMod.LOGGER.info("Updated mana network: {} conduits, {} machines.", conduits.size(), connectedMachines.size());
     }
 
+    /**
+     * 魔力傳輸邏輯
+     */
+    private long handleManaTransfer(BlockPos pos, long mana, boolean isInsertMode, Set<BlockPos> visited, int depth) {
+        if (depth > MAX_RECURSION_DEPTH) {
+            MagicalIndustryMod.LOGGER.error("Recursion limit exceeded at: " + pos);
+            return mana;
+        }
+        if (visited.contains(pos)) return mana;
+        visited.add(pos);
+
+        long remainingMana = mana;
+
+        // 與設備交換魔力
+        for (Map.Entry<BlockPos, Integer> entry : connectedMachines.entrySet()) {
+            BlockPos machinePos = entry.getKey();
+            LazyOptional<IUnifiedManaHandler> cap = getCapability(machinePos);
+
+            if (cap.isPresent()) {
+                IUnifiedManaHandler handler = cap.orElseThrow(() -> new IllegalStateException("Mana capability missing at " + machinePos));
+                long processed = isInsertMode
+                        ? handler.insertMana((int) remainingMana, ManaAction.EXECUTE)
+                        : handler.extractMana((int) remainingMana, ManaAction.EXECUTE);
+                remainingMana -= processed;
+
+                MagicalIndustryMod.LOGGER.debug("Transferred {} mana to machine at {}", processed, machinePos);
+
+                if (remainingMana <= 0) return 0;
+            }
+        }
+
+        // 與相鄰導管傳輸魔力
+        for (BlockPos conduit : conduits) {
+            if (!conduit.equals(pos) && isConnected(pos, conduit)) {
+                remainingMana = handleManaTransfer(conduit, remainingMana, isInsertMode, visited, depth + 1);
+                if (remainingMana <= 0) return 0;
+            }
+        }
+
+        return remainingMana;
+    }
 
     /**
-     * 檢查是否相連
+     * 檢查兩個位置是否相連
      */
     private boolean isConnected(BlockPos a, BlockPos b) {
-        return a.distSqr(b) <= 1; // 檢查兩個方塊是否相鄰
+        if (!conduits.contains(a) || !conduits.contains(b)) return false;
+
+        Set<BlockPos> visited = new HashSet<>();
+        Queue<BlockPos> queue = new LinkedList<>();
+        queue.add(a);
+
+        while (!queue.isEmpty()) {
+            BlockPos current = queue.poll();
+            if (current.equals(b)) return true;
+            if (visited.contains(current)) continue;
+            visited.add(current);
+
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbor = current.relative(direction);
+                if (conduits.contains(neighbor) && !visited.contains(neighbor)) {
+                    queue.add(neighbor);
+                }
+            }
+        }
+        return false;
     }
 
     /**
      * 獲取方塊的 Mana 能力
      */
     private LazyOptional<IUnifiedManaHandler> getCapability(BlockPos pos) {
-        return level.getBlockEntity(pos).getCapability(ModCapabilities.MANA);
-    }
-
-    public static void onConduitPlaced(Level level, BlockPos pos) {
-        // 確保 NetworkManager 的實例存在
-        NetworkManager manager = getInstance(level);
-        if (manager != null) {
-            // 將新放置的導管加入到網路中
-            manager.registerConduit(pos);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null) {
+            return be.getCapability(ModCapabilities.MANA);
         }
+        return LazyOptional.empty();
     }
-
 }
