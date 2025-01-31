@@ -5,6 +5,7 @@ import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.common.mana.ManaAction;
+import com.github.nalamodikk.common.network.mana_net.NetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
@@ -47,6 +48,9 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     private static final int INPUT_SLOT_START = 0;
     private static final int INPUT_SLOT_END = 8;
     private static final int OUTPUT_SLOT = 9;
+    private int manaCheckCooldown = 10; // 每 10 tick 檢查一次
+    // 用於存儲上次的魔力值，默認為 0
+    private int lastManaValue = 0;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
@@ -62,7 +66,10 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, ManaCraftingTableBlockEntity blockEntity) {
         if (!level.isClientSide) {
-            blockEntity.extractManaFromNeighbors(); // 每 tick 嘗試抽取魔力
+            if (blockEntity.manaCheckCooldown-- <= 0) {
+                blockEntity.extractManaFromNeighbors();
+                blockEntity.manaCheckCooldown = 10; // 重新設定冷卻
+            }
         }
     }
 
@@ -77,19 +84,24 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         for (Direction direction : Direction.values()) {
             BlockEntity neighbor = level.getBlockEntity(worldPosition.relative(direction));
             if (neighbor != null) {
-                // 檢查相鄰的方塊是否具備魔力能力
                 neighbor.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
-                    // 嘗試從相鄰方塊提取魔力
-                    int manaNeeded = manaStorage.getNeeded(); // 獲取合成台需要的魔力
-                    int extracted = neighborManaStorage.extractMana(manaNeeded, ManaAction.EXECUTE); // 實際提取魔力
-                    manaStorage.addMana(extracted); // 將提取的魔力添加到合成台
+                    int manaNeeded = manaStorage.getNeeded();
+                    if (manaNeeded <= 0) return;
+
+                    // 嘗試從鄰近方塊提取魔力
+                    int extracted = neighborManaStorage.extractMana(manaNeeded, ManaAction.EXECUTE);
                     if (extracted > 0) {
+                        manaStorage.addMana(extracted);
                         setChanged(); // 標記數據已更改
+
+                        // 如果已經填滿，就提前結束迴圈
+                        if (manaStorage.isFull()) return;
                     }
                 });
             }
         }
     }
+
 
 
     public void setItem(int slot, ItemStack stack) {
@@ -175,22 +187,48 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     }
 
 
-    // 消耗魔力
-    public void consumeMana(int amount) {
-        manaStorage.consumeMana(amount);
 
-        // System.out.println("Mana consumed: " + amount + ", Current Mana: " + manaStorage.getMana());
-        setChanged(); // 通知服务器数据已经更改
-        if (!level.isClientSide()) {
-            BlockState state = level.getBlockState(worldPosition);
-            level.sendBlockUpdated(worldPosition, state, state, 3); // 触发客户端更新
+    // 消耗魔力
+    public boolean consumeMana(int amount) {
+        if (amount <= 0) return false;
+
+        // 獲取 NetworkManager 的實例
+        NetworkManager networkManager = NetworkManager.getInstance(this.level);
+
+        // 1️⃣ 先嘗試從導管提取魔力
+        int fromNetwork = networkManager.requestMana(worldPosition, amount);
+        int remaining = amount - fromNetwork;
+
+        // 2️⃣ 如果導管不足，嘗試從自身儲存消耗
+        if (remaining > 0) {
+            if (manaStorage.getMana() >= remaining) {
+                manaStorage.consumeMana(remaining);
+                updateClient(); // 確保客戶端同步
+                return true;
+            }
+            return false; // 魔力不足，無法消耗
         }
-        if (!level.isClientSide()) {
+
+        updateClient(); // 成功從導管取魔力後也要同步 GUI
+        return true;
+    }
+
+
+
+    private void updateClient() {
+        if (level != null && !level.isClientSide()) {
             setChanged();
-            BlockState state = level.getBlockState(worldPosition);
-            level.sendBlockUpdated(worldPosition, state, state, 3); // 確保數據變更通知客戶端
+
+            // 只有當魔力真的變化時，才更新 GUI
+            if (lastManaValue != manaStorage.getMana()) {
+                lastManaValue = manaStorage.getMana();
+                BlockState state = level.getBlockState(worldPosition);
+                level.sendBlockUpdated(worldPosition, state, state, 3);
+            }
         }
     }
+
+
 
     public void updateCraftingResult() {
         Optional<ManaCraftingTableRecipe> recipe = getCurrentRecipe();
@@ -250,12 +288,8 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        if (lazyItemHandler.isPresent()) {
-            lazyItemHandler.invalidate();
-        }
-        if (lazyManaStorage.isPresent()) {
-            lazyManaStorage.invalidate();
-        }
+        lazyItemHandler.invalidate();
+        lazyManaStorage.invalidate();
     }
 
 
@@ -280,10 +314,12 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     protected void saveAdditional(CompoundTag pTag) {
+        super.saveAdditional(pTag);
         pTag.put("inventory", itemHandler.serializeNBT());
         pTag.putInt("ManaStored", manaStorage.getMana());
-        super.saveAdditional(pTag);
     }
+
+
 
     @Override
     public void load(CompoundTag pTag) {
