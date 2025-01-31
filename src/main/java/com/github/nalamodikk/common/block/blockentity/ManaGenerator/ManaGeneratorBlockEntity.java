@@ -59,6 +59,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.EnumMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEntity, GeoAnimatable, MenuProvider , IConfigurableBlock {
 
@@ -219,13 +220,24 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     public static void serverTick(Level level, BlockPos pos, BlockState state, ManaGeneratorBlockEntity blockEntity) {
         if (!level.isClientSide) {
             blockEntity.sync(); // 同步到客戶端
-            long generatedMana = blockEntity.generateEnergyOrMana(); // 生成魔力
-            long excessMana = NetworkManager.getInstance(level).insertMana(pos, generatedMana); // 插入網路
-            blockEntity.manaStorage.insertMana((int) excessMana, ManaAction.EXECUTE); // 儲存剩餘魔力
-            blockEntity.outputEnergyAndMana(); // 輸出魔力或能量
+
+            // **1️⃣ 生成魔力**
+            long generatedMana = blockEntity.generateEnergyOrMana();
+
+            // **2️⃣ 透過網路傳輸魔力**
+            NetworkManager manager = NetworkManager.getInstance(level); // 取得對應世界的魔力網路管理器
+            long excessMana = manager.insertMana(pos, generatedMana); // 插入到魔力網路
+
+            // **3️⃣ 剩餘的魔力存回自己的儲存器**
+            blockEntity.manaStorage.insertMana((int) excessMana, ManaAction.EXECUTE);
+
+            // **4️⃣ 嘗試輸出魔力到周圍機器**
+            blockEntity.outputEnergyAndMana();
+
             blockEntity.markUpdated(); // 標記數據更新
         }
     }
+
 
     @Override
     public void onLoad() {
@@ -427,15 +439,19 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
 
     private void outputEnergyAndMana() {
+        NetworkManager manager = NetworkManager.getInstance(level); // 取得魔力網路管理器
+
+        // **先嘗試透過導管網路輸出魔力**
+        AtomicLong excessMana = new AtomicLong(manager.insertMana(worldPosition, 50));
+
         for (Direction direction : Direction.values()) {
-            // 只在設置為「輸出」的方向上進行能量和魔力的輸出
             if (isOutput(direction)) {
                 BlockEntity neighborBlockEntity = level.getBlockEntity(worldPosition.relative(direction));
                 if (neighborBlockEntity != null) {
-                    // 嘗試將能量輸出到相鄰方塊
+
+                    // **嘗試將能量輸出到相鄰方塊**
                     neighborBlockEntity.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(neighborEnergyStorage -> {
                         if (neighborEnergyStorage.canReceive() && neighborBlockEntity instanceof IConfigurableBlock configurableNeighborBlock) {
-                            // 確認相鄰的方塊在這個方向上是「輸入」
                             if (!configurableNeighborBlock.isOutput(direction.getOpposite())) {
                                 int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100);
                                 int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
@@ -444,14 +460,14 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                         }
                     });
 
-                    // 嘗試將魔力輸出到相鄰方塊
+                    // **嘗試將剩餘魔力輸出到相鄰方塊**
                     neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
                         if (neighborManaStorage.canReceive() && neighborBlockEntity instanceof IConfigurableBlock configurableNeighborBlock) {
-                            // 確認相鄰的方塊在這個方向上是「輸入」
                             if (!configurableNeighborBlock.isOutput(direction.getOpposite())) {
-                                int manaToTransfer = Math.min(manaStorage.getMana(), 50);
+                                int manaToTransfer = (int) Math.min(excessMana.get(), 50); // 確保不超過剩餘魔力
                                 int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
                                 manaStorage.extractMana(acceptedMana, ManaAction.get(false));
+                                excessMana.addAndGet(-acceptedMana); // 更新剩餘魔力
                             }
                         }
                     });
@@ -459,7 +475,6 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             }
         }
     }
-
 
 //    private void outputCapability(Direction direction, BlockEntity neighborBlockEntity, Capability<?> capability, int amount, BiConsumer<Integer, Boolean> extractor) {
 //        neighborBlockEntity.getCapability(capability, direction.getOpposite()).ifPresent(neighborStorage -> {

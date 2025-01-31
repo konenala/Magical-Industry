@@ -5,6 +5,7 @@ import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.mana.ManaAction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -36,17 +37,19 @@ public class NetworkManager {
     /**
      * 插入魔力到連接的設備中
      */
+    // 🔥 讓 `insertMana()` 和 `requestMana()` 呼叫時傳入新的 `visited` 集合
     public long insertMana(BlockPos pos, long mana) {
-        return handleManaTransfer(pos, mana, true); // 插入模式
+        return handleManaTransfer(pos, mana, true, new HashSet<>()); // 插入模式
     }
 
     /**
      * 處理魔力請求，從連接的設備中提取魔力
      */
-    public int requestMana(BlockPos requester, int amount) {
-        return (int) (amount - handleManaTransfer(requester, amount, false)); // 提取模式
-    }
 
+
+    public int requestMana(BlockPos requester, int amount) {
+        return (int) (amount - handleManaTransfer(requester, amount, false, new HashSet<>())); // 提取模式
+    }
     /**
      * 處理魔力的插入和提取邏輯
      *
@@ -55,12 +58,16 @@ public class NetworkManager {
      * @param isInsertMode 是否為插入模式（true：插入；false：請求）
      * @return 剩餘未處理的魔力量
      */
-    private long handleManaTransfer(BlockPos pos, long mana, boolean isInsertMode) {
+    private long handleManaTransfer(BlockPos pos, long mana, boolean isInsertMode, Set<BlockPos> visited) {
+        if (visited.contains(pos)) return mana; // 避免無限循環
+        visited.add(pos);
+
         List<Map.Entry<BlockPos, Integer>> sortedMachines = new ArrayList<>(connectedMachines.entrySet());
-        sortedMachines.sort(Map.Entry.comparingByValue()); // 根據權重排序
+        sortedMachines.sort(Map.Entry.comparingByValue()); // 根據優先級排序
 
         long remainingMana = mana;
 
+        // **1️⃣ 先嘗試與設備交換魔力**
         for (Map.Entry<BlockPos, Integer> entry : sortedMachines) {
             BlockPos machinePos = entry.getKey();
             LazyOptional<IUnifiedManaHandler> cap = getCapability(machinePos);
@@ -71,22 +78,28 @@ public class NetworkManager {
                 );
 
                 long processed = isInsertMode
-                        ? handler.insertMana((int) remainingMana, ManaAction.get(false)) // 插入模式
-                        : handler.extractMana((int) remainingMana, ManaAction.get(false)); // 提取模式
+                        ? handler.insertMana((int) remainingMana, ManaAction.get(false))
+                        : handler.extractMana((int) remainingMana, ManaAction.get(false));
 
                 remainingMana -= processed;
 
-                // 日誌記錄（可選）
-                MagicalIndustryMod.LOGGER.info((isInsertMode ? "Inserted" : "Extracted") + " " + processed + " mana at " + machinePos);
-
-                if (remainingMana <= 0) {
-                    break; // 已完成處理，退出
-                }
+                if (remainingMana <= 0) return 0; // 魔力已完全處理，結束
             }
         }
 
-        return remainingMana; // 返回未處理的剩餘魔力量
+        // **2️⃣ 傳輸魔力到導管內部**
+        for (BlockPos conduit : conduits) {
+            if (!conduit.equals(pos) && isConnected(pos, conduit)) {
+                remainingMana = handleManaTransfer(conduit, remainingMana, isInsertMode, visited);
+                if (remainingMana <= 0) return 0;
+            }
+        }
+
+        return remainingMana;
     }
+
+
+
 
 
     /**
@@ -131,24 +144,31 @@ public class NetworkManager {
         if (!connectedMachines.isEmpty()) {
             BlockPos start = connectedMachines.keySet().iterator().next();
             toVisit.add(start);
+        } else if (!conduits.isEmpty()) {
+            BlockPos start = conduits.iterator().next();
+            toVisit.add(start);
         }
 
         while (!toVisit.isEmpty()) {
             BlockPos current = toVisit.poll();
-
             if (visited.contains(current)) continue;
             visited.add(current);
 
-            for (BlockPos conduit : conduits) {
-                if (isConnected(current, conduit) && !visited.contains(conduit)) {
-                    toVisit.add(conduit);
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbor = current.relative(direction);
+                if (conduits.contains(neighbor) && !visited.contains(neighbor)) {
+                    toVisit.add(neighbor);
+                }
+                if (connectedMachines.containsKey(neighbor) && !visited.contains(neighbor)) {
+                    toVisit.add(neighbor);
                 }
             }
         }
 
-        // 移除孤立的導管
+        // 只保留已訪問的導管，刪除不連接的導管
         conduits.retainAll(visited);
     }
+
 
     /**
      * 檢查是否相連

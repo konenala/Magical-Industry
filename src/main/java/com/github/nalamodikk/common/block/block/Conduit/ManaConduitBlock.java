@@ -49,17 +49,19 @@ public class ManaConduitBlock extends ConduitBlock {
     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
         if (!world.isClientSide) {
-            NetworkManager.onConduitPlaced(world, pos);
+            NetworkManager manager = NetworkManager.getInstance(world);
+            manager.registerConduit(pos);
         }
     }
+
+
 
     @Override
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, world, pos, newState, isMoving);
         if (!world.isClientSide) {
-            NetworkManager manager = NetworkManager.getInstance(world); // 獲取對應世界的實例
-            manager.removeConduit(pos); // 使用實例來調用方法
-
+            NetworkManager manager = NetworkManager.getInstance(world);
+            manager.removeConduit(pos);
         }
     }
 
