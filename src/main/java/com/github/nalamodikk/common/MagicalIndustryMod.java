@@ -35,6 +35,7 @@ public class MagicalIndustryMod {
     public static final String MOD_ID = "magical_industry";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
+    private static final boolean DEBUG = false;
 
 
     public MagicalIndustryMod() {
@@ -122,7 +123,15 @@ public class MagicalIndustryMod {
 
     }
 
+    private boolean projectIsDevelopment() {
+        // 檢查是否為開發構建
+        String isDev = System.getProperty("dev");
+        return isDev != null && isDev.equals("true");
+    }
 
+    public static boolean isDebugMode() {
+        return DEBUG;
+    }
 
 
 }

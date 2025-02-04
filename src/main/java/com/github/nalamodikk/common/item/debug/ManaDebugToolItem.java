@@ -2,6 +2,7 @@ package com.github.nalamodikk.common.item.debug;
 
 import com.github.nalamodikk.common.Capability.ManaCapability;
 
+import com.github.nalamodikk.common.mana.ManaAction;
 import com.github.nalamodikk.common.network.ManaUpdatePacket;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import net.minecraft.core.BlockPos;
@@ -46,7 +47,8 @@ public class ManaDebugToolItem extends Item {
                 blockEntity.getCapability(ManaCapability.MANA).ifPresent(manaStorage -> {
                     // 增加魔力
                     int manaToAdd = MANA_AMOUNTS[modeIndex];
-                    manaStorage.addMana(manaToAdd);
+                    manaStorage.addMana(manaToAdd, ManaAction.EXECUTE);
+
                     System.out.println("Debug: Added " + manaToAdd + " Mana. Current Mana: " + manaStorage.getMana());
 
                     // 向玩家顯示訊息

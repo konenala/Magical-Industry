@@ -6,7 +6,7 @@ import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
-import com.github.nalamodikk.common.network.mana_net.NetworkManager;
+import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.compat.energy.UnifiedEnergyStorage;
 import com.github.nalamodikk.common.mana.ManaAction;
@@ -225,7 +225,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             long generatedMana = blockEntity.generateEnergyOrMana();
 
             // **2️⃣ 透過網路傳輸魔力**
-            NetworkManager manager = NetworkManager.getInstance(level); // 取得對應世界的魔力網路管理器
+            ManaNetworkManager manager = ManaNetworkManager.getInstance(level); // 取得對應世界的魔力網路管理器
             long excessMana = manager.insertMana(pos, generatedMana); // 插入到魔力網路
 
             // **3️⃣ 剩餘的魔力存回自己的儲存器**
@@ -242,8 +242,12 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
     @Override
     public void onLoad() {
         super.onLoad();
-        NetworkManager.onConduitPlaced(this.level, this.worldPosition);
+        if (level != null && !level.isClientSide) {
+            ManaNetworkManager manager = ManaNetworkManager.getInstance(level);
+            manager.registerMachine(worldPosition, 1); // 註冊為可接收魔力的機器
+        }
     }
+
 
 
 
@@ -265,7 +269,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
     private long insertIntoNetwork(Level level, BlockPos pos, long mana) {
         if (mana > 0) {
-            NetworkManager manager = NetworkManager.getInstance(level); // 獲取 NetworkManager 實例
+            ManaNetworkManager manager = ManaNetworkManager.getInstance(level); // 獲取 NetworkManager 實例
             return manager.insertMana(pos, mana); // 使用實例方法
         }
         return mana; // 如果沒有成功插入，返回原始 mana
@@ -429,8 +433,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
         if (manaAccumulated >= 1.0) {
             generatedMana = (long) manaAccumulated;
             manaAccumulated -= generatedMana;
-            manaStorage.addMana((int) generatedMana);
-        }
+            manaStorage.addMana((int) generatedMana, ManaAction.EXECUTE);        }
 
         return generatedMana;
     }
@@ -438,11 +441,12 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 // ==========================================================================
 
 
-    private void outputEnergyAndMana() {
-        NetworkManager manager = NetworkManager.getInstance(level); // 取得魔力網路管理器
+    public void outputEnergyAndMana() {
+        ManaNetworkManager manager = ManaNetworkManager.getInstance(level); // 取得魔力網路管理器
 
         // **先嘗試透過導管網路輸出魔力**
         AtomicLong excessMana = new AtomicLong(manager.insertMana(worldPosition, 50));
+        MagicalIndustryMod.LOGGER.debug("Mana Generator at {} trying to insert mana, excess: {}", worldPosition, excessMana.get());
 
         for (Direction direction : Direction.values()) {
             if (isOutput(direction)) {
@@ -462,13 +466,11 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
 
                     // **嘗試將剩餘魔力輸出到相鄰方塊**
                     neighborBlockEntity.getCapability(ModCapabilities.MANA, direction.getOpposite()).ifPresent(neighborManaStorage -> {
-                        if (neighborManaStorage.canReceive() && neighborBlockEntity instanceof IConfigurableBlock configurableNeighborBlock) {
-                            if (!configurableNeighborBlock.isOutput(direction.getOpposite())) {
-                                int manaToTransfer = (int) Math.min(excessMana.get(), 50); // 確保不超過剩餘魔力
-                                int acceptedMana = neighborManaStorage.receiveMana(manaToTransfer, ManaAction.get(false));
-                                manaStorage.extractMana(acceptedMana, ManaAction.get(false));
-                                excessMana.addAndGet(-acceptedMana); // 更新剩餘魔力
-                            }
+                        if (neighborManaStorage.canReceive()) {
+                            int manaToTransfer = (int) Math.min(excessMana.get(), 50); // 確保不超過剩餘魔力
+                            int acceptedMana = neighborManaStorage.insertMana(manaToTransfer, ManaAction.EXECUTE);
+                            manaStorage.extractMana(acceptedMana, ManaAction.EXECUTE);
+                            excessMana.addAndGet(-acceptedMana); // 更新剩餘魔力
                         }
                     });
                 }

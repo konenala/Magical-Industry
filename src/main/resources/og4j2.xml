@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Console 只顯示 INFO 以上的日誌，避免影響玩家體驗 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="info"/>
+            <PatternLayout pattern="%d{HH:mm:ss} [%level] [%logger{1}] %msg%n"/>
+        </Console>
+
+        <!-- 記錄 DEBUG 到 `logs/debug/debug.log` -->
+        <RollingFile name="DebugFile"
+                     fileName="logs/debug/debug.log"
+                     filePattern="logs/debug/debug-%d{yyyy-MM-dd}.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%level] [%logger{1}] %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- `runClient` 顯示 `DEBUG`，正式版 (`jar`) 只顯示 `INFO`，但 `DEBUG` 仍會記錄到 `logs/debug/` -->
+        <Logger name="com.github.nalamodikk" level="${sys:LOGGING_LEVEL}" additivity="false">
+            <AppenderRef ref="DebugFile"/> <!-- `DEBUG` 只存檔，不影響 Console -->
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="DebugFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

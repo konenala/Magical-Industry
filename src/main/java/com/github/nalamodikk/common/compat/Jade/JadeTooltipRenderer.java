@@ -1,7 +1,6 @@
 package com.github.nalamodikk.common.compat.Jade;
 
 import com.github.nalamodikk.common.MagicalIndustryMod;
-import com.github.nalamodikk.common.compat.energy.SimpleEnergy;
 import mcp.mobius.waila.api.IBlockAccessor;
 import mcp.mobius.waila.api.IBlockComponentProvider;
 import mcp.mobius.waila.api.ITargetRedirector;
@@ -14,7 +13,6 @@ import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.IElement;
 import net.minecraft.network.chat.Component;
 import com.github.nalamodikk.common.Capability.ManaStorage;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import snownee.jade.api.ui.ITooltipRenderer;
 import net.minecraft.client.renderer.Rect2i;

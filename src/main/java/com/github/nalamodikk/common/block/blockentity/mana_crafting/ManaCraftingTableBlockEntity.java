@@ -1,11 +1,12 @@
 package com.github.nalamodikk.common.block.blockentity.mana_crafting;
 
+import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
-import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
+import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.mana.ManaAction;
-import com.github.nalamodikk.common.network.mana_net.NetworkManager;
+import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
@@ -35,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuProvider {
+public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuProvider, IUnifiedManaHandler {
     private final ItemStackHandler itemHandler = new ItemStackHandler(10) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -54,7 +55,8 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
     private final ManaStorage manaStorage = new ManaStorage(MAX_MANA);
-    private LazyOptional<ManaStorage> lazyManaStorage;
+    private LazyOptional<IUnifiedManaHandler> lazyManaStorage = LazyOptional.of(() -> manaStorage);
+
 
     public static final int MAX_MANA = 10000;
     private static final int MANA_COST_PER_CRAFT = 50;
@@ -67,8 +69,21 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     public static void serverTick(Level level, BlockPos pos, BlockState state, ManaCraftingTableBlockEntity blockEntity) {
         if (!level.isClientSide) {
             if (blockEntity.manaCheckCooldown-- <= 0) {
+                // 1️⃣ 從鄰近的魔力設備提取魔力
                 blockEntity.extractManaFromNeighbors();
-                blockEntity.manaCheckCooldown = 10; // 重新設定冷卻
+
+                // 2️⃣ 嘗試從導管網路請求魔力
+                ManaNetworkManager manager = ManaNetworkManager.getInstance(level);
+                int manaRequested = Math.min(50, blockEntity.getNeededMana(0)); // 每次最多請求 50 魔力
+                int manaReceived = (int) manager.requestMana(pos, manaRequested);
+
+                if (manaReceived > 0) {
+                    blockEntity.addMana(manaReceived, ManaAction.EXECUTE);
+                    MagicalIndustryMod.LOGGER.info("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
+                }
+
+                // 重設冷卻時間
+                blockEntity.manaCheckCooldown = 10;
             }
         }
     }
@@ -91,7 +106,8 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
                     // 嘗試從鄰近方塊提取魔力
                     int extracted = neighborManaStorage.extractMana(manaNeeded, ManaAction.EXECUTE);
                     if (extracted > 0) {
-                        manaStorage.addMana(extracted);
+                        manaStorage.addMana(extracted, ManaAction.EXECUTE);
+
                         setChanged(); // 標記數據已更改
 
                         // 如果已經填滿，就提前結束迴圈
@@ -132,7 +148,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         }
     }
 
-    public Optional<ManaCraftingTableRecipe>        getCurrentRecipe() {
+    public Optional<ManaCraftingTableRecipe> getCurrentRecipe() {
         SimpleContainer inventory = new SimpleContainer(9);
         for (int i = INPUT_SLOT_START; i <= INPUT_SLOT_END; i++) {
             inventory.setItem(i - INPUT_SLOT_START, this.itemHandler.getStackInSlot(i));
@@ -169,7 +185,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         // 添加魔力
         this.getCapability(ModCapabilities.MANA).ifPresent(mana -> {
             // 使用 addMana 方法增加魔力
-            mana.addMana(amount);
+            mana.addMana(amount, ManaAction.get(true));
             System.out.println("Mana added: " + amount + ", Current Mana: " + mana.getMana());
 
             // 通知伺服器端數據已更改
@@ -187,30 +203,77 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     }
 
 
+    @Override
+    public int getMana() {
+        return manaStorage.getMana();
+    }
 
-    // 消耗魔力
-    public boolean consumeMana(int amount) {
-        if (amount <= 0) return false;
-
-        // 獲取 NetworkManager 的實例
-        NetworkManager networkManager = NetworkManager.getInstance(this.level);
-
-        // 1️⃣ 先嘗試從導管提取魔力
-        int fromNetwork = networkManager.requestMana(worldPosition, amount);
-        int remaining = amount - fromNetwork;
-
-        // 2️⃣ 如果導管不足，嘗試從自身儲存消耗
-        if (remaining > 0) {
-            if (manaStorage.getMana() >= remaining) {
-                manaStorage.consumeMana(remaining);
-                updateClient(); // 確保客戶端同步
-                return true;
-            }
-            return false; // 魔力不足，無法消耗
+    @Override
+    public void addMana(int amount, ManaAction action) {
+        int inserted = manaStorage.insertMana(0, amount, action); // ✅ 使用 `insertMana()` 確保一致性
+        if (inserted > 0) {
+            setChanged();
+            updateClient();
+            MagicalIndustryMod.LOGGER.debug("ManaCraftingTable received {} mana at {}", inserted, worldPosition);
         }
+    }
 
-        updateClient(); // 成功從導管取魔力後也要同步 GUI
-        return true;
+    @Override
+    public void consumeMana(int amount) {
+        int extracted = manaStorage.extractMana(0, amount, ManaAction.EXECUTE); // ✅ 使用 `extractMana()` 確保一致性
+        if (extracted > 0) {
+            setChanged();
+            updateClient();
+            MagicalIndustryMod.LOGGER.debug("ManaCraftingTable consumed {} mana at {}", extracted, worldPosition);
+        }
+    }
+
+
+    @Override
+    public void setMana(int amount) {
+        manaStorage.setMana(Math.min(Math.max(amount, 0), MAX_MANA)); // 確保魔力值在範圍內
+        setChanged();
+        updateClient();
+    }
+
+    @Override
+    public void onChanged() {
+        setChanged();
+        updateClient();
+    }
+
+    @Override
+    public int getMaxMana() {
+        return MAX_MANA; // 設定最大魔力值
+    }
+
+    @Override
+    public int getManaContainerCount() {
+        return 1; // 只有一個魔力儲存槽
+    }
+
+    @Override
+    public int getMana(int container) {
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return manaStorage.getMana();
+    }
+
+    @Override
+    public void setMana(int container, int mana) {
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        setMana(mana); // 調用 `setMana(int amount)`
+    }
+
+    @Override
+    public int getMaxMana(int container) {
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return MAX_MANA;
+    }
+
+    @Override
+    public int getNeededMana(int container) {
+        if (container != 0) throw new IndexOutOfBoundsException("Invalid container index: " + container);
+        return MAX_MANA - manaStorage.getMana(); // 返回還能儲存的魔力量
     }
 
 
@@ -218,8 +281,6 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
     private void updateClient() {
         if (level != null && !level.isClientSide()) {
             setChanged();
-
-            // 只有當魔力真的變化時，才更新 GUI
             if (lastManaValue != manaStorage.getMana()) {
                 lastManaValue = manaStorage.getMana();
                 BlockState state = level.getBlockState(worldPosition);
@@ -262,15 +323,14 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return lazyItemHandler.cast();
-        } else if (cap == ManaCapability.MANA) {
-            return lazyManaStorage != null ? lazyManaStorage.cast() : LazyOptional.empty();
+        if (cap == ManaCapability.MANA) {
+            if (lazyManaStorage == null) { // ✅ 先檢查 `lazyManaStorage`
+                lazyManaStorage = LazyOptional.of(() -> manaStorage);
+            }
+            return lazyManaStorage.cast();
         }
         return super.getCapability(cap, side);
     }
-
-
 
 
     @Override
@@ -279,19 +339,10 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         if (!lazyItemHandler.isPresent()) {
             lazyItemHandler = LazyOptional.of(() -> itemHandler);
         }
-        if (!lazyManaStorage.isPresent()) {
+        if (!lazyManaStorage.isPresent()) { // ✅ 只檢查 `isPresent()`，避免 `NullPointerException`
             lazyManaStorage = LazyOptional.of(() -> manaStorage);
         }
     }
-
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyItemHandler.invalidate();
-        lazyManaStorage.invalidate();
-    }
-
 
 
     public void drops() {
@@ -326,6 +377,22 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         super.load(pTag);
         itemHandler.deserializeNBT(pTag.getCompound("inventory"));
         manaStorage.setMana(pTag.getInt("ManaStored"));
+    }
+
+    @Override
+    public int insertMana(int container, int amount, ManaAction action) {
+        return manaStorage.insertMana(container, amount, action); // ✅ 直接呼叫 `manaStorage.insertMana()`
+
+    }
+
+    @Override
+    public int extractMana(int container, int amount, ManaAction action) {
+        int extracted = manaStorage.extractMana(container, amount, action);
+        if (extracted > 0) {
+            setChanged();
+            updateClient();
+        }
+        return extracted;
     }
 
 }

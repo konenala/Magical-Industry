@@ -6,7 +6,8 @@ public interface IUnifiedManaHandler {
 
     // 單一槽位管理
     int getMana();
-    void addMana(int amount);
+    void addMana(int amount, ManaAction action);
+
     void consumeMana(int amount);
     void setMana(int amount);
     void onChanged();
@@ -36,11 +37,14 @@ public interface IUnifiedManaHandler {
         }
         int toReceive = Math.min(amount, getNeeded());
         if (action.execute()) {
-            addMana(toReceive);
+
+            addMana(toReceive, action);
             onChanged(); // 接收成功後通知變化
         }
         return toReceive; // 返回實際接收的量
     }
+
+
 
     /**
      * Inserts mana into the storage.
@@ -54,7 +58,7 @@ public interface IUnifiedManaHandler {
         }
         int toAdd = Math.min(amount, getNeeded());
         if (action.execute()) {
-            addMana(toAdd);
+            addMana(toAdd, action);
             onChanged(); // 插入成功後通知變化
         }
         return toAdd; // 返回實際插入的量
@@ -126,7 +130,6 @@ public interface IUnifiedManaHandler {
         }
         return extracted; // 返回實際提取的量
     }
-
 
 
 }

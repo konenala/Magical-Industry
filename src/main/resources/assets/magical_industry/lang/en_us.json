@@ -32,7 +32,7 @@
   "message.magical_industry.tech_wand.mode.rotate": "Rotate Block Mode",
   "message.magical_industry.config_button_clicked": "Configuration button clicked!",
   "message.magical_industry.config_changed": "Configuration for side %s has been changed to %s.",
-
+  "message.magical_industry.wrench.conduit_mode": "Set %s to %s",
 
   "direction.magical_industry.up": "Up",
   "direction.magical_industry.down": "Down",
@@ -97,5 +97,6 @@
 
   "creativetab.magical_industry_items": "Magical Industry Items",
   "creativetab.magical_industry_blocks": "Magical Industry Blocks"
+
 
 }

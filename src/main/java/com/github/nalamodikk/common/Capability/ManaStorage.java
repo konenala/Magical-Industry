@@ -18,9 +18,14 @@ public class ManaStorage implements IUnifiedManaHandler {
     private int mana; // 當前魔力存儲量
     private final int capacity; // 最大魔力存儲量
 
+
+    private Level level; // 添加 Level
+    private BlockPos worldPosition; // 添加 BlockPos
+
     public ManaStorage(int capacity) {
         this.capacity = capacity;
         this.mana = 0;
+
     }
 
     /**
@@ -37,11 +42,7 @@ public class ManaStorage implements IUnifiedManaHandler {
         return mana <= 0;
     }
 
-    @Override
-    public void addMana(int amount) {
-        mana = Math.min(mana + amount, capacity);
-        onChanged(); // 通知數據變更
-    }
+
 
     @Override
     public void consumeMana(int amount) {
@@ -62,6 +63,12 @@ public class ManaStorage implements IUnifiedManaHandler {
     public int getMana() {
         return mana;
     }
+
+    @Override
+    public void addMana(int amount, ManaAction action) {
+        insertMana(0, amount, action); // 單槽存儲，使用容器索引 0
+    }
+
 
     @Override
     public void setMana(int amount) {
@@ -136,6 +143,13 @@ public class ManaStorage implements IUnifiedManaHandler {
      */
     @Override
     public void onChanged() {
-        // 暫時保留空方法，僅供日後擴展用
+        if (level != null && !level.isClientSide) {
+            BlockEntity blockEntity = level.getBlockEntity(worldPosition);
+            if (blockEntity != null) {
+                BlockState state = level.getBlockState(worldPosition);
+                level.sendBlockUpdated(worldPosition, state, state, 3);
+            }
+        }
     }
+
 }
