@@ -1,8 +1,13 @@
 package com.github.nalamodikk.common.register;
 
+import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.config.ManaConduitConfig;
+import com.github.nalamodikk.common.config.ManaConduitConfigLoader;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 public class ConfigManager {
     public static final ForgeConfigSpec COMMON_SPEC;
@@ -16,6 +21,15 @@ public class ConfigManager {
 
     public static void registerConfigs() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC, "magical_industry/ManaGeneratorBlock-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ManaConduitConfig.SPEC, "magical_industry/ManaConduit-common.toml");
+    }
+
+    // ✅ **正確讀取設定值的時機：當 Forge 完成設定載入後**
+    @SubscribeEvent
+    public static void onLoadComplete(ModConfigEvent.Loading event) {
+        if (event.getConfig().getSpec() == ManaConduitConfig.SPEC) {
+            MagicalIndustryMod.LOGGER.info("ManaConduitConfig Loaded! Transfer Rate: " + ManaConduitConfig.getManaConduitTransferRate());
+        }
     }
 
     public static class CommonConfig {

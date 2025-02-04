@@ -5,11 +5,13 @@ import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.github.nalamodikk.common.mana.ManaAction;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ManaNetworkManager {
     // 全局網絡映射
     private static final Map<Level, ManaNetworkManager> managers = new ConcurrentHashMap<>();
-
+    private static final Logger LOGGER = LogUtils.getLogger();
     // 當前世界的導管與機器數據
     private final Level level;
     private final Set<BlockPos> conduits = new HashSet<>();
@@ -77,7 +79,7 @@ public class ManaNetworkManager {
      * 插入魔力到連接的機器
      */
     public long insertMana(BlockPos pos, long mana) {
-        MagicalIndustryMod.LOGGER.info("Trying to insert {} mana at {}", mana, pos);
+        LOGGER.debug("Trying to insert {} mana at {}", mana, pos);
 
         return handleManaTransfer(pos, mana, true, new HashSet<>(), 0);
 
@@ -159,7 +161,7 @@ public class ManaNetworkManager {
                         remainingMana -= accepted;
                     }
                 }
-                MagicalIndustryMod.LOGGER.info("Transferring mana from {} to {}: {}", pos, conduit, remainingMana);
+                MagicalIndustryMod.LOGGER.debug("Transferring mana from {} to {}: {}", pos, conduit, remainingMana);
 
                 remainingMana = handleManaTransfer(conduit, remainingMana, isInsertMode, visited, depth + 1);
                 if (remainingMana <= 0) return 0;

@@ -1,5 +1,6 @@
 package com.github.nalamodikk.common;
 
+import com.github.nalamodikk.common.config.ManaConduitConfigLoader;
 import com.github.nalamodikk.common.register.ModBlocks;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.Capability.ModCapabilities;  // 新增的导入
@@ -40,8 +41,8 @@ public class MagicalIndustryMod {
 
     public MagicalIndustryMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         ConfigManager.registerConfigs();
+
 
         GeckoLib.initialize();
         // 注册创造模式标签
@@ -75,6 +76,7 @@ public class MagicalIndustryMod {
     private void commonSetup(final FMLCommonSetupEvent event) {
         // 通用设置
         NetworkHandler.init(event);
+        ManaConduitConfigLoader.loadConfigFromFile(); // 🔹 確保此時 Config 已經載入
 
 
     }

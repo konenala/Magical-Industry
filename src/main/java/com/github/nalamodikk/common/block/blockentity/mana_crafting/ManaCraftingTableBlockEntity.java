@@ -10,6 +10,7 @@ import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
+import com.github.nalamodikk.common.config.ManaConduitConfigLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -72,14 +73,15 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
                 // 1️⃣ 從鄰近的魔力設備提取魔力
                 blockEntity.extractManaFromNeighbors();
 
-                // 2️⃣ 嘗試從導管網路請求魔力
+                // 2️⃣ 從導管網路請求魔力（改為讀取 `ManaConduitConfigLoader` 的傳輸速率）
                 ManaNetworkManager manager = ManaNetworkManager.getInstance(level);
-                int manaRequested = Math.min(50, blockEntity.getNeededMana(0)); // 每次最多請求 50 魔力
+                int maxTransferRate = ManaConduitConfigLoader.getTransferRate(); // 讀取目前設定的導管傳輸速率
+                int manaRequested = Math.min(maxTransferRate, blockEntity.getNeededMana(0)); // 限制請求量不超過設定值
                 int manaReceived = (int) manager.requestMana(pos, manaRequested);
 
                 if (manaReceived > 0) {
                     blockEntity.addMana(manaReceived, ManaAction.EXECUTE);
-                    MagicalIndustryMod.LOGGER.info("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
+                    MagicalIndustryMod.LOGGER.debug("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
                 }
 
                 // 重設冷卻時間

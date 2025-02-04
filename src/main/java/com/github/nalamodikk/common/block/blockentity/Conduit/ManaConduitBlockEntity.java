@@ -5,6 +5,7 @@ import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.config.ManaConduitConfigLoader;
 import com.github.nalamodikk.common.mana.ManaAction;
 import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
@@ -26,7 +27,7 @@ import java.util.Set;
 public class ManaConduitBlockEntity extends BlockEntity implements IUnifiedManaHandler {
 
     private final Set<Direction> outputDirections = EnumSet.noneOf(Direction.class); // 儲存輸出方向
-    private static final int BASE_TRANSFER_RATE = 50; // 每 tick 傳輸的魔力量
+    private static final int BASE_TRANSFER_RATE = ManaConduitConfigLoader.getTransferRate(); // 改成從 JSON 讀取
     private final Set<BlockPos> checkedPositions = new HashSet<>();
     private int manaStored = 0; // 當前魔力存儲
     private static final int MAX_MANA = 1000; // 最大魔力存儲量
@@ -72,6 +73,8 @@ public class ManaConduitBlockEntity extends BlockEntity implements IUnifiedManaH
     public void transferMana() {
         if (level == null || level.isClientSide || manaStored <= 0) return;
 
+        int transferRate = ManaConduitConfigLoader.getTransferRate(); // 從 JSON 讀取傳輸速率
+
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = worldPosition.relative(direction);
             BlockEntity neighborEntity = level.getBlockEntity(neighborPos);
@@ -79,34 +82,21 @@ public class ManaConduitBlockEntity extends BlockEntity implements IUnifiedManaH
             if (neighborEntity != null) {
                 LazyOptional<IUnifiedManaHandler> manaOpt = neighborEntity.getCapability(ModCapabilities.MANA, direction.getOpposite());
 
-                if (!manaOpt.isPresent()) {
-                    // 嘗試獲取 ManaStorage
-                    LazyOptional<IUnifiedManaHandler> manaStorageOpt = neighborEntity.getCapability(ManaCapability.MANA, direction.getOpposite());
-                    manaStorageOpt.ifPresent(neighborManaStorage -> {
-                        int manaToTransfer = Math.min(BASE_TRANSFER_RATE, neighborManaStorage.getNeededMana(0));
-                        if (manaToTransfer > 0) {
-                            int accepted = neighborManaStorage.insertMana(0, manaToTransfer, ManaAction.EXECUTE);
-                            manaStored -= accepted;
-                            setChanged();
-                            updateClient();
-                            MagicalIndustryMod.LOGGER.debug("if one :ManaConduit transferred {} mana to {}", accepted, neighborPos);
-                        }
-                    });
-                } else {
-                    manaOpt.ifPresent(neighborManaStorage -> {
-                        int manaToTransfer = Math.min(BASE_TRANSFER_RATE, neighborManaStorage.getNeededMana(0));
-                        if (manaToTransfer > 0) {
-                            int accepted = neighborManaStorage.insertMana(0, manaToTransfer, ManaAction.EXECUTE);
-                            manaStored -= accepted;
-                            setChanged();
-                            updateClient();
-                            MagicalIndustryMod.LOGGER.debug("if two :ManaConduit transferred {} mana to {}", accepted, neighborPos);
-                        }
-                    });
-                }
+                manaOpt.ifPresent(neighborManaStorage -> {
+                    int manaToTransfer = Math.min(transferRate, neighborManaStorage.getNeededMana(0));
+                    if (manaToTransfer > 0) {
+                        int accepted = neighborManaStorage.insertMana(0, manaToTransfer, ManaAction.EXECUTE);
+                        manaStored -= accepted;
+                        setChanged();
+                        updateClient();
+                        MagicalIndustryMod.LOGGER.debug("ManaConduit transferred {} mana to {}", accepted, neighborPos);
+                    }
+                });
             }
         }
     }
+
+
 
     /**
      * 獲取魔力 Capability。

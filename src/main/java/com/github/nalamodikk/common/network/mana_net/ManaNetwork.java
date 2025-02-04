@@ -84,7 +84,7 @@ public class ManaNetwork {
         conduits.retainAll(visited);
         connectedMachines.keySet().retainAll(visited);
 
-        MagicalIndustryMod.LOGGER.info("Updated mana network, {} conduits and {} machines active.", conduits.size(), connectedMachines.size());
+        MagicalIndustryMod.LOGGER.debug("Updated mana network, {} conduits and {} machines active.", conduits.size(), connectedMachines.size());
     }
 
     /**
