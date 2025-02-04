@@ -7,7 +7,6 @@ public class ManaConduitConfig {
     private static final ManaConduitConfig INSTANCE;
 
     private final ForgeConfigSpec.IntValue manaConduitTransferRate;
-    private final ForgeConfigSpec.BooleanValue manaConduitAutoConnect;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -34,13 +33,7 @@ public class ManaConduitConfig {
         return INSTANCE.manaConduitTransferRate.get();
     }
 
-    /**
-     * 是否啟用魔力導管的自動連接功能
-     * @return 若啟用則回傳 true
-     */
-    public static boolean isManaConduitAutoConnectEnabled() {
-        return INSTANCE.manaConduitAutoConnect.get();
-    }
+
 
     /**
      * 兼容舊代碼，提供與 getManaConduitTransferRate 相同的功能
