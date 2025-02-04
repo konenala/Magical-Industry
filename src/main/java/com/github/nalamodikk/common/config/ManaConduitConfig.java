@@ -22,9 +22,6 @@ public class ManaConduitConfig {
                 .comment("魔力導管每 tick 最大傳輸速率")
                 .defineInRange("manaConduitTransferRate", 50, 1, Integer.MAX_VALUE);
 
-        manaConduitAutoConnect = builder
-                .comment("魔力導管是否自動連接相鄰導管")
-                .define("manaConduitAutoConnect", true);
 
         builder.pop();
     }
