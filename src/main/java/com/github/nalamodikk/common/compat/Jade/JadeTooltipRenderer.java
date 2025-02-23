@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.compat.Jade;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import mcp.mobius.waila.api.IBlockAccessor;
 import mcp.mobius.waila.api.IBlockComponentProvider;
 import mcp.mobius.waila.api.ITargetRedirector;
@@ -26,7 +26,7 @@ public class JadeTooltipRenderer {
     public static class ManaEnergyDataProvider implements IServerDataProvider<BlockAccessor> {
 
         static final ManaEnergyDataProvider INSTANCE = new ManaEnergyDataProvider();
-        private static final ResourceLocation BLOCK_DATA = new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana_energy_data");
+        private static final ResourceLocation BLOCK_DATA = new ResourceLocation(NeoMagnaMod.MOD_ID, "mana_energy_data");
 
         @Override
         public ResourceLocation getUid() {
@@ -50,7 +50,7 @@ public class JadeTooltipRenderer {
     }
 
     public static class JadePlugin implements IWailaPlugin {
-        private static final ResourceLocation CUSTOM_TOOLTIP = new ResourceLocation(MagicalIndustryMod.MOD_ID, "custom_tooltip");
+        private static final ResourceLocation CUSTOM_TOOLTIP = new ResourceLocation(NeoMagnaMod.MOD_ID, "custom_tooltip");
 
         @Override
         public void register(IWailaCommonRegistration registration) {
@@ -82,7 +82,7 @@ public class JadeTooltipRenderer {
 
         @Override
         public ResourceLocation getUid() {
-            return new ResourceLocation(MagicalIndustryMod.MOD_ID, "custom_tooltip");
+            return new ResourceLocation(NeoMagnaMod.MOD_ID, "custom_tooltip");
         }
 
         @Override

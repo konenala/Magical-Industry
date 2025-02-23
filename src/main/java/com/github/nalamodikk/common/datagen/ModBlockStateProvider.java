@@ -1,10 +1,9 @@
 package com.github.nalamodikk.common.datagen;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.block.Conduit.ManaConduitBlock;
 import com.github.nalamodikk.common.register.ModBlocks;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 public class ModBlockStateProvider extends BlockStateProvider {
     public ModBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, MagicalIndustryMod.MOD_ID, exFileHelper);
+        super(output, NeoMagnaMod.MOD_ID, exFileHelper);
     }
 
     @Override
@@ -26,7 +25,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.MANA_BLOCK);
         blockWithItem(ModBlocks.MAGIC_ORE);
         // conduit 導管
-        registerConduit(ModBlocks.MANA_CONDUIT, "mana_conduit", "mana_conduit_texture");
 
 
 
@@ -97,7 +95,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .condition(property, Boolean.TRUE) // 明確傳遞 Boolean 值
                     .end();
 
-        MagicalIndustryMod.LOGGER.info("Condition for {} is " + true, property.getName());
+        NeoMagnaMod.LOGGER.info("Condition for {} is " + true, property.getName());
 
         });
 

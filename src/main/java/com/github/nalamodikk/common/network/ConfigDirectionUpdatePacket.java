@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.network;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
@@ -68,7 +68,7 @@ public class ConfigDirectionUpdatePacket {
                 level.sendBlockUpdated(pos, blockEntity.getBlockState(), blockEntity.getBlockState(), 3);
 
                 // 日誌打印，用於檢查方向變更是否成功
-                MagicalIndustryMod.LOGGER.info("Direction {} set to {} for block at {}", direction, packet.isOutput() ? "Output" : "Input", pos);
+                NeoMagnaMod.LOGGER.info("Direction {} set to {} for block at {}", direction, packet.isOutput() ? "Output" : "Input", pos);
             }
         });
 

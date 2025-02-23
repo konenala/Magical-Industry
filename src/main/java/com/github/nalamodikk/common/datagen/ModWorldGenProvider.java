@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.datagen;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.worldgen.ModBiomeModifiers;
 import com.github.nalamodikk.common.worldgen.ModConfiguredFeatures;
 import com.github.nalamodikk.common.worldgen.ModPlacedFeatures;
@@ -28,6 +28,6 @@ public class ModWorldGenProvider extends DatapackBuiltinEntriesProvider {
         */
 
     public ModWorldGenProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, BUILDER, Set.of(MagicalIndustryMod.MOD_ID));
+        super(output, registries, BUILDER, Set.of(NeoMagnaMod.MOD_ID));
     }
 }

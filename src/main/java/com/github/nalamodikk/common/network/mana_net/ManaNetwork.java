@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.network.mana_net;
 
 import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.mana.ManaAction;
 import net.minecraft.core.BlockPos;
@@ -84,7 +84,7 @@ public class ManaNetwork {
         conduits.retainAll(visited);
         connectedMachines.keySet().retainAll(visited);
 
-        MagicalIndustryMod.LOGGER.debug("Updated mana network, {} conduits and {} machines active.", conduits.size(), connectedMachines.size());
+        NeoMagnaMod.LOGGER.debug("Updated mana network, {} conduits and {} machines active.", conduits.size(), connectedMachines.size());
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.block.blockitem.ManaGenerator.ManaGeneratorBlockItem;
 import com.github.nalamodikk.common.item.debug.ManaDebugToolItem;
 import com.github.nalamodikk.common.item.tool.BasicTechWandItem;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModItems {
     public static DeferredRegister<Item> ITEMS =
-            DeferredRegister.create(ForgeRegistries.ITEMS, MagicalIndustryMod.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.ITEMS, NeoMagnaMod.MOD_ID);
 
     public static final RegistryObject<Item> MANA_DUST = ITEMS.register("mana_dust",
         () -> new Item(new Item.Properties()));

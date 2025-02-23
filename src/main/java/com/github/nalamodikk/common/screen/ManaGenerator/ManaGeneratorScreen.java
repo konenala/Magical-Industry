@@ -1,12 +1,11 @@
 package com.github.nalamodikk.common.screen.ManaGenerator;
 
 import com.github.nalamodikk.client.screenAPI.UniversalTexturedButton;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.network.ToggleModePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -17,11 +16,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.core.BlockPos;
 
 public class ManaGeneratorScreen extends AbstractContainerScreen<ManaGeneratorMenu> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_generator_gui.png");
-    private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_generator_button_texture.png");
-    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
-    private static final ResourceLocation ENERGY_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/energy_bar_full.png");
-    private static final ResourceLocation FUEL_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/fuel_bar.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_generator_gui.png");
+    private static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_generator_button_texture.png");
+    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_bar_full.png");
+    private static final ResourceLocation ENERGY_BAR_FULL = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/energy_bar_full.png");
+    private static final ResourceLocation FUEL_TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/fuel_bar.png");
     private static final int MANA_BAR_HEIGHT = 47;
     private static final int MANA_BAR_WIDTH = 7;
     private static final int ENERGY_BAR_HEIGHT = 47;

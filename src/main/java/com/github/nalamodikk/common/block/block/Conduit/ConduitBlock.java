@@ -71,7 +71,7 @@ public abstract class ConduitBlock extends Block implements EntityBlock {
     // ------------------------------------------------------------------------
     // 建構子
     // ------------------------------------------------------------------------
-    protected ConduitBlock(BlockBehaviour.Properties properties, float apothem) {
+    protected ConduitBlock(Properties properties, float apothem) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(UP, false)

@@ -1,11 +1,10 @@
 package com.github.nalamodikk.common.network;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent;
@@ -42,7 +41,7 @@ public class ToggleModePacket {
                         manaGenerator.setChanged(); // 标记数据变化
                     }
                 } else {
-                    MagicalIndustryMod.LOGGER.warn("Failed to toggle mode: BlockEntity at {} is not a ManaGeneratorBlockEntity.", packet.pos);
+                    NeoMagnaMod.LOGGER.warn("Failed to toggle mode: BlockEntity at {} is not a ManaGeneratorBlockEntity.", packet.pos);
                 }
             }
         });

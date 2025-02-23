@@ -1,0 +1,13 @@
+  {
+    "type": "neomagnamod:mana_crafting",
+    "ingredients": [
+      {
+        "item": "minecraft:diamond"
+      }
+    ],
+    "output": {
+      "item": "neomagnamod:mana_dust",
+      "count": 1
+    },
+    "manaCost": 500
+  }

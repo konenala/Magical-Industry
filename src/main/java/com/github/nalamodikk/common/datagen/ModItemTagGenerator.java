@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.datagen;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.register.ModItems;
 import com.github.nalamodikk.common.register.ModBlocks;
 import net.minecraft.core.HolderLookup;
@@ -18,14 +18,14 @@ import java.util.concurrent.CompletableFuture;
 public class ModItemTagGenerator extends ItemTagsProvider {
     public ModItemTagGenerator(PackOutput p_275343_, CompletableFuture<HolderLookup.Provider> p_275729_,
                                CompletableFuture<TagLookup<Block>> p_275322_, @Nullable ExistingFileHelper existingFileHelper) {
-        super(p_275343_, p_275729_, p_275322_, MagicalIndustryMod.MOD_ID, existingFileHelper);
+        super(p_275343_, p_275729_, p_275322_, NeoMagnaMod.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
 
             // 使用 pProvider 作為標籤的來源
-            tag(ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana")))
+            tag(ItemTags.create(new ResourceLocation(NeoMagnaMod.MOD_ID, "mana")))
                     .add(ModItems.CORRUPTED_MANA_DUST.get())
                     .add(ModItems.MANA_DUST.get())
                     .add(ModItems.MANA_INGOT.get())

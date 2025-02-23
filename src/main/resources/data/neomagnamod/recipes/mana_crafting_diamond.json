@@ -1,0 +1,12 @@
+{
+  "type": "neomagnamod:mana_crafting",
+  "ingredients": [
+    { "item": "minecraft:iron_ingot" },
+    { "item": "minecraft:gold_ingot" }
+  ],
+  "output": {
+    "item": "minecraft:diamond",
+    "count": 1
+  },
+  "manaCost": 30
+}

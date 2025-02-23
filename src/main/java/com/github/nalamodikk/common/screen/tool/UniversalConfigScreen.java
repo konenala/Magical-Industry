@@ -2,7 +2,7 @@ package com.github.nalamodikk.common.screen.tool;
 
 import com.github.nalamodikk.client.screenAPI.GenericButtonWithTooltip;
 import com.github.nalamodikk.common.API.IConfigurableBlock;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.network.ConfigDirectionUpdatePacket;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import net.minecraft.client.Minecraft;
@@ -23,9 +23,9 @@ import java.util.List;
 
 public class UniversalConfigScreen extends AbstractContainerScreen<UniversalConfigMenu> {
 
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/universal_config.png");
-    private static final ResourceLocation BUTTON_TEXTURE_INPUT = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/button_config_input.png");
-    private static final ResourceLocation BUTTON_TEXTURE_OUTPUT = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/button_config_output.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/universal_config.png");
+    private static final ResourceLocation BUTTON_TEXTURE_INPUT = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/button_config_input.png");
+    private static final ResourceLocation BUTTON_TEXTURE_OUTPUT = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/button_config_output.png");
     private static final int BUTTON_WIDTH = 20;
     private static final int BUTTON_HEIGHT = 20;
 

@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.worldgen;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.register.ModBlocks;
 //eimport com.github.nalamodikk.common.worldgen.tree.custom.PineFoliagePlacer;
 //import com.github.nalamodikk.common.worldgen.tree.custom.PineTrunkPlacer;
@@ -60,7 +60,7 @@ public class ModConfiguredFeatures {
     }
 
     public static ResourceKey<ConfiguredFeature<?, ?>> registerKey(String name) {
-        return ResourceKey.create(Registries.CONFIGURED_FEATURE, new ResourceLocation(MagicalIndustryMod.MOD_ID, name));
+        return ResourceKey.create(Registries.CONFIGURED_FEATURE, new ResourceLocation(NeoMagnaMod.MOD_ID, name));
     }
 
     private static <FC extends FeatureConfiguration, F extends Feature<FC>> void register(BootstapContext<ConfiguredFeature<?, ?>> context,

@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.recipe.fuel;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -25,12 +25,12 @@ public class FuelRecipeBuilder implements FinishedRecipe {
     }
 
     public static FuelRecipeBuilder create(String itemId, int manaRate, int energyRate, int burnTime, String recipeId) {
-        return new FuelRecipeBuilder(itemId, manaRate, energyRate, burnTime, new ResourceLocation(MagicalIndustryMod.MOD_ID, recipeId));
+        return new FuelRecipeBuilder(itemId, manaRate, energyRate, burnTime, new ResourceLocation(NeoMagnaMod.MOD_ID, recipeId));
     }
 
     public void save(Consumer<FinishedRecipe> consumer) {
         // 自動將配方保存到 "recipes/fuel_rate/" 目錄下
-        ResourceLocation saveLocation = new ResourceLocation(MagicalIndustryMod.MOD_ID, "fuel_rate/" + id.getPath());
+        ResourceLocation saveLocation = new ResourceLocation(NeoMagnaMod.MOD_ID, "fuel_rate/" + id.getPath());
         consumer.accept(new FuelRecipeBuilder(this.itemId, this.manaRate, this.energyRate, this.burnTime, saveLocation));
     }
 

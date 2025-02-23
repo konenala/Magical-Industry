@@ -1,8 +1,7 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.config.ManaConduitConfig;
-import com.github.nalamodikk.common.config.ManaConduitConfigLoader;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,7 +27,7 @@ public class ConfigManager {
     @SubscribeEvent
     public static void onLoadComplete(ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() == ManaConduitConfig.SPEC) {
-            MagicalIndustryMod.LOGGER.info("ManaConduitConfig Loaded! Transfer Rate: " + ManaConduitConfig.getManaConduitTransferRate());
+            NeoMagnaMod.LOGGER.info("ManaConduitConfig Loaded! Transfer Rate: " + ManaConduitConfig.getManaConduitTransferRate());
         }
     }
 

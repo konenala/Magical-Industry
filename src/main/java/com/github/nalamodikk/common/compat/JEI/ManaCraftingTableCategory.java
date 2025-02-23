@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.compat.JEI;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.register.ModBlocks;
 import com.github.nalamodikk.common.register.ModItems;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
@@ -22,9 +22,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class ManaCraftingTableCategory implements IRecipeCategory<ManaCraftingTableRecipe> {
 
-    public static final ResourceLocation UID = new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana_crafting");
-    public static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
-    public static final ResourceLocation MANA_BAR_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
+    public static final ResourceLocation UID = new ResourceLocation(NeoMagnaMod.MOD_ID, "mana_crafting");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
+    public static final ResourceLocation MANA_BAR_TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_bar_full.png");
 
     public static final RecipeType<ManaCraftingTableRecipe> MANA_CRAFTING_TYPE =
             new RecipeType<>(UID, ManaCraftingTableRecipe.class);

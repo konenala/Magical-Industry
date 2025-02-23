@@ -4,7 +4,7 @@ import com.github.nalamodikk.common.API.IConfigurableBlock;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
@@ -103,7 +103,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                 FuelRateLoader.FuelRate fuelRate = FuelRateLoader.getFuelRateForItem(itemId);
                 return (fuelRate != null && fuelRate.getBurnTime() > 0) || (ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0);
             } else if (currentMode == Mode.MANA) {
-                return stack.is(ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana"))); // 魔力模式只允許標籤為 mana 的物品
+                return stack.is(ItemTags.create(new ResourceLocation(NeoMagnaMod.MOD_ID, "mana"))); // 魔力模式只允許標籤為 mana 的物品
             }
             return false;
         }
@@ -233,7 +233,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             setChanged();
 
-            MagicalIndustryMod.LOGGER.debug("State changed: Energy={}, Mana={}, Mode={}, BurnTime={}, CurrentBurnTime={}",
+            NeoMagnaMod.LOGGER.debug("State changed: Energy={}, Mana={}, Mode={}, BurnTime={}, CurrentBurnTime={}",
                     lastEnergyStored != energyStorage.getEnergyStored(),
                     lastManaStored != manaStorage.getMana(),
                     lastMode != currentMode,
@@ -462,7 +462,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                     int energyToTransfer = Math.min(energyStorage.getEnergyStored(), 100); // 限制每次最多傳輸 100 能量
                     int acceptedEnergy = neighborEnergyStorage.receiveEnergy(energyToTransfer, false);
                     energyStorage.extractEnergy(acceptedEnergy, false); // 從自己的能量儲存中提取
-                    MagicalIndustryMod.LOGGER.debug("Transferred {} energy to {} at direction {}", acceptedEnergy, neighborBlockEntity.getBlockPos(), direction);
+                    NeoMagnaMod.LOGGER.debug("Transferred {} energy to {} at direction {}", acceptedEnergy, neighborBlockEntity.getBlockPos(), direction);
                 }
             });
 
@@ -473,7 +473,7 @@ public class ManaGeneratorBlockEntity extends BlockEntity implements GeoBlockEnt
                     int acceptedMana = neighborManaStorage.insertMana(manaToTransfer, ManaAction.EXECUTE);
                     manaStorage.extractMana(acceptedMana, ManaAction.EXECUTE); // 從自己的魔力儲存中提取
                     excessMana.addAndGet(-acceptedMana); // 更新剩餘魔力
-                    MagicalIndustryMod.LOGGER.debug("Transferred {} mana to {} at direction {}", acceptedMana, neighborBlockEntity.getBlockPos(), direction);
+                    NeoMagnaMod.LOGGER.debug("Transferred {} mana to {} at direction {}", acceptedMana, neighborBlockEntity.getBlockPos(), direction);
                 }
             });
         }

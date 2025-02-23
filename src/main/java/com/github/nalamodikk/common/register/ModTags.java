@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -14,14 +14,14 @@ public class ModTags {
 
 
         private static TagKey<Block> tag(String name) {
-            return BlockTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, name));
+            return BlockTags.create(new ResourceLocation(NeoMagnaMod.MOD_ID, name));
         }
     }
 
     public static class Items {
 
         private static TagKey<Item> tag(String name) {
-            return ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, name));
+            return ItemTags.create(new ResourceLocation(NeoMagnaMod.MOD_ID, name));
         }
     }
 }

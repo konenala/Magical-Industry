@@ -1,7 +1,7 @@
 package com.github.nalamodikk.common.screen.tool;
 
 import com.github.nalamodikk.common.API.IConfigurableBlock;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.network.ConfigDirectionUpdatePacket;
 import com.github.nalamodikk.common.network.NetworkHandler;
 import com.github.nalamodikk.common.register.ModMenusTypes;
@@ -73,7 +73,7 @@ public class UniversalConfigMenu extends AbstractContainerMenu {
                 }
 
                 if (configChanged) {
-                    MagicalIndustryMod.LOGGER.info("Updated configuration for block at {}", this.blockEntity.getBlockPos());
+                    NeoMagnaMod.LOGGER.info("Updated configuration for block at {}", this.blockEntity.getBlockPos());
                     this.blockEntity.setChanged(); // 標記方塊為已變更以保存數據
                 }
             }

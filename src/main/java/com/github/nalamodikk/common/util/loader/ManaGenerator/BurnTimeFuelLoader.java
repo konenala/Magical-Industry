@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.util.loader.ManaGenerator;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,18 +36,18 @@ public class BurnTimeFuelLoader extends SimpleJsonResourceReloadListener {
                         BURN_TIME_FUELS.put(fuelId, burnTime);
 
                         // 在每次成功加载一个燃料时发出日志
-                        MagicalIndustryMod.LOGGER.info("Loaded burn time for fuel: {} with burn time: {}", fuelId, burnTime);
+                        NeoMagnaMod.LOGGER.info("Loaded burn time for fuel: {} with burn time: {}", fuelId, burnTime);
                     } catch (Exception e) {
-                        MagicalIndustryMod.LOGGER.error("Failed to parse burn time fuel for key: {} in file: {}", entry.getKey(), key, e);
+                        NeoMagnaMod.LOGGER.error("Failed to parse burn time fuel for key: {} in file: {}", entry.getKey(), key, e);
                     }
                 });
             } else {
-                MagicalIndustryMod.LOGGER.warn("Skipping non-JsonObject value for resource: {}", key);
+                NeoMagnaMod.LOGGER.warn("Skipping non-JsonObject value for resource: {}", key);
             }
         });
 
         // 加载完成后发出总结日志
-        MagicalIndustryMod.LOGGER.info("Successfully loaded {} burn time fuels.", BURN_TIME_FUELS.size());
+        NeoMagnaMod.LOGGER.info("Successfully loaded {} burn time fuels.", BURN_TIME_FUELS.size());
     }
 
 

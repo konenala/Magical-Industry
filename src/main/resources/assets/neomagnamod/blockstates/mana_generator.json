@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "neomagnamod:block/mana_generator"
+    }
+  }
+}

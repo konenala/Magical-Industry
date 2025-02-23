@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.screen.ManaGenerator;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.common.register.ModMenusTypes;
 import net.minecraft.core.BlockPos;
@@ -41,7 +41,7 @@ public class ManaGeneratorMenu extends AbstractContainerMenu {
                 public boolean mayPlace(@NotNull ItemStack stack) {
                     // 根據當前模式設置不同的物品允許邏輯
                     if (blockEntity.getCurrentMode() == 0) { // MANA mode
-                        return stack.is(ItemTags.create(new ResourceLocation(MagicalIndustryMod.MOD_ID, "mana")));
+                        return stack.is(ItemTags.create(new ResourceLocation(NeoMagnaMod.MOD_ID, "mana")));
                     } else { // ENERGY mode
                         return ForgeHooks.getBurnTime(stack, RecipeType.SMELTING) > 0;
                     }

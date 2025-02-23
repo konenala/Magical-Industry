@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.datagen;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.register.ModItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModItemModelProvider extends ItemModelProvider {
     public ModItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, MagicalIndustryMod.MOD_ID, existingFileHelper);
+        super(output, NeoMagnaMod.MOD_ID, existingFileHelper);
     }
 
     @Override
@@ -30,6 +30,6 @@ public class ModItemModelProvider extends ItemModelProvider {
     private ItemModelBuilder simpleItem(RegistryObject<Item> item) {
         return withExistingParent(item.getId().getPath(),
                 new ResourceLocation("item/generated")).texture("layer0",
-                new ResourceLocation(MagicalIndustryMod.MOD_ID,"item/" + item.getId().getPath()));
+                new ResourceLocation(NeoMagnaMod.MOD_ID,"item/" + item.getId().getPath()));
     }
 }

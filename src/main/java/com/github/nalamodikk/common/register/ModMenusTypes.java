@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
@@ -17,7 +17,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModMenusTypes {
-    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MagicalIndustryMod.MOD_ID);
+    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, NeoMagnaMod.MOD_ID);
 
     public static final RegistryObject<MenuType<ManaCraftingMenu>> MANA_CRAFTING_MENU = MENUS.register("mana_crafting", () -> IForgeMenuType.create((windowId, inv, data) -> {
         Level level = inv.player.getCommandSenderWorld(); // 获取玩家所在的世界

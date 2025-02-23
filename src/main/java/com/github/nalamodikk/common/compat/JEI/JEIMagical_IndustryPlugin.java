@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.compat.JEI;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.register.ModBlocks;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingScreen;
@@ -20,7 +20,7 @@ import java.util.List;
 @JeiPlugin
 public class JEIMagical_IndustryPlugin implements IModPlugin {
 
-    public static final ResourceLocation PLUGIN_UID = new ResourceLocation(MagicalIndustryMod.MOD_ID, "jei_plugin");
+    public static final ResourceLocation PLUGIN_UID = new ResourceLocation(NeoMagnaMod.MOD_ID, "jei_plugin");
 
     @Override
     public ResourceLocation getPluginUid() {

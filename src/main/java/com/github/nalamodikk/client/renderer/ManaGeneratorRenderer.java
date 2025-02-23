@@ -1,6 +1,6 @@
 package com.github.nalamodikk.client.renderer;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.block.blockentity.ManaGenerator.ManaGeneratorBlockEntity;
 import com.github.nalamodikk.client.model.ManaGeneratorModel;
@@ -13,8 +13,8 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
 public class ManaGeneratorRenderer extends GeoBlockRenderer<ManaGeneratorBlockEntity> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/block/mana_generator_texture.png");
-    private static final ResourceLocation WORKING_TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/block/mana_generator_working.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/block/mana_generator_texture.png");
+    private static final ResourceLocation WORKING_TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/block/mana_generator_working.png");
 
     public ManaGeneratorRenderer(BlockEntityRendererProvider.Context context) {
 

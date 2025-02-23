@@ -4,7 +4,7 @@ import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ManaCapability;
 import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.mana.ManaAction;
 import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
@@ -28,7 +28,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
@@ -81,7 +80,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
                 if (manaReceived > 0) {
                     blockEntity.addMana(manaReceived, ManaAction.EXECUTE);
-                    MagicalIndustryMod.LOGGER.debug("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
+                    NeoMagnaMod.LOGGER.debug("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
                 }
 
                 // 重設冷卻時間
@@ -216,7 +215,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         if (inserted > 0) {
             setChanged();
             updateClient();
-            MagicalIndustryMod.LOGGER.debug("ManaCraftingTable received {} mana at {}", inserted, worldPosition);
+            NeoMagnaMod.LOGGER.debug("ManaCraftingTable received {} mana at {}", inserted, worldPosition);
         }
     }
 
@@ -226,7 +225,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
         if (extracted > 0) {
             setChanged();
             updateClient();
-            MagicalIndustryMod.LOGGER.debug("ManaCraftingTable consumed {} mana at {}", extracted, worldPosition);
+            NeoMagnaMod.LOGGER.debug("ManaCraftingTable consumed {} mana at {}", extracted, worldPosition);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.register;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.recipe.fuel.FuelRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -13,10 +13,10 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModRecipes {
     // 註冊 RecipeSerializer 和 RecipeType
     public static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
-            DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MagicalIndustryMod.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, NeoMagnaMod.MOD_ID);
 
     public static final DeferredRegister<RecipeType<?>> TYPES =
-            DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, MagicalIndustryMod.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, NeoMagnaMod.MOD_ID);
 
     // 統一使用 mana_crafting 名稱
     public static final RegistryObject<RecipeSerializer<ManaCraftingTableRecipe>> MANA_CRAFTING_SERIALIZER =

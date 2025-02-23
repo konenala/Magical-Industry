@@ -2,7 +2,7 @@ package com.github.nalamodikk.common.network.mana_net;
 
 import com.github.nalamodikk.common.Capability.IUnifiedManaHandler;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.github.nalamodikk.common.mana.ManaAction;
 import com.mojang.logging.LogUtils;
@@ -161,7 +161,7 @@ public class ManaNetworkManager {
                         remainingMana -= accepted;
                     }
                 }
-                MagicalIndustryMod.LOGGER.debug("Transferring mana from {} to {}: {}", pos, conduit, remainingMana);
+                NeoMagnaMod.LOGGER.debug("Transferring mana from {} to {}: {}", pos, conduit, remainingMana);
 
                 remainingMana = handleManaTransfer(conduit, remainingMana, isInsertMode, visited, depth + 1);
                 if (remainingMana <= 0) return 0;

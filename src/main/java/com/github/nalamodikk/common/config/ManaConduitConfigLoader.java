@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.config;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -27,7 +27,7 @@ public class ManaConduitConfigLoader extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectMap, ResourceManager resourceManager, ProfilerFiller profiler) {
         if (objectMap.isEmpty()) {
-            MagicalIndustryMod.LOGGER.warn("ManaConduitConfig 未成功載入，將嘗試從本地 JSON 文件讀取！");
+            NeoMagnaMod.LOGGER.warn("ManaConduitConfig 未成功載入，將嘗試從本地 JSON 文件讀取！");
             loadConfigFromFile();
             return;
         }
@@ -36,7 +36,7 @@ public class ManaConduitConfigLoader extends SimpleJsonResourceReloadListener {
             if (entry.getKey().getPath().equals("mana_conduit_transfer")) {
                 JsonObject json = entry.getValue().getAsJsonObject();
                 transferRate = json.has("transfer_rate") ? json.get("transfer_rate").getAsInt() : -1;
-                MagicalIndustryMod.LOGGER.info("成功載入 ManaConduitConfig，傳輸速率: {}", transferRate);
+                NeoMagnaMod.LOGGER.info("成功載入 ManaConduitConfig，傳輸速率: {}", transferRate);
             }
         }
     }
@@ -48,10 +48,10 @@ public class ManaConduitConfigLoader extends SimpleJsonResourceReloadListener {
                 JsonObject defaultConfig = new JsonObject();
                 defaultConfig.addProperty("transfer_rate", ManaConduitConfig.getDefaultManaTransferRate());
                 Files.writeString(CONFIG_PATH, GSON.toJson(defaultConfig));
-                MagicalIndustryMod.LOGGER.info("ManaConduitConfig 預設 JSON 文件已創建！");
+                NeoMagnaMod.LOGGER.info("ManaConduitConfig 預設 JSON 文件已創建！");
             }
         } catch (IOException e) {
-            MagicalIndustryMod.LOGGER.error("無法生成 mana_conduit_transfer.json 配置文件！", e);
+            NeoMagnaMod.LOGGER.error("無法生成 mana_conduit_transfer.json 配置文件！", e);
         }
     }
 
@@ -64,11 +64,11 @@ public class ManaConduitConfigLoader extends SimpleJsonResourceReloadListener {
             String jsonString = Files.readString(CONFIG_PATH);
             JsonObject json = GSON.fromJson(jsonString, JsonObject.class);
             transferRate = json.has("transfer_rate") ? json.get("transfer_rate").getAsInt() : -1;
-            MagicalIndustryMod.LOGGER.info("從 mana_conduit_transfer.json 成功載入配置，傳輸速率: {}", transferRate);
-            MagicalIndustryMod.LOGGER.debug("Mana Conduit Transfer Rate loaded: {}", transferRate);
-            MagicalIndustryMod.LOGGER.debug("ManaConduitConfigLoader getTransferRate() -> {}", transferRate);
+            NeoMagnaMod.LOGGER.info("從 mana_conduit_transfer.json 成功載入配置，傳輸速率: {}", transferRate);
+            NeoMagnaMod.LOGGER.debug("Mana Conduit Transfer Rate loaded: {}", transferRate);
+            NeoMagnaMod.LOGGER.debug("ManaConduitConfigLoader getTransferRate() -> {}", transferRate);
         } catch (IOException e) {
-            MagicalIndustryMod.LOGGER.error("無法讀取 mana_conduit_transfer.json！", e);
+            NeoMagnaMod.LOGGER.error("無法讀取 mana_conduit_transfer.json！", e);
         }
     }
 

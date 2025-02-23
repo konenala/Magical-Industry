@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "mekanism:configurator",
+    "pipez:wrench",
+    "create:wrench",
+    "thermal:wrench",
+    "neomagnamod:basic_tech_wand"
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "item.neomagnamod.mana_dust": "Mana Dust",
+  "item.neomagnamod.mana_ingot": "Mana Ingot",
+  "item.neomagnamod.mana_debug_tool": "Mana Debug Tool",
+  "item.neomagnamod.corrupted_mana_dust": "Corrupted Mana Dust",
+  "item.neomagnamod.basic_tech_wand": "Basic Tech Wand",
+  "item.neomagnamod.basic_tech_wand.tooltip.mode": "Mode: %s",
+
+  "message.neomagnamod.mana_added": "Added %s Mana. Current Mana: %s",
+  "message.neomagnamod.mana_mode_changed": "Switched to mode: %s",
+  "message.neomagnamod.mana_mode_add_10": "Add 10 Mana",
+  "message.neomagnamod.mana_mode_add_100": "Add 100 Mana",
+  "message.neomagnamod.mana_mode_add_1000": "Add 1000 Mana",
+  "message.neomagnamod.not_enough_mana": "Not enough mana in wand!",
+  "message.neomagnamod.block_rotated": "Block rotated!",
+  "message.neomagnamod.mode_changed": "Mode: %s",
+  "message.neomagnamod.no_block_selected": "No block selected with the tech wand.",
+  "message.neomagnamod.selected_block_unavailable": "Selected block is no longer available.",
+  "message.neomagnamod.block_selected": "Selected block at position: {0}",
+  "message.neomagnamod.block_not_configurable": "The selected block is not configurable.",
+  "message.neomagnamod.cannot_toggle_while_working": "You cannot toggle modes while the generator is working!",
+
+  "message.neomagnamod.screen.generator_working": "Generator is working. Mode switching is disabled.",
+
+  "message.neomagnamod.add_mana_success": "Added 10 mana!",
+  "message.neomagnamod.block_rotated_facing": "Block rotated! (FACING)",
+  "message.neomagnamod.block_rotated_horizontal": "Block rotated! (HORIZONTAL_FACING)",
+  "message.neomagnamod.block_cannot_rotate": "Block cannot be rotated!",
+  "message.neomagnamod.tech_wand.mode.configure_input": "Configure Input Mode",
+  "message.neomagnamod.tech_wand.mode.configure_output": "Configure Output Mode",
+  "message.neomagnamod.tech_wand.mode.add_mana": "Add Mana Mode",
+  "message.neomagnamod.tech_wand.mode.rotate": "Rotate Block Mode",
+  "message.neomagnamod.config_button_clicked": "Configuration button clicked!",
+  "message.neomagnamod.config_changed": "Configuration for side %s has been changed to %s.",
+  "message.neomagnamod.wrench.conduit_mode": "Set %s to %s",
+  "message.neomagnamod.conduit_mode": "Conduit direction %s set to %s",
+  "direction.north": "North",
+  "direction.south": "South",
+  "direction.east": "East",
+  "direction.west": "West",
+  "direction.up": "Up",
+  "direction.down": "Down",
+  "conduit_mode.none": "None",
+  "conduit_mode.input": "Input",
+  "conduit_mode.output": "Output",
+
+  "direction.neomagnamod.up": "Up",
+  "direction.neomagnamod.down": "Down",
+  "direction.neomagnamod.north": "North",
+  "direction.neomagnamod.south": "South",
+  "direction.neomagnamod.west": "West",
+  "direction.neomagnamod.east": "East",
+
+  "screen.neomagnamod.configure_io": "Configure Input and Output",
+  "screen.neomagnamod.toggle_mode": "Toggle Mode",
+  "screen.neomagnamod.current_mode": "Current Mode: %s",
+  "screen.neomagnamod.configure_side": "Configure Side: %s",
+  "screen.neomagnamod.output": "Output",
+  "screen.neomagnamod.input": "Input",
+
+
+
+  "mode.neomagnamod.mana": "Mana",
+  "mode.neomagnamod.energy": "Energy",
+  "mode.neomagnamod.configure_io": "Configure Input/Output",
+  "mode.neomagnamod.add_mana": "Add Mana",
+  "mode.neomagnamod.rotate": "Rotate",
+  "mode.neomagnamod.output": "Output",
+  "mode.neomagnamod.input": "Input",
+  "mode.neomagnamod.direction_config": "Direction Configuration Mode",
+
+
+  "button.neomagnamod.toggle_mode.tooltip_auto": "Automatic Mode",
+  "button.neomagnamod.toggle_mode.tooltip_manual": "Manual Mode",
+  "button.neomagnamod.configure_io": "Configure Input/Output",
+
+  "tooltip.neomagnamod.saved_direction_config": "%s: %s",
+  "tooltip.neomagnamod.saved_block_position": "Saved Block Position: (%s, %s, %s)",
+  "tooltip.neomagnamod.no_saved_block": "No block saved",
+  "tooltip.neomagnamod.mode": "Mode: %s",
+  "tooltip.neomagnamod.mana_stored": "Mana: %1$d / %2$d",
+  "tooltip.neomagnamod.mana_cost": "Mana Cost: %1$d",
+  "tooltip.neomagnamod.mana_generator.mana": "Mana Stored: %s",
+  "tooltip.neomagnamod.mana_generator.status.generating": "Generating",
+  "tooltip.neomagnamod.mana_generator.status.stopped": "Stopped",
+  "tooltip.mana": "Mana: %s / %s",
+  "tooltip.energy": "Energy: %s / %s",
+  "tooltip.neomagnamod.mana_conduit.line1": "A conduit to transfer mana.",
+  "tooltip.neomagnamod.mana_conduit.line2": "Connects to mana machines and networks.",
+  "tooltip.neomagnamod.mana_conduit.line3": "Supports multi-directional connections.",
+  "tooltip.neomagnamod.mana_conduit.hold_shift": "Hold SHIFT for more details.",
+
+
+  "block.neomagnamod.mana_block": "Mana Block",
+  "block.neomagnamod.magic_ore": "Magic Ore",
+  "block.neomagnamod.deepslate_magic_ore": "Deepslate Magic Ore",
+  "block.neomagnamod.mana_generator": "Mana Generator",
+  "block.neomagnamod.mana_crafting_table": "Mana Crafting Table",
+  "block.neomagnamod.advanced_mana_crafting_table": "Advanced Mana Crafting Table",
+  "block.neomagnamod.mana_conduit": "Mana Conduit",
+
+  "button.mode.auto": "auto mode",
+  "button.mode.manual": "manual mode",
+
+
+
+
+  "creativetab.neomagnamod_items": "Magical Industry Items",
+  "creativetab.neomagnamod_blocks": "Magical Industry Blocks"
+
+
+}

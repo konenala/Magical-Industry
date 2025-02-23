@@ -1,6 +1,6 @@
 package com.github.nalamodikk.common.screen.manacrafting;
 
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.block.blockentity.mana_crafting.ManaCraftingTableBlockEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
-    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(MagicalIndustryMod.MOD_ID, "textures/gui/mana_bar_full.png");
+    private static final ResourceLocation TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_crafting_table_gui.png");
+    private static final ResourceLocation MANA_BAR_FULL = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/gui/mana_bar_full.png");
     private static final Logger LOGGER = LogManager.getLogger();
 
     public ManaCraftingScreen(ManaCraftingMenu container, Inventory inv, Component title) {

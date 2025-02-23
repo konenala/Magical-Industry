@@ -3,7 +3,7 @@ package com.github.nalamodikk.common.register;
 import com.github.nalamodikk.common.block.block.Conduit.ManaConduitBlock;
 import com.github.nalamodikk.common.block.block.ManaGenerator.ManaGeneratorBlock;
 import com.github.nalamodikk.common.block.block.mana_crafting_table.ManaCraftingTableBlock;
-import com.github.nalamodikk.common.MagicalIndustryMod;
+import com.github.nalamodikk.common.NeoMagnaMod;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS =
-            DeferredRegister.create(ForgeRegistries.BLOCKS, MagicalIndustryMod.MOD_ID);
+            DeferredRegister.create(ForgeRegistries.BLOCKS, NeoMagnaMod.MOD_ID);
 
     // 註冊 Mana Block
     public static final RegistryObject<Block> MANA_BLOCK = registerBlock("mana_block",
