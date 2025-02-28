@@ -2,7 +2,6 @@ package com.github.nalamodikk.common.block.block.Conduit;
 
 import com.github.nalamodikk.common.block.blockentity.Conduit.ManaConduitBlockEntity;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
-import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -60,7 +59,6 @@ public class ManaConduitBlock extends ConduitBlock {
     public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
         if (!world.isClientSide) {
-            ManaNetworkManager.getInstance(world).registerConduit(pos);
         }
     }
 
@@ -68,7 +66,6 @@ public class ManaConduitBlock extends ConduitBlock {
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         super.onRemove(state, world, pos, newState, isMoving);
         if (!world.isClientSide) {
-            ManaNetworkManager.getInstance(world).removeConduit(pos);
         }
     }
 }

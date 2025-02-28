@@ -37,7 +37,8 @@ public class ManaGeneratorRenderer extends GeoBlockRenderer<ManaGeneratorBlockEn
         // 在渲染之前處理自定義邏輯，例如添加發光效果
         if (animatable.getBlockState().getValue(ManaGeneratorBlock.WORKING)) {
             // 添加發光邏輯
-            int lightLevel = animatable.getBlockState().getValue(ManaGeneratorBlock.WORKING) ? 15728880 : packedLight; // 15728880 是最大光亮度
+            boolean isWorking = animatable.getBlockState().getValue(ManaGeneratorBlock.WORKING);
+            int lightLevel = isWorking ? 15728880 : packedLight;
 
         }
 

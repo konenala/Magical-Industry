@@ -1,7 +1,6 @@
 package com.github.nalamodikk.common.register;
 
 
-import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorScreen;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingScreen;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigScreen;
 import net.minecraft.client.gui.screens.MenuScreens;

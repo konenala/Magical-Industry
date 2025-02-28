@@ -11,10 +11,10 @@ public class FuelRecipeProvider {
 
     public static void buildFuelRecipes(Consumer<FinishedRecipe> pWriter) {
         // 定義你的燃料配方
-        FuelRecipeBuilder.create("magical_industry:corrupted_mana_dust", 200, 100, 300, "corrupted_mana_dust_fuel")
+        FuelRecipeBuilder.create("neomagnamod:corrupted_mana_dust", 200, 100, 300, "corrupted_mana_dust_fuel")
                 .save(pWriter);
 
-        FuelRecipeBuilder.create("magical_industry:mana_dust", 400, 100, 500, "mana_dust_fuel")
+        FuelRecipeBuilder.create("neomagnamod:mana_dust", 400, 100, 500, "mana_dust_fuel")
                 .save(pWriter);
 
     }

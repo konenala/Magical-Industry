@@ -75,8 +75,8 @@ public class BasicTechWandItem extends Item {
             TechWandMode currentMode = getMode(stack);
             TechWandMode newMode = currentMode.next();
             setMode(stack, newMode);
-            serverPlayer.displayClientMessage(Component.translatable("message.magical_industry.mode_changed",
-                    Component.translatable("mode.magical_industry." + newMode.name().toLowerCase())), true);
+            serverPlayer.displayClientMessage(Component.translatable("message.neomagnamod.mode_changed",
+                    Component.translatable("mode.neomagnamod." + newMode.name().toLowerCase())), true);
         }
     }
 
@@ -105,13 +105,13 @@ public class BasicTechWandItem extends Item {
                     stack.setTag(tag);
 
                     // 向玩家顯示一條消息，確認選擇了哪個方塊
-                    player.displayClientMessage(Component.translatable("message.magical_industry.block_selected", targetBlockPos), true);
+                    player.displayClientMessage(Component.translatable("message.neomagnamod.block_selected", targetBlockPos), true);
                     event.setCanceled(true); // 防止默認左鍵行為，例如破壞方塊
                 } else {
-                    player.displayClientMessage(Component.translatable("message.magical_industry.block_not_configurable"), true);
+                    player.displayClientMessage(Component.translatable("message.neomagnamod.block_not_configurable"), true);
                 }
             } else {
-                player.displayClientMessage(Component.translatable("message.magical_industry.no_block_selected"), true);
+                player.displayClientMessage(Component.translatable("message.neomagnamod.no_block_selected"), true);
             }
         }
     }
@@ -138,15 +138,15 @@ public class BasicTechWandItem extends Item {
                             boolean isCurrentlyOutput = configurableBlock.isOutput(clickedFace);
                             configurableBlock.setDirectionConfig(clickedFace, !isCurrentlyOutput);
                             player.displayClientMessage(Component.translatable(
-                                    "message.magical_industry.config_changed",
-                                    clickedFace.getName(), !isCurrentlyOutput ? Component.translatable("mode.magical_industry.output") : Component.translatable("mode.magical_industry.input")), true);
+                                    "message.neomagnamod.config_changed",
+                                    clickedFace.getName(), !isCurrentlyOutput ? Component.translatable("mode.neomagnamod.output") : Component.translatable("mode.neomagnamod.input")), true);
                             return InteractionResult.SUCCESS;
 
                         case CONFIGURE_IO:
                             // 直接開啟配置界面，不在這裡改變方向配置
                             NetworkHooks.openScreen((ServerPlayer) player, new SimpleMenuProvider(
                                     (id, playerInventory, playerEntity) -> new UniversalConfigMenu(id, playerInventory, blockEntity, stack),
-                                    Component.translatable("screen.magical_industry.configure_io")
+                                    Component.translatable("screen.neomagnamod.configure_io")
                             ), buf -> {
                                 buf.writeBlockPos(blockEntity.getBlockPos());
                                 buf.writeItem(stack);
@@ -164,9 +164,9 @@ public class BasicTechWandItem extends Item {
 //                                        if (wandMana.extractMana(manaToConsume, ManaAction.get(true)) >= manaToConsume) {
 //                                            wandMana.extractMana(manaToConsume, ManaAction.get(false));
 //                                            manaCap.ifPresent(mana -> mana.receiveMana(manaToConsume, ManaAction.get(false)));
-//                                            player.displayClientMessage(Component.translatable("message.magical_industry.add_mana_success"), true);
+//                                            player.displayClientMessage(Component.translatable("message.neomagnamod.add_mana_success"), true);
 //                                        } else {
-//                                            player.displayClientMessage(Component.translatable("message.magical_industry.not_enough_mana"), true);
+//                                            player.displayClientMessage(Component.translatable("message.neomagnamod.not_enough_mana"), true);
 //                                        }
 //                                    });
 //                                    return InteractionResult.SUCCESS;
@@ -182,17 +182,17 @@ public class BasicTechWandItem extends Item {
                                 Direction newDirection = currentDirection.getClockWise();
                                 BlockState newState = state.setValue(BlockStateProperties.FACING, newDirection);
                                 level.setBlock(pos, newState, 3);
-                                player.displayClientMessage(Component.translatable("message.magical_industry.block_rotated_facing"), true);
+                                player.displayClientMessage(Component.translatable("message.neomagnamod.block_rotated_facing"), true);
                                 return InteractionResult.SUCCESS;
                             } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                                 Direction currentDirection = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
                                 Direction newDirection = currentDirection.getClockWise();
                                 BlockState newState = state.setValue(BlockStateProperties.HORIZONTAL_FACING, newDirection);
                                 level.setBlock(pos, newState, 3);
-                                player.displayClientMessage(Component.translatable("message.magical_industry.block_rotated_horizontal"), true);
+                                player.displayClientMessage(Component.translatable("message.neomagnamod.block_rotated_horizontal"), true);
                                 return InteractionResult.SUCCESS;
                             } else {
-                                player.displayClientMessage(Component.translatable("message.magical_industry.block_cannot_rotate"), true);
+                                player.displayClientMessage(Component.translatable("message.neomagnamod.block_cannot_rotate"), true);
                             }
                             break;
                     }
@@ -223,7 +223,7 @@ public class BasicTechWandItem extends Item {
         super.appendHoverText(stack, world, tooltip, flag);
 
         // 显示当前模式
-        tooltip.add(Component.translatable("tooltip.magical_industry.mode", Component.translatable("mode.magical_industry." + getMode(stack).name().toLowerCase())));
+        tooltip.add(Component.translatable("tooltip.neomagnamod.mode", Component.translatable("mode.neomagnamod." + getMode(stack).name().toLowerCase())));
 
         // 显示保存的方块方向配置信息
         CompoundTag tag = stack.getTag();
@@ -247,11 +247,11 @@ public class BasicTechWandItem extends Item {
                             .map(String::toLowerCase)
                             .collect(Collectors.joining(", "));
                     String configType = entry.getKey() ? "Output" : "Input";
-                    tooltip.add(Component.translatable("tooltip.magical_industry.saved_direction_config", directionNames, configType));
+                    tooltip.add(Component.translatable("tooltip.neomagnamod.saved_direction_config", directionNames, configType));
                 }
             }
         } else {
-            tooltip.add(Component.translatable("tooltip.magical_industry.no_saved_block"));
+            tooltip.add(Component.translatable("tooltip.neomagnamod.no_saved_block"));
         }
     }
 

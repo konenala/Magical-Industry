@@ -185,6 +185,15 @@ dependencies {
     compileOnly   fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
     runtimeOnly    fg.deobf("curse.maven:the-one-probe-245211:${top_id}")
 
+
+    // test
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+
+
     compileOnly  fg.deobf("mcp.mobius.waila:wthit-api:forge-${wthitVersion}")
 
     // run against the full jar
@@ -249,15 +258,15 @@ tasks.register('copyGeneratedResources', Copy) {
     description = 'Copy generated resources to src/generated'
 
     // 複製來源目錄
-    from('build/resources/main/data/magical_industry/recipes/fuel_rates') {
+    from('build/resources/main/data/neomagnamod/recipes/fuel_rates') {
         include '**/*' // 包含所有文件
     }
-    from('build/resources/main/data/magical_industry/rate') {
+    from('build/resources/main/data/neomagnamod/rate') {
         include '**/*' // 包含所有文件
     }
 
     // 目標目錄
-    into('src/generated/resources/data/magical_industry') // 複製到 src/generated 下相應的路徑
+    into('src/generated/resources/data/neomagnamod') // 複製到 src/generated 下相應的路徑
 
     // 確保構建過程先完成資源生成
     dependsOn 'processResources'

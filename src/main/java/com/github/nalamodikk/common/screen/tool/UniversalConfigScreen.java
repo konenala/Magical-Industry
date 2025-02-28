@@ -124,8 +124,8 @@ public class UniversalConfigScreen extends AbstractContainerScreen<UniversalConf
 
             // 顯示玩家通知
             Minecraft.getInstance().player.displayClientMessage(Component.translatable(
-                    "message.magical_industry.config_button_clicked",
-                    direction.getName(), newConfig ? Component.translatable("mode.magical_industry.output") : Component.translatable("mode.magical_industry.input")), true);
+                    "message.neomagnamod.config_button_clicked",
+                    direction.getName(), newConfig ? Component.translatable("mode.neomagnamod.output") : Component.translatable("mode.neomagnamod.input")), true);
 
             // 更新界面中的按鈕顯示
             updateAllButtonTooltipsAndTextures();
@@ -145,9 +145,9 @@ public class UniversalConfigScreen extends AbstractContainerScreen<UniversalConf
 
     private MutableComponent getTooltipText(Direction direction) {
         String configType = currentConfig.getOrDefault(direction, false) ? "output" : "input";
-        return Component.translatable("screen.magical_industry.configure_side", direction.getName())
+        return Component.translatable("screen.neomagnamod.configure_side", direction.getName())
                 .append(" ")
-                .append(Component.translatable("screen.magical_industry." + configType));
+                .append(Component.translatable("screen.neomagnamod." + configType));
     }
 
     @Override

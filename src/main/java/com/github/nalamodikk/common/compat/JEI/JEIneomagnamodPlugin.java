@@ -18,7 +18,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import java.util.List;
 
 @JeiPlugin
-public class JEIMagical_IndustryPlugin implements IModPlugin {
+public class JEIneomagnamodPlugin implements IModPlugin {
 
     public static final ResourceLocation PLUGIN_UID = new ResourceLocation(NeoMagnaMod.MOD_ID, "jei_plugin");
 

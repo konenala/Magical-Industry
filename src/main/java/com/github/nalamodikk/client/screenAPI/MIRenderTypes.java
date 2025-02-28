@@ -33,7 +33,7 @@ public class MIRenderTypes {
 
     public static RenderType machineOverlay() {
         if (MACHINE_WRENCH_OVERLAY == null) {
-            MACHINE_WRENCH_OVERLAY = Factory.makeMachineOverlay();
+            MACHINE_WRENCH_OVERLAY = Factory.machineOverlay();
         }
         return MACHINE_WRENCH_OVERLAY;
     }
@@ -53,15 +53,19 @@ public class MIRenderTypes {
             super(string, vertexFormat, mode, i, bl, bl2, runnable, runnable2);
         }
 
-        private static RenderType makeMachineOverlay() {
-            return create("machine_overlay", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.QUADS, 65536, false, true,
-                    CompositeState.builder()
-                            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                            .setTextureState(NO_TEXTURE)
-                            .setLightmapState(NO_LIGHTMAP)
-                            .setShaderState(POSITION_COLOR_SHADER)
-                            .createCompositeState(false));
+        private static final RenderType MACHINE_OVERLAY = RenderType.create("machine_overlay",
+                DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.QUADS, 65536, false, true,
+                CompositeState.builder()
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setTextureState(NO_TEXTURE)
+                        .setLightmapState(NO_LIGHTMAP)
+                        .setShaderState(POSITION_COLOR_SHADER)
+                        .createCompositeState(false));
+
+        public static RenderType machineOverlay() {
+            return MACHINE_OVERLAY;
         }
+
 
         private static RenderType makeSolidHighlight() {
             return create("solid_highlight", DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.QUADS, 65536, false, false,

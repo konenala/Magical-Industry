@@ -101,7 +101,7 @@ public class ManaCraftingScreen extends AbstractContainerScreen<ManaCraftingMenu
 
             // 创建要显示的工具提示内容
             List<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.translatable("tooltip.magical_industry.mana_stored", manaStored, maxMana));
+            tooltip.add(Component.translatable("tooltip.neomagnamod.mana_stored", manaStored, maxMana));
 
             // 显示工具提示
             guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);

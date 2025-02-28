@@ -38,16 +38,21 @@ public class DynamicTooltip {
     }
 
     public List<FormattedCharSequence> toCharSequence(Minecraft minecraft, int maxWidth) {
+        List<Component> components = tooltipSupplier.get();
+        if (components == null || components.isEmpty()) {
+            return List.of(); // 避免 NullPointerException
+        }
+
         List<FormattedCharSequence> charSequences = new ArrayList<>();
-        for (Component component : tooltipSupplier.get()) {
+        for (Component component : components) {
             charSequences.addAll(minecraft.font.split(component, maxWidth));
         }
         return charSequences;
     }
 
     public List<Component> toComponentList() {
-        return tooltipSupplier.get();
-        }
+        return tooltipSupplier.get() != null ? tooltipSupplier.get() : List.of();
+    }
 }
 
 

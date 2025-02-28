@@ -31,7 +31,7 @@ public class FuelRateLoader extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuelRateLoader.class);
     private static final Gson GSON = new Gson();
     private static final Map<String, FuelRate> FUEL_RATES = new HashMap<>();
-    private static final String DEFAULT_NAMESPACE = "magical_industry";
+    private static final String DEFAULT_NAMESPACE = "neomagnamod";
     private static final int DEFAULT_BURN_TIME = 200;  // 默認燃燒時間
     private static final int DEFAULT_ENERGY_RATE = 1;
 

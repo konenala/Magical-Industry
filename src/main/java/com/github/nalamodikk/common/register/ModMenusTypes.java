@@ -1,7 +1,6 @@
 package com.github.nalamodikk.common.register;
 
 import com.github.nalamodikk.common.NeoMagnaMod;
-import com.github.nalamodikk.common.screen.ManaGenerator.ManaGeneratorMenu;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
 import com.github.nalamodikk.common.screen.tool.UniversalConfigMenu;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -25,8 +24,8 @@ public class ModMenusTypes {
     }));
 
     // 添加菜單類型註冊
-    public static final RegistryObject<MenuType<ManaGeneratorMenu>> MANA_GENERATOR_MENU =
-            registerMenuType("mana_generator_menu", ManaGeneratorMenu::new);
+//    public static final RegistryObject<MenuType<ManaGeneratorMenu>> MANA_GENERATOR_MENU =
+//            registerMenuType("mana_generator_menu", ManaGeneratorMenu::new);
 
     public static final RegistryObject<MenuType<UniversalConfigMenu>> UNIVERSAL_CONFIG =
             registerMenuType("universal_config", UniversalConfigMenu::new

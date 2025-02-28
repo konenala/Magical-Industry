@@ -35,7 +35,7 @@ public class ToggleModePacket {
                 if (blockEntity instanceof ManaGeneratorBlockEntity manaGenerator) {
                     // 检查工作状态
                     if (manaGenerator.getWorkingStatus()) {
-                        player.displayClientMessage(Component.translatable("message.magical_industry.cannot_toggle_while_working"), true);
+                        player.displayClientMessage(Component.translatable("message.neomagnamod.cannot_toggle_while_working"), true);
                     } else {
                         manaGenerator.toggleMode();
                         manaGenerator.setChanged(); // 标记数据变化

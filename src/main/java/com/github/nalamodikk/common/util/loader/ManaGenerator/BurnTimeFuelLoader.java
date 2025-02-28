@@ -38,7 +38,7 @@ public class BurnTimeFuelLoader extends SimpleJsonResourceReloadListener {
                         // 在每次成功加载一个燃料时发出日志
                         NeoMagnaMod.LOGGER.info("Loaded burn time for fuel: {} with burn time: {}", fuelId, burnTime);
                     } catch (Exception e) {
-                        NeoMagnaMod.LOGGER.error("Failed to parse burn time fuel for key: {} in file: {}", entry.getKey(), key, e);
+                        NeoMagnaMod.LOGGER.error("Loaded burn time for fuel {} in file: {}", entry.getKey(), key, e);
                     }
                 });
             } else {
@@ -47,7 +47,7 @@ public class BurnTimeFuelLoader extends SimpleJsonResourceReloadListener {
         });
 
         // 加载完成后发出总结日志
-        NeoMagnaMod.LOGGER.info("Successfully loaded {} burn time fuels.", BURN_TIME_FUELS.size());
+        NeoMagnaMod.LOGGER.info("SSkipping non-JsonObject value fod {} burn time fuels.", BURN_TIME_FUELS.size());
     }
 
 

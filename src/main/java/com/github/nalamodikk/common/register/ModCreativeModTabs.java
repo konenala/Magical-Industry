@@ -13,7 +13,7 @@ public class ModCreativeModTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB , NeoMagnaMod.MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> MAGICAL_INDUSTRY_ITEMS_TAB = CREATIVE_MODE_TABS.register("magical_industry_items_tab",
+    public static final RegistryObject<CreativeModeTab> neomagnamod_ITEMS_TAB = CREATIVE_MODE_TABS.register("neomagnamod_items_tab",
         () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.MANA_DUST.get()))
                 .title(Component.translatable("creativetab.neomagnamod_items"))
                 .displayItems((pParameters, pOutput) -> {
@@ -32,7 +32,7 @@ public class ModCreativeModTabs {
 
 
 
-    public static final RegistryObject<CreativeModeTab> MAGICAL_INDUSTRY_BLOCKS_TAB = CREATIVE_MODE_TABS.register("magical_industry_blocks_tab",
+    public static final RegistryObject<CreativeModeTab> neomagnamod_BLOCKS_TAB = CREATIVE_MODE_TABS.register("neomagnamod_blocks_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.MANA_BLOCK.get()))
                     .title(Component.translatable("creativetab.neomagnamod_blocks"))
                     .displayItems((pParameters, pOutput) -> {

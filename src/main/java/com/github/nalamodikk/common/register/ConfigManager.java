@@ -19,8 +19,8 @@ public class ConfigManager {
     }
 
     public static void registerConfigs() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC, "magical_industry/ManaGeneratorBlock-common.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ManaConduitConfig.SPEC, "magical_industry/ManaConduit-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC, "neomagnamod/ManaGeneratorBlock-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ManaConduitConfig.SPEC, "neomagnamod/ManaConduit-common.toml");
     }
 
     // ✅ **正確讀取設定值的時機：當 Forge 完成設定載入後**

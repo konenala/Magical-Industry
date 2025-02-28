@@ -6,7 +6,6 @@ import com.github.nalamodikk.common.Capability.ManaStorage;
 import com.github.nalamodikk.common.Capability.ModCapabilities;
 import com.github.nalamodikk.common.NeoMagnaMod;
 import com.github.nalamodikk.common.mana.ManaAction;
-import com.github.nalamodikk.common.network.mana_net.ManaNetworkManager;
 import com.github.nalamodikk.common.register.ModBlockEntities;
 import com.github.nalamodikk.common.recipe.ManaCraftingTableRecipe;
 import com.github.nalamodikk.common.screen.manacrafting.ManaCraftingMenu;
@@ -73,15 +72,10 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
                 blockEntity.extractManaFromNeighbors();
 
                 // 2️⃣ 從導管網路請求魔力（改為讀取 `ManaConduitConfigLoader` 的傳輸速率）
-                ManaNetworkManager manager = ManaNetworkManager.getInstance(level);
                 int maxTransferRate = ManaConduitConfigLoader.getTransferRate(); // 讀取目前設定的導管傳輸速率
                 int manaRequested = Math.min(maxTransferRate, blockEntity.getNeededMana(0)); // 限制請求量不超過設定值
-                int manaReceived = (int) manager.requestMana(pos, manaRequested);
 
-                if (manaReceived > 0) {
-                    blockEntity.addMana(manaReceived, ManaAction.EXECUTE);
-                    NeoMagnaMod.LOGGER.debug("ManaCraftingTable requested {} mana and received {}", manaRequested, manaReceived);
-                }
+
 
                 // 重設冷卻時間
                 blockEntity.manaCheckCooldown = 10;
@@ -356,7 +350,7 @@ public class ManaCraftingTableBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.magical_industry.mana_crafting_table");
+        return Component.translatable("block.neomagnamod.mana_crafting_table");
     }
 
     @Override

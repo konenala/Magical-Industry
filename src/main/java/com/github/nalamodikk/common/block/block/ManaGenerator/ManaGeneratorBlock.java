@@ -27,21 +27,18 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 public class ManaGeneratorBlock extends BaseEntityBlock {
+    public static final BooleanProperty WORKING = BooleanProperty.create("working");
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private final FacingHandler facingHandler = new FacingHandler();
+
     public ManaGeneratorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(WORKING, false));
-
     }
-    private final FacingHandler facingHandler = new FacingHandler();
-    public static final BooleanProperty WORKING = BooleanProperty.create("working");
-
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
-        builder.add(WORKING);
+        builder.add(FACING, WORKING);
     }
 
     @Override
@@ -54,44 +51,30 @@ public class ManaGeneratorBlock extends BaseEntityBlock {
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
-
-
-
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
 
-            // 如果是 ManaCraftingTableBlockEntity，掉落物品
-            if (blockEntity instanceof ManaGeneratorBlockEntity) {
-                ((ManaGeneratorBlockEntity) blockEntity).drops();  // 掉落方塊內的物品
-            }
-
-            // 如果是 ManaGeneratorBlockEntity，移除方塊實體
-            if (blockEntity instanceof ManaGeneratorBlockEntity) {
-                level.removeBlockEntity(pos);
+            // 如果是 ManaGeneratorBlockEntity，掉落物品
+            if (blockEntity instanceof ManaGeneratorBlockEntity generator) {
+                generator.drops();  // 掉落方塊內的物品
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);
     }
 
-
-
-    //    state, level, pos, newState, isMovin
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!world.isClientSide && player instanceof ServerPlayer) {
-            // 打開界面
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof ManaGeneratorBlockEntity) {
-                NetworkHooks.openScreen((ServerPlayer) player, (ManaGeneratorBlockEntity) blockEntity, pos);
-            } else {
-                throw new IllegalStateException("Our container provider is missing!");
+            if (blockEntity instanceof ManaGeneratorBlockEntity generator) {
+                NetworkHooks.openScreen((ServerPlayer) player, generator, pos);
+                return InteractionResult.SUCCESS;
             }
         }
-        return InteractionResult.SUCCESS;  // 返回成功表示成功處理交互
+        return InteractionResult.PASS;
     }
-
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -101,15 +84,11 @@ public class ManaGeneratorBlock extends BaseEntityBlock {
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorBlockEntity::serverTick);
+        return level.isClientSide ? null : createTickerHelper(blockEntityType, ModBlockEntities.MANA_GENERATOR_BE.get(), ManaGeneratorBlockEntity::serverTick);
     }
-
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
-
     }
-
-
 }

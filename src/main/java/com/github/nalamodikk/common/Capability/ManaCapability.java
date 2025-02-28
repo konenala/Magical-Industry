@@ -29,7 +29,7 @@ public class ManaCapability {
                 if (!blockEntity.getCapability(ManaCapability.MANA).isPresent()) {
                     // 創建並注入 Mana 能力
                     event.addCapability(
-                            new ResourceLocation("magical_industry", "mana"),
+                            new ResourceLocation("neomagnamod", "mana"),
                             new ManaProvider()
                     );
                 }

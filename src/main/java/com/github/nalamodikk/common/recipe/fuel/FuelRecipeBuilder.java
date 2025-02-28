@@ -36,7 +36,7 @@ public class FuelRecipeBuilder implements FinishedRecipe {
 
     @Override
     public void serializeRecipeData(JsonObject json) {
-        json.addProperty("type", "magical_industry:mana_fuel");
+        json.addProperty("type", "neomagnamod:mana_fuel");
         JsonObject ingredient = new JsonObject();
         ingredient.addProperty("item", itemId); // 確保 "item" 屬性正確生成
         json.add("ingredient", ingredient);

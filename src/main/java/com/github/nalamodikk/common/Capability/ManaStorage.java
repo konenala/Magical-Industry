@@ -2,18 +2,21 @@ package com.github.nalamodikk.common.Capability;
 
 import com.github.nalamodikk.common.mana.ManaAction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * ManaStorage 是一個魔力存儲類，支持插入、提取以及同步功能。
  */
-public class ManaStorage implements IUnifiedManaHandler {
+public class ManaStorage implements IUnifiedManaHandler , INBTSerializable<CompoundTag>  {
     public static final Capability<IUnifiedManaHandler> MANA = CapabilityManager.get(new CapabilityToken<>() {});
+    private int storedMana;
 
     private int mana; // 當前魔力存儲量
     private final int capacity; // 最大魔力存儲量
@@ -152,4 +155,17 @@ public class ManaStorage implements IUnifiedManaHandler {
         }
     }
 
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("StoredMana", storedMana); // 存入魔力數值
+        tag.putInt("Capacity", capacity);     // 存入魔力容量（可選）
+        return tag;
+    }
+
+    // ✅ **從 NBT 讀取魔力數據**
+    @Override
+    public void deserializeNBT(CompoundTag tag) {
+        this.storedMana = tag.getInt("StoredMana"); // 讀取魔力數值
+    }
 }

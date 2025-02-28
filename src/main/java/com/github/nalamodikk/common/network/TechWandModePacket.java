@@ -40,8 +40,8 @@ public class TechWandModePacket {
                     }
                     // 顯示本地化信息給玩家
                     player.displayClientMessage(
-                            Component.translatable("message.magical_industry.mode_changed",
-                                    Component.translatable("mode.magical_industry." + wand.getMode(stack).name().toLowerCase())),
+                            Component.translatable("message.neomagnamod.mode_changed",
+                                    Component.translatable("mode.neomagnamod." + wand.getMode(stack).name().toLowerCase())),
                             true
                     );
                 }

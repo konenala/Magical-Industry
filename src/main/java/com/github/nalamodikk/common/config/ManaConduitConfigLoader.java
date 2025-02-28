@@ -18,7 +18,7 @@ import java.util.Map;
 public class ManaConduitConfigLoader extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new Gson();
     private static int transferRate = -1;
-    private static final Path CONFIG_PATH = Paths.get("config/magical_industry/mana_conduit_transfer.json");
+    private static final Path CONFIG_PATH = Paths.get("config/neomagnamod/mana_conduit_transfer.json");
 
     public ManaConduitConfigLoader() {
         super(GSON, "config");

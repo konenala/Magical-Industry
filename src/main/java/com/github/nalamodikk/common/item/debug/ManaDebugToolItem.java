@@ -28,7 +28,7 @@ import net.minecraftforge.network.PacketDistributor;
 public class ManaDebugToolItem extends Item {
 
     private static final int[] MANA_AMOUNTS = {10, 100, 1000};
-    private static final String[] MODES = {"message.magical_industry.mana_mode_add_10", "message.magical_industry.mana_mode_add_100", "message.magical_industry.mana_mode_add_1000"};
+    private static final String[] MODES = {"message.neomagnamod.mana_mode_add_10", "message.neomagnamod.mana_mode_add_100", "message.neomagnamod.mana_mode_add_1000"};
     private int modeIndex = 0;
 
     public ManaDebugToolItem(Properties properties) {
@@ -54,7 +54,7 @@ public class ManaDebugToolItem extends Item {
                     // 向玩家顯示訊息
                     Player player = context.getPlayer();
                     if (player instanceof ServerPlayer serverPlayer) {
-                        serverPlayer.displayClientMessage(Component.translatable("message.magical_industry.mana_added", manaToAdd, manaStorage.getMana()), true);
+                        serverPlayer.displayClientMessage(Component.translatable("message.neomagnamod.mana_added", manaToAdd, manaStorage.getMana()), true);
                     }
 
                     // 確保狀態已更新並同步到所有客戶端
@@ -91,7 +91,7 @@ public class ManaDebugToolItem extends Item {
             if (heldItem.getItem() instanceof ManaDebugToolItem && player.isCrouching()) {
                 ManaDebugToolItem manaDebugToolItem = (ManaDebugToolItem) heldItem.getItem();
                 manaDebugToolItem.cycleMode(event.getScrollDelta() > 0);
-                player.displayClientMessage(Component.translatable("message.magical_industry.mana_mode_changed", manaDebugToolItem.getCurrentModeDescription()), true);
+                player.displayClientMessage(Component.translatable("message.neomagnamod.mana_mode_changed", manaDebugToolItem.getCurrentModeDescription()), true);
                 event.setCanceled(true); // 阻止玩家切換物品欄位
             }
         }

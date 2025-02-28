@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 
 public class ManaGeneratorBlockItemModel extends GeoModel<ManaGeneratorBlockItem> {
+    public static final ResourceLocation MANA_GENERATOR_TEXTURE = new ResourceLocation(NeoMagnaMod.MOD_ID, "textures/block/mana_generator_texture.png");
+
     @Override
     public ResourceLocation getModelResource(ManaGeneratorBlockItem animatable) {
         return new ResourceLocation(NeoMagnaMod.MOD_ID, "geo/mana_generator.geo.json");

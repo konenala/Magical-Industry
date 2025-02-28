@@ -47,7 +47,7 @@ public class ManaCraftingTableCategory implements IRecipeCategory<ManaCraftingTa
 
     @Override
     public Component getTitle() {
-        return Component.translatable("block.magical_industry.mana_crafting_table");
+        return Component.translatable("block.neomagnamod.mana_crafting_table");
     }
 
     @Override
@@ -86,7 +86,7 @@ public class ManaCraftingTableCategory implements IRecipeCategory<ManaCraftingTa
                 .addItemStack(new ItemStack(ModItems.MANA_DUST.get()))  // 使用一个象征魔力的物品
                 .addTooltipCallback((recipeSlotView, tooltip) -> {
                     if (recipeSlotView.getRole() == RecipeIngredientRole.CATALYST) {
-                        tooltip.add(Component.translatable("tooltip.magical_industry.mana_cost", recipe.getManaCost()));
+                        tooltip.add(Component.translatable("tooltip.neomagnamod.mana_cost", recipe.getManaCost()));
                     }
                 });
 
